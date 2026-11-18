@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import '../models/profil.dart';
 import '../providers/profil_provider.dart';
 import '../services/validation_profil.dart';
+import '../widgets/avatar_profil.dart';
 import '../widgets/carte_douce.dart';
 import '../widgets/carte_objectif_calorique.dart';
 import '../widgets/format.dart';
+import '../widgets/logo_kira.dart';
 
 /// Accueil du tout premier lancement : plusieurs pages illustrées
 /// pour faire connaissance et créer le profil, étape par étape.
@@ -36,6 +38,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   NiveauActivite _niveau = NiveauActivite.leger;
   bool _objectifTropBas = false;
 
+  /// Photo de profil facultative (base64), choisie sur la page « Faisons connaissance ».
+  String? _photo;
+
   @override
   void dispose() {
     _pages.dispose();
@@ -54,6 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         poidsObjectifKg: lireDecimal(_poidsObjectif.text)!,
         niveauActivite: _niveau,
         sexe: _sexe,
+        photoBase64: _photo,
       );
 
   void _verifierObjectif() {
@@ -163,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _pageBienvenue(ThemeData theme) {
     return _PageOnboarding(
-      emoji: '🌸',
+      illustration: const LogoKira(taille: 120),
       titre: 'Bienvenue dans Kira\'s FAT',
       texte: 'Une app pour prendre soin de toi, à ton rythme, sans pression.',
       enfants: const [
@@ -178,9 +184,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Form(
       key: _formulaires[1],
       child: _PageOnboarding(
-        emoji: '👋',
+        // Rond à toucher pour ajouter sa photo (facultatif).
+        illustration: AvatarProfil(
+          key: const Key('avatar_onboarding'),
+          photoBase64: _photo,
+          prenom: _prenom.text,
+          taille: 120,
+          badgeAppareilPhoto: true,
+          onTap: () async {
+            final photo = await choisirPhotoProfil(context);
+            if (photo != null) setState(() => _photo = photo);
+          },
+        ),
         titre: 'Faisons connaissance',
-        texte: 'Tes réponses restent sur ton appareil.',
+        texte: 'Touche le rond pour ajouter ta photo (facultatif). '
+            'Tes réponses restent sur ton appareil.',
         enfants: [
           TextFormField(
             key: const Key('champ_prenom'),
@@ -333,13 +351,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 /// Les éléments apparaissent en cascade.
 class _PageOnboarding extends StatelessWidget {
   const _PageOnboarding({
-    required this.emoji,
+    this.emoji = '',
+    this.illustration,
     required this.titre,
     required this.texte,
     required this.enfants,
   });
 
   final String emoji;
+
+  /// Illustration à la place de l'emoji (par exemple le logo).
+  final Widget? illustration;
   final String titre;
   final String texte;
   final List<Widget> enfants;
@@ -351,7 +373,7 @@ class _PageOnboarding extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       children: [
         Center(
-          child: Container(
+          child: (illustration ?? Container(
             width: 120,
             height: 120,
             alignment: Alignment.center,
@@ -360,7 +382,7 @@ class _PageOnboarding extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Text(emoji, style: const TextStyle(fontSize: 56)),
-          )
+          ))
               .animate()
               .scale(
                 begin: const Offset(0.5, 0.5),

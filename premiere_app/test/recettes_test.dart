@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/main.dart';
 import 'package:premiere_app/models/recette.dart';
 import 'package:premiere_app/providers/recompenses_provider.dart';
+import 'package:premiere_app/screens/accueil_screen.dart';
 import 'package:premiere_app/screens/recettes_screen.dart';
 import 'package:premiere_app/services/recettes_service.dart';
 import 'package:premiere_app/services/recompenses_service.dart';
@@ -40,7 +41,13 @@ void main() {
     await tester.pumpWidget(FormeDouceApp(stockage: await preparerStockage(avecProfil: true)));
     await tester.pumpAndSettle();
     final carte = find.byKey(const Key('carte_recettes'));
-    await tester.scrollUntilVisible(carte, 300, scrollable: find.byType(Scrollable).first);
+    // On fait défiler la liste de l'accueil jusqu'à la carte, puis on la centre.
+    await tester.scrollUntilVisible(carte, 300,
+        scrollable: find
+            .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
+            .first);
+    await tester.ensureVisible(carte);
+    await tester.pumpAndSettle();
     await tester.tap(carte);
     await tester.pumpAndSettle();
     expect(find.byType(RecettesScreen), findsOneWidget);

@@ -6,6 +6,7 @@ import '../models/profil.dart';
 import '../providers/poids_provider.dart';
 import '../providers/profil_provider.dart';
 import '../services/validation_profil.dart';
+import '../widgets/avatar_profil.dart';
 import '../widgets/carte_douce.dart';
 import '../widgets/carte_objectif_calorique.dart';
 import '../widgets/format.dart';
@@ -63,6 +64,55 @@ class _ProfilScreenState extends State<ProfilScreen> {
     if (tropBas != _objectifTropBas) setState(() => _objectifTropBas = tropBas);
   }
 
+  /// Choisir, changer ou retirer la photo de profil.
+  Future<void> _changerPhoto() async {
+    final provider = context.read<ProfilProvider>();
+    final profil = provider.profil;
+    if (profil == null) return;
+
+    // S'il y a déjà une photo, on propose aussi de la retirer.
+    var action = 'choisir';
+    if (profil.photoBase64 != null) {
+      final choix = await showModalBottomSheet<String>(
+        context: context,
+        showDragHandle: true,
+        builder: (context) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded),
+                title: const Text('Choisir une autre photo'),
+                onTap: () => Navigator.of(context).pop('choisir'),
+              ),
+              ListTile(
+                key: const Key('retirer_photo'),
+                leading: const Icon(Icons.hide_image_outlined),
+                title: const Text('Retirer la photo'),
+                onTap: () => Navigator.of(context).pop('retirer'),
+              ),
+            ],
+          ),
+        ),
+      );
+      if (choix == null) return;
+      action = choix;
+    }
+
+    if (action == 'retirer') {
+      await provider.enregistrer(profil.copyWith(retirerPhoto: true));
+      return;
+    }
+    if (!mounted) return;
+    final photo = await choisirPhotoProfil(context);
+    if (photo == null) return;
+    await provider.enregistrer(profil.copyWith(photoBase64: photo));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Jolie photo ! Elle reste uniquement sur ton appareil 🌸')),
+    );
+  }
+
   Future<void> _enregistrer() async {
     FocusScope.of(context).unfocus();
     _verifierObjectif();
@@ -76,6 +126,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
       poidsObjectifKg: lireDecimal(_poidsObjectif.text)!,
       niveauActivite: _niveau,
       sexe: _sexe,
+      // On garde la photo de profil déjà choisie.
+      photoBase64: context.read<ProfilProvider>().profil?.photoBase64,
     );
     await context.read<ProfilProvider>().enregistrer(profil);
     if (!mounted) return;
@@ -116,27 +168,35 @@ class _ProfilScreenState extends State<ProfilScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                 children: [
-                  // En-tête : pastille avec l'initiale.
+                  // En-tête : photo de profil (touchable pour la changer).
                   if (profil != null)
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 32,
-                          backgroundColor: theme.colorScheme.primaryContainer,
-                          child: Text(
-                            profil.prenom.characters.first.toUpperCase(),
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              color: theme.colorScheme.onPrimaryContainer,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
+                        AvatarProfil(
+                          key: const Key('avatar_profil'),
+                          photoBase64: profil.photoBase64,
+                          prenom: profil.prenom,
+                          taille: 88,
+                          badgeAppareilPhoto: true,
+                          onTap: _changerPhoto,
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: Text(
-                            'Bonjour ${profil.prenom} 🌸',
-                            style: theme.textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w700),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Bonjour ${profil.prenom} 🌸',
+                                style: theme.textTheme.titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                profil.photoBase64 == null
+                                    ? 'Touche le rond pour ajouter ta photo'
+                                    : 'Touche ta photo pour la changer',
+                                style: theme.textTheme.bodySmall,
+                              ),
+                            ],
                           ),
                         ),
                       ],

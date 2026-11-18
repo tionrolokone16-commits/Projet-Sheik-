@@ -13,6 +13,7 @@ import '../services/messages_service.dart';
 import '../services/plante_service.dart';
 import '../providers/recompenses_provider.dart';
 import '../services/recompenses_service.dart';
+import '../widgets/avatar_profil.dart';
 import '../widgets/plante.dart';
 import 'chemin_screen.dart';
 import 'recettes_screen.dart';
@@ -81,8 +82,16 @@ class AccueilScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      AvatarProfil(
+                        key: const Key('avatar_accueil'),
+                        photoBase64: profil?.photoBase64,
+                        prenom: profil?.prenom ?? '',
+                        taille: 60,
+                        onTap: () => onAllerOnglet?.call(3),
+                      ),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

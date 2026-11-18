@@ -7,6 +7,7 @@ import '../models/reglages.dart';
 import '../providers/reglages_provider.dart';
 import '../services/calculs_service.dart';
 import '../services/stockage_service.dart';
+import '../widgets/logo_kira.dart';
 
 /// Réglages : affichage du poids, objectif d'eau, thème, effacement des données.
 class ReglagesScreen extends StatelessWidget {
@@ -192,7 +193,7 @@ class ReglagesScreen extends StatelessWidget {
                   titre: 'À propos',
                   enfants: [
                     ListTile(
-                      leading: const Text('🌸', style: TextStyle(fontSize: 24)),
+                      leading: const LogoKira(taille: 40),
                       title: const Text('Kira\'s FAT · version 1.0'),
                       subtitle: Text(
                         'Une app pour prendre soin de soi, à son rythme.\n'

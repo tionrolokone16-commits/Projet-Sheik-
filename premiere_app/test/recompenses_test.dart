@@ -168,7 +168,8 @@ void main() {
       await tester.pumpWidget(FormeDouceApp(stockage: stockage));
       await tester.pumpAndSettle();
       final carte = find.byKey(const Key('carte_recompenses'));
-      await tester.scrollUntilVisible(carte, 300, scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(carte); // fait défiler la bonne liste
+    await tester.pumpAndSettle();
       await tester.tap(carte);
       await tester.pumpAndSettle();
       expect(find.byType(RecompensesScreen), findsOneWidget);
@@ -193,7 +194,8 @@ void main() {
       await tester.pumpWidget(FormeDouceApp(stockage: stockage));
       await tester.pumpAndSettle();
       final carte = find.byKey(const Key('carte_recompenses'));
-      await tester.scrollUntilVisible(carte, 300, scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(carte); // fait défiler la bonne liste
+    await tester.pumpAndSettle();
       await tester.tap(carte);
       await tester.pumpAndSettle();
 

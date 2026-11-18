@@ -115,9 +115,9 @@ class ThemeFormeDouce {
 
     return base.copyWith(
       scaffoldBackgroundColor: couleurs.surface,
-      // Police ronde et moderne.
+      // Police Manrope : moderne, géométrique et très lisible.
       textTheme: utiliserGoogleFonts
-          ? GoogleFonts.nunitoTextTheme(base.textTheme)
+          ? GoogleFonts.manropeTextTheme(base.textTheme)
           : base.textTheme,
       // Transitions en fondu entre les écrans.
       pageTransitionsTheme: PageTransitionsTheme(
@@ -131,7 +131,7 @@ class ThemeFormeDouce {
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: base.textTheme.headlineSmall?.copyWith(
-          fontFamily: utiliserGoogleFonts ? GoogleFonts.nunito().fontFamily : null,
+          fontFamily: utiliserGoogleFonts ? GoogleFonts.manrope().fontFamily : null,
           fontWeight: FontWeight.w800,
           color: couleurs.onSurface,
         ),

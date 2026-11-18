@@ -50,6 +50,7 @@ class Profil {
     required this.poidsObjectifKg,
     required this.niveauActivite,
     this.sexe = Sexe.nonPrecise,
+    this.photoBase64,
   });
 
   final String prenom;
@@ -60,6 +61,10 @@ class Profil {
   final NiveauActivite niveauActivite;
   final Sexe sexe;
 
+  /// Photo de profil réduite, encodée en texte (base64). Elle reste sur
+  /// l'appareil, comme toutes les autres données. `null` si aucune photo.
+  final String? photoBase64;
+
   Profil copyWith({
     String? prenom,
     int? age,
@@ -68,6 +73,8 @@ class Profil {
     double? poidsObjectifKg,
     NiveauActivite? niveauActivite,
     Sexe? sexe,
+    String? photoBase64,
+    bool retirerPhoto = false,
   }) {
     return Profil(
       prenom: prenom ?? this.prenom,
@@ -77,6 +84,7 @@ class Profil {
       poidsObjectifKg: poidsObjectifKg ?? this.poidsObjectifKg,
       niveauActivite: niveauActivite ?? this.niveauActivite,
       sexe: sexe ?? this.sexe,
+      photoBase64: retirerPhoto ? null : (photoBase64 ?? this.photoBase64),
     );
   }
 
@@ -88,6 +96,7 @@ class Profil {
         'poidsObjectifKg': poidsObjectifKg,
         'niveauActivite': niveauActivite.name,
         'sexe': sexe.name,
+        if (photoBase64 != null) 'photo': photoBase64,
       };
 
   factory Profil.fromJson(Map<String, dynamic> json) {
@@ -99,6 +108,7 @@ class Profil {
       poidsObjectifKg: (json['poidsObjectifKg'] as num?)?.toDouble() ?? 65,
       niveauActivite: NiveauActivite.depuisNom(json['niveauActivite'] as String?),
       sexe: Sexe.depuisNom(json['sexe'] as String?),
+      photoBase64: json['photo'] as String?,
     );
   }
 }
