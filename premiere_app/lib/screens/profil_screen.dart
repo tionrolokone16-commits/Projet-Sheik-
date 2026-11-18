@@ -1,0 +1,252 @@
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
+
+import '../models/profil.dart';
+import '../providers/poids_provider.dart';
+import '../providers/profil_provider.dart';
+import '../services/validation_profil.dart';
+import '../widgets/carte_douce.dart';
+import '../widgets/carte_objectif_calorique.dart';
+import '../widgets/format.dart';
+
+/// Écran de modification du profil (le premier remplissage se fait
+/// dans l'onboarding).
+class ProfilScreen extends StatefulWidget {
+  const ProfilScreen({super.key});
+
+  @override
+  State<ProfilScreen> createState() => _ProfilScreenState();
+}
+
+class _ProfilScreenState extends State<ProfilScreen> {
+  final _formulaire = GlobalKey<FormState>();
+
+  late final TextEditingController _prenom;
+  late final TextEditingController _age;
+  late final TextEditingController _taille;
+  late final TextEditingController _poidsDepart;
+  late final TextEditingController _poidsObjectif;
+  late NiveauActivite _niveau;
+  late Sexe _sexe;
+
+  /// Vrai si le poids objectif saisi correspond à un IMC inférieur à 18,5.
+  bool _objectifTropBas = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pré-remplissage avec le profil enregistré.
+    final p = context.read<ProfilProvider>().profil;
+    _prenom = TextEditingController(text: p?.prenom ?? '');
+    _age = TextEditingController(text: p == null ? '' : '${p.age}');
+    _taille = TextEditingController(text: p == null ? '' : formaterDecimal(p.tailleCm));
+    _poidsDepart =
+        TextEditingController(text: p == null ? '' : formaterDecimal(p.poidsDepartKg));
+    _poidsObjectif =
+        TextEditingController(text: p == null ? '' : formaterDecimal(p.poidsObjectifKg));
+    _niveau = p?.niveauActivite ?? NiveauActivite.leger;
+    _sexe = p?.sexe ?? Sexe.nonPrecise;
+  }
+
+  @override
+  void dispose() {
+    for (final c in [_prenom, _age, _taille, _poidsDepart, _poidsObjectif]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _verifierObjectif() {
+    final tropBas = ValidationProfil.objectifTropBas(_taille.text, _poidsObjectif.text);
+    if (tropBas != _objectifTropBas) setState(() => _objectifTropBas = tropBas);
+  }
+
+  Future<void> _enregistrer() async {
+    FocusScope.of(context).unfocus();
+    _verifierObjectif();
+    if (!_formulaire.currentState!.validate() || _objectifTropBas) return;
+
+    final profil = Profil(
+      prenom: _prenom.text.trim(),
+      age: lireDecimal(_age.text)!.round(),
+      tailleCm: lireDecimal(_taille.text)!,
+      poidsDepartKg: lireDecimal(_poidsDepart.text)!,
+      poidsObjectifKg: lireDecimal(_poidsObjectif.text)!,
+      niveauActivite: _niveau,
+      sexe: _sexe,
+    );
+    await context.read<ProfilProvider>().enregistrer(profil);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('C\'est noté, ${profil.prenom} 🌸')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profil = context.watch<ProfilProvider>().profil;
+    final dernierPoids = context.watch<PoidsProvider>().derniere?.poidsKg;
+    final theme = Theme.of(context);
+    const espace = SizedBox(height: 16);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mon profil')),
+      body: SafeArea(
+        child: Center(
+          // Largeur limitée pour rester lisible sur iPad.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Form(
+              key: _formulaire,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                children: [
+                  // En-tête : pastille avec l'initiale.
+                  if (profil != null)
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 32,
+                          backgroundColor: theme.colorScheme.primaryContainer,
+                          child: Text(
+                            profil.prenom.characters.first.toUpperCase(),
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              color: theme.colorScheme.onPrimaryContainer,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            'Bonjour ${profil.prenom} 🌸',
+                            style: theme.textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  const SizedBox(height: 20),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                            key: const Key('champ_prenom'),
+                            controller: _prenom,
+                            decoration: const InputDecoration(labelText: 'Prénom'),
+                            textCapitalization: TextCapitalization.words,
+                            validator: ValidationProfil.prenom,
+                          ),
+                          espace,
+                          TextFormField(
+                            key: const Key('champ_age'),
+                            controller: _age,
+                            decoration: const InputDecoration(
+                                labelText: 'Âge', suffixText: 'ans'),
+                            keyboardType: TextInputType.number,
+                            validator: ValidationProfil.age,
+                          ),
+                          espace,
+                          DropdownButtonFormField<Sexe>(
+                            initialValue: _sexe,
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Sexe',
+                              helperText: 'Utilisé uniquement pour le calcul du métabolisme',
+                            ),
+                            items: [
+                              for (final s in Sexe.values)
+                                DropdownMenuItem(value: s, child: Text(s.libelle)),
+                            ],
+                            onChanged: (s) => setState(() => _sexe = s ?? _sexe),
+                          ),
+                          espace,
+                          TextFormField(
+                            key: const Key('champ_taille'),
+                            controller: _taille,
+                            decoration: const InputDecoration(
+                                labelText: 'Taille', suffixText: 'cm'),
+                            keyboardType:
+                                const TextInputType.numberWithOptions(decimal: true),
+                            validator: ValidationProfil.taille,
+                            onChanged: (_) => _verifierObjectif(),
+                          ),
+                          espace,
+                          TextFormField(
+                            key: const Key('champ_poids_depart'),
+                            controller: _poidsDepart,
+                            decoration: const InputDecoration(
+                                labelText: 'Poids de départ', suffixText: 'kg'),
+                            keyboardType:
+                                const TextInputType.numberWithOptions(decimal: true),
+                            validator: ValidationProfil.poids,
+                          ),
+                          espace,
+                          TextFormField(
+                            key: const Key('champ_poids_objectif'),
+                            controller: _poidsObjectif,
+                            decoration: const InputDecoration(
+                                labelText: 'Poids objectif', suffixText: 'kg'),
+                            keyboardType:
+                                const TextInputType.numberWithOptions(decimal: true),
+                            onChanged: (_) => _verifierObjectif(),
+                            validator: (t) =>
+                                ValidationProfil.objectif(t, _poidsDepart.text),
+                          ),
+                          if (_objectifTropBas) ...[
+                            const SizedBox(height: 12),
+                            CarteImcTropBas(tailleCm: lireDecimal(_taille.text)!)
+                                .animate()
+                                .fadeIn(),
+                          ],
+                          espace,
+                          DropdownButtonFormField<NiveauActivite>(
+                            initialValue: _niveau,
+                            isExpanded: true,
+                            decoration:
+                                const InputDecoration(labelText: 'Niveau d\'activité'),
+                            // Dans le champ fermé, on n'affiche que le libellé.
+                            selectedItemBuilder: (context) => [
+                              for (final n in NiveauActivite.values) Text(n.libelle),
+                            ],
+                            items: [
+                              for (final n in NiveauActivite.values)
+                                DropdownMenuItem(
+                                  value: n,
+                                  child: Text('${n.libelle} · ${n.description}'),
+                                ),
+                            ],
+                            onChanged: (n) => setState(() => _niveau = n ?? _niveau),
+                          ),
+                          const SizedBox(height: 24),
+                          FilledButton.icon(
+                            key: const Key('bouton_enregistrer_profil'),
+                            onPressed: _enregistrer,
+                            icon: const Icon(Icons.check_rounded),
+                            label: const Text('Enregistrer'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (profil != null) ...[
+                    const SizedBox(height: 12),
+                    // Repère calorique basé sur la dernière pesée, si elle existe.
+                    CarteObjectifCalorique(profil: profil, poidsActuelKg: dernierPoids),
+                  ],
+                ]
+                    .animate(interval: 60.ms)
+                    .fadeIn(duration: 350.ms)
+                    .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
