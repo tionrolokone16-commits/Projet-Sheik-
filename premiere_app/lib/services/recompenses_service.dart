@@ -112,6 +112,7 @@ class RecompensesService {
     InfoBadge('premiereVictoire', '🏆', 'Victoire hors balance',
         'Noter ta première victoire hors balance'),
     InfoBadge('premierePause', '🫁', 'Première pause', 'Terminer une minute de respiration'),
+    InfoBadge('premiereSeance', '💃', 'Première séance', 'Terminer une séance guidée'),
   ];
 
   static InfoBadge badgePalier(int numero, {bool objectif = false}) => objectif

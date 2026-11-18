@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/models/profil.dart';
 import 'package:premiere_app/models/reglages.dart';
+import 'package:premiere_app/screens/accueil_screen.dart';
 import 'package:premiere_app/services/stockage_service.dart';
 import 'package:premiere_app/theme.dart';
 import 'package:premiere_app/widgets/couche_celebrations.dart';
@@ -45,4 +46,15 @@ void ecranIpad(WidgetTester tester) {
   tester.view.physicalSize = const Size(820, 1180);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
+}
+
+/// Fait défiler l'accueil jusqu'à un élément (même s'il n'est pas encore
+/// construit), puis le rend entièrement visible.
+Future<void> defilerAccueilJusqua(WidgetTester tester, Finder cible) async {
+  await tester.scrollUntilVisible(cible, 300,
+      scrollable: find
+          .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
+          .first);
+  await tester.ensureVisible(cible);
+  await tester.pumpAndSettle();
 }

@@ -175,5 +175,6 @@ void main() {
     await ouvrir(tester);
     expect(find.textContaining('kcal'), findsNothing);
     expect(find.textContaining('calorie'), findsNothing);
+    await tester.pump(const Duration(seconds: 2)); // fin des animations
   });
 }

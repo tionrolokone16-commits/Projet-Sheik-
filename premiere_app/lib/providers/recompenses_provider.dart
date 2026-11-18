@@ -110,6 +110,23 @@ class RecompensesProvider extends ChangeNotifier {
     await _sauver();
   }
 
+  /// Fin d'une séance guidée : confettis, et badge « Première séance »
+  /// la première fois.
+  Future<void> celebrerSeance(String nomSeance, int minutes) async {
+    var titre = 'Séance « $nomSeance » terminée !';
+    if (!_progres.badges.containsKey('premiereSeance')) {
+      _progres.badges['premiereSeance'] = DateTime.now();
+      titre = '$titre\n🏅 Nouveau badge !';
+    }
+    _file.add(Celebration(
+      emoji: '🎉',
+      titre: titre,
+      message: '$minutes ${minutes > 1 ? 'minutes' : 'minute'} rien que pour toi. '
+          'Ton corps te remercie 💗',
+    ));
+    await _sauver();
+  }
+
   /// Note le moment d'une fringale (bouton « J'ai une fringale »).
   /// Sert seulement aux constats du bilan : jamais à un reproche.
   Future<void> noterFringale() async {

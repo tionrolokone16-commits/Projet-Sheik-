@@ -11,13 +11,18 @@ clair et sombre, fonctionne dans le navigateur (Flutter Web).
 | Onglet / écran | Contenu |
 |---|---|
 | **Onboarding** | 6 pages animées pour créer le profil (objectif refusé si IMC < 18,5) |
-| **Accueil** | Salutation selon l'heure, mot du jour, plante 🌸 qui grandit avec les habitudes, eau, dernière activité, « J'ai une fringale » (respiration d'1 minute) |
+| **Accueil** | Photo et salutation selon l'heure, rappel de repas, plan du jour, mot du jour, plante 🌸 qui grandit avec les habitudes, eau, dernière activité, « J'ai une fringale » (respiration d'1 minute) |
 | **Poids** | Pesées, courbe avec tendance sur 7 jours, chemin des paliers (5 % + 2 semaines de stabilisation) |
 | **Habitudes** | Journal à glisser jour par jour : eau (bouteille animée), humeur, sommeil, repas (avec assiette en photo), activités, petit mot, calendrier coloré |
-| **Profil** | Modification du profil et repère calorique (Mifflin-St Jeor, jamais sous 1200 kcal) |
-| **Défis & badges** | 10 défis doux par semaine (3 max), victoires hors balance, 20 badges, confettis |
+| **Profil** | Photo de profil, modification du profil, repère calorique (Mifflin-St Jeor, jamais sous 1200 kcal) remplacé par le plan quand il y en a un |
+| **Mon plan** | Plan de la diététicienne, collé une fois et gardé uniquement sur l'appareil : menu du jour, aliments conseillés ou à éviter |
+| **Journal des repas** | Noter un repas en 2 touches : ~70 plats africains (CI, Sénégal, Cameroun, Ghana, Nigeria, Mali, Bénin-Togo), plats du plan, plats perso ou photo ; portion, faim, satiété, plaisir. Aucun compteur |
+| **Rappels** | Invitation douce sur l'accueil aux heures de repas (réglables), « Plus tard » sans insister |
+| **Bilan** | Chaque dimanche : ce qui s'est bien passé, constats sans jugement, 1 ou 2 idées à choisir, résumé à partager avec le nutritionniste |
+| **Bouger** | 8 exercices illustrés (figurines animées), 4 séances guidées avec minuteur, proposées selon l'énergie du jour, confettis à la fin |
+| **Défis & badges** | 10 défis doux par semaine (3 max), victoires hors balance, collection de badges, confettis |
 | **Recettes** | 10 plats ivoiriens en cartes à retourner : plat d'origine / version revisitée |
-| **Réglages** | Masquer le poids sur l'accueil, objectif d'eau, thème, tout effacer |
+| **Réglages** | Masquer le poids sur l'accueil, objectif d'eau, rappels, thème, tout effacer |
 
 Règles bien-être appliquées partout : aucun message culpabilisant, jamais de
 rouge si le poids augmente, la plante et les badges récompensent les
@@ -71,4 +76,4 @@ test/              tests automatiques
 ```
 
 Packages : provider, shared_preferences, fl_chart, intl, google_fonts,
-flutter_animate, confetti, image_picker (tous compatibles web).
+flutter_animate, confetti, image_picker, share_plus (tous compatibles web).

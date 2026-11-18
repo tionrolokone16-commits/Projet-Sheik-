@@ -14,6 +14,7 @@ import '../services/habitudes_service.dart';
 import '../services/stockage_service.dart';
 import '../models/repas_photo.dart';
 import '../screens/ajouter_repas_screen.dart';
+import '../screens/exercices_screen.dart';
 import 'assiette.dart';
 import 'bouteille_eau.dart';
 import 'panneau_ressenti_repas.dart';
@@ -501,6 +502,15 @@ class _CarteActivite extends StatelessWidget {
             onPressed: onAjouter,
             icon: const Icon(Icons.add_rounded),
             label: const Text('Noter une activité'),
+          ),
+          const SizedBox(height: 8),
+          FilledButton.tonalIcon(
+            key: const Key('bouton_seances'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ExercicesScreen()),
+            ),
+            icon: const Icon(Icons.play_circle_rounded),
+            label: const Text('Séances guidées'),
           ),
         ],
       ),

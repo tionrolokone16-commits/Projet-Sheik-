@@ -21,6 +21,7 @@ import '../widgets/plante.dart';
 import 'ajouter_repas_screen.dart';
 import 'bilan_screen.dart';
 import 'chemin_screen.dart';
+import 'exercices_screen.dart';
 import 'mon_plan_screen.dart';
 import 'recettes_screen.dart';
 import 'reglages_screen.dart';
@@ -338,6 +339,24 @@ class AccueilScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                // ----- Bouger pour le plaisir -----
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: ListTile(
+                    key: const Key('carte_exercices'),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ExercicesScreen()),
+                    ),
+                    leading: const Text('💃🏾', style: TextStyle(fontSize: 30)),
+                    title: Text('Bouger pour le plaisir',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700)),
+                    subtitle: const Text('Séances guidées et exercices illustrés'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                  ),
+                ),
 
                 // ----- Défis & badges -----
                 _CarteRecompenses(
