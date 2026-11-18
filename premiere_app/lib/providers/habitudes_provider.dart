@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 
 import '../models/activite.dart';
 import '../models/jour_habitudes.dart';
+import '../models/plat.dart';
 import '../models/recette.dart';
 import '../models/repas_photo.dart';
+import '../services/plats_service.dart';
 import '../services/stockage_service.dart';
 
 /// Gère le journal des habitudes (eau, sommeil, repas, ressentis),
@@ -12,7 +14,8 @@ class HabitudesProvider extends ChangeNotifier {
   HabitudesProvider(this._stockage)
       : _journal = _stockage.chargerJournal(),
         _activites = _stockage.chargerActivites(),
-        _repasPhotos = _stockage.chargerRepasPhotos();
+        _repasPhotos = _stockage.chargerRepasPhotos(),
+        _platsPerso = _stockage.chargerPlatsPerso();
 
   final StockageService _stockage;
   final Map<String, JourHabitudes> _journal;
@@ -22,6 +25,9 @@ class HabitudesProvider extends ChangeNotifier {
 
   /// Repas notés avec leur assiette, du plus récent au plus ancien.
   final List<RepasPhoto> _repasPhotos;
+
+  /// Plats ajoutés par l'utilisatrice.
+  final List<Plat> _platsPerso;
 
   /// Nombre de photos conservées : le navigateur n'offre qu'environ 5 Mo,
   /// les photos plus anciennes sont retirées (l'assiette, elle, est gardée).
@@ -36,24 +42,31 @@ class HabitudesProvider extends ChangeNotifier {
     return _repasPhotos.where((r) => cleDuJour(r.date) == cle).toList();
   }
 
-  /// Enregistre un repas et le coche dans le journal du jour.
-  Future<void> ajouterRepasPhoto({
+  /// Enregistre un repas dans le journal des repas, et coche ce repas
+  /// dans les habitudes du jour. Renvoie le repas créé.
+  Future<RepasPhoto> ajouterRepas({
     required DateTime date,
     required Repas repas,
     required Portions portions,
     String? photoBase64,
+    String? nomPlat,
+    String? emojiPlat,
+    TaillePortion taille = TaillePortion.moyenne,
+    Map<RessentiRepas, int> ressentis = const {},
   }) async {
+    final nouveau = RepasPhoto(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      date: date,
+      repas: repas,
+      portions: portions,
+      photoBase64: photoBase64,
+      nomPlat: nomPlat,
+      emojiPlat: emojiPlat,
+      taille: taille,
+      ressentis: ressentis,
+    );
     _repasPhotos
-      ..insert(
-        0,
-        RepasPhoto(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          date: date,
-          repas: repas,
-          portions: portions,
-          photoBase64: photoBase64,
-        ),
-      )
+      ..insert(0, nouveau)
       ..sort((a, b) => b.date.compareTo(a.date));
     // On ne garde que les photos les plus récentes.
     var photos = 0;
@@ -69,6 +82,59 @@ class HabitudesProvider extends ChangeNotifier {
     } else {
       notifyListeners();
     }
+    return nouveau;
+  }
+
+  /// Modifie un repas noté (moment, taille de portion, ressentis).
+  Future<void> modifierRepas(
+    String id, {
+    Repas? repas,
+    TaillePortion? taille,
+    Map<RessentiRepas, int>? ressentis,
+  }) async {
+    final index = _repasPhotos.indexWhere((r) => r.id == id);
+    if (index < 0) return;
+    _repasPhotos[index] =
+        _repasPhotos[index].copyWith(repas: repas, taille: taille, ressentis: ressentis);
+    notifyListeners();
+    await _stockage.enregistrerRepasPhotos(_repasPhotos);
+  }
+
+  RepasPhoto? repasParId(String id) {
+    for (final r in _repasPhotos) {
+      if (r.id == id) return r;
+    }
+    return null;
+  }
+
+  // ---------------------------------------------------- Plats personnels
+
+  /// Plats ajoutés par l'utilisatrice à sa bibliothèque.
+  List<Plat> get platsPerso => List.unmodifiable(_platsPerso);
+
+  Future<Plat> ajouterPlatPerso({
+    required String nom,
+    required String emoji,
+    required CategoriePlat categorie,
+  }) async {
+    final plat = Plat(
+      id: 'perso_${DateTime.now().microsecondsSinceEpoch}',
+      nom: nom.trim(),
+      emoji: emoji,
+      pays: PaysPlat.mesPlats,
+      categorie: categorie,
+      portions: PlatsService.estimerPortions(nom),
+    );
+    _platsPerso.add(plat);
+    notifyListeners();
+    await _stockage.enregistrerPlatsPerso(_platsPerso);
+    return plat;
+  }
+
+  Future<void> supprimerPlatPerso(String id) async {
+    _platsPerso.removeWhere((p) => p.id == id);
+    notifyListeners();
+    await _stockage.enregistrerPlatsPerso(_platsPerso);
   }
 
   Future<RepasPhoto?> supprimerRepasPhoto(String id) async {

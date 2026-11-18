@@ -3,7 +3,7 @@ enum Repas {
   petitDejeuner('Petit-déjeuner', '🥐'),
   dejeuner('Déjeuner', '🍲'),
   diner('Dîner', '🍽️'),
-  collation('Collation', '🍎');
+  collation('En-cas', '🍎');
 
   const Repas(this.libelle, this.emoji);
   final String libelle;
@@ -13,8 +13,19 @@ enum Repas {
   static const principaux = {petitDejeuner, dejeuner, diner};
 }
 
+/// Une échelle de 1 à 5 représentée par des emojis (ressentis, faim, plaisir…).
+abstract interface class Echelle {
+  String get libelle;
+
+  /// Emoji pour chaque niveau, de 1 à 5.
+  List<String> get emojis;
+
+  /// Description de chaque niveau (lue par les lecteurs d'écran).
+  List<String> get descriptions;
+}
+
 /// Ressentis notés en un geste, sur une échelle de 1 à 5.
-enum Ressenti {
+enum Ressenti implements Echelle {
   energie('Énergie', ['😴', '😕', '😐', '🙂', '🤩'],
       ['Très peu d\'énergie', 'Peu d\'énergie', 'Énergie correcte', 'Bonne énergie',
        'Pleine d\'énergie']),
@@ -24,12 +35,13 @@ enum Ressenti {
       ['Très mauvais', 'Moyen', 'Correct', 'Bon', 'Excellent']);
 
   const Ressenti(this.libelle, this.emojis, this.descriptions);
+  @override
   final String libelle;
 
-  /// Emoji pour chaque niveau, de 1 à 5.
+  @override
   final List<String> emojis;
 
-  /// Description de chaque niveau (lue par les lecteurs d'écran).
+  @override
   final List<String> descriptions;
 
   /// Vrai si une valeur haute correspond à un ressenti agréable.

@@ -13,7 +13,7 @@ class SelecteurRessenti extends StatelessWidget {
     required this.onChoisir,
   });
 
-  final Ressenti ressenti;
+  final Echelle ressenti;
 
   /// Niveau choisi, de 1 à 5 (`null` si rien n'est choisi).
   final int? valeur;

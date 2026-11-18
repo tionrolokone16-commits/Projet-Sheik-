@@ -16,6 +16,7 @@ import '../providers/recompenses_provider.dart';
 import '../services/recompenses_service.dart';
 import '../widgets/avatar_profil.dart';
 import '../widgets/plante.dart';
+import 'ajouter_repas_screen.dart';
 import 'chemin_screen.dart';
 import 'mon_plan_screen.dart';
 import 'recettes_screen.dart';
@@ -307,6 +308,17 @@ class AccueilScreen extends StatelessWidget {
                     subtitle: const Text('Nos plats, en version revisitée'),
                     trailing: const Icon(Icons.chevron_right_rounded),
                   ),
+                ),
+
+                // ----- Noter un repas (2 touches : ce bouton, puis le plat) -----
+                const SizedBox(height: 4),
+                FilledButton.icon(
+                  key: const Key('accueil_noter_repas'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => AjouterRepasScreen(date: DateTime.now())),
+                  ),
+                  icon: const Icon(Icons.restaurant_rounded),
+                  label: const Text('Noter un repas'),
                 ),
 
                 // ----- Fringale -----

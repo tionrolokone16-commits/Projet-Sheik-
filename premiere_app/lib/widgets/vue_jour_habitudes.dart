@@ -13,9 +13,10 @@ import '../providers/reglages_provider.dart';
 import '../services/habitudes_service.dart';
 import '../services/stockage_service.dart';
 import '../models/repas_photo.dart';
-import '../screens/repas_photo_screen.dart';
+import '../screens/ajouter_repas_screen.dart';
 import 'assiette.dart';
 import 'bouteille_eau.dart';
+import 'panneau_ressenti_repas.dart';
 import 'dialogue_activite.dart';
 import 'selecteur_ressenti.dart';
 
@@ -143,12 +144,12 @@ class VueJourHabitudes extends StatelessWidget {
                 ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                key: const Key('bouton_photo_repas'),
+                key: const Key('bouton_noter_repas'),
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => RepasPhotoScreen(date: date)),
+                  MaterialPageRoute(builder: (_) => AjouterRepasScreen(date: date)),
                 ),
-                icon: const Icon(Icons.photo_camera_rounded),
-                label: const Text('Noter mon assiette'),
+                icon: const Icon(Icons.restaurant_rounded),
+                label: const Text('Noter un repas'),
               ),
             ],
           ),
@@ -573,6 +574,8 @@ class _LigneRepasPhoto extends StatelessWidget {
     final photo = repas.photoBase64;
     return ListTile(
       contentPadding: EdgeInsets.zero,
+      // Toucher un repas : compléter ou modifier ses détails.
+      onTap: () => afficherPanneauRessentiRepas(context, repas.id),
       leading: photo != null
           ? ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -580,10 +583,14 @@ class _LigneRepasPhoto extends StatelessWidget {
                   width: 48, height: 48, fit: BoxFit.cover, gaplessPlayback: true),
             )
           : Assiette(portions: repas.portions, taille: 48),
-      title: Text('${repas.repas.emoji} ${repas.repas.libelle}'),
-      subtitle: Text('🥦 ${(repas.portions.legumes * 100).round()} % · '
-          '🍗 ${(repas.portions.proteines * 100).round()} % · '
-          '🍚 ${(repas.portions.feculents * 100).round()} %'),
+      title: Text('${repas.emojiPlat ?? '📸'} ${repas.titre}',
+          maxLines: 2, overflow: TextOverflow.ellipsis),
+      subtitle: Text([
+        '${repas.repas.emoji} ${repas.repas.libelle}',
+        'Portion ${repas.taille.libelle.toLowerCase()}',
+        // Ressentis notés, en emojis.
+        for (final e in repas.ressentis.entries) e.key.emojis[e.value - 1],
+      ].join(' · ')),
       trailing: IconButton(
         tooltip: 'Supprimer',
         icon: const Icon(Icons.delete_outline_rounded),

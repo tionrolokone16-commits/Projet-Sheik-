@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/activite.dart';
 import '../models/jour_habitudes.dart';
 import '../models/pesee.dart';
+import '../models/plat.dart';
 import '../models/profil.dart';
 import '../models/progres.dart';
 import '../models/reglages.dart';
@@ -28,6 +29,7 @@ class StockageService {
   static const _cleProgres = 'forme_douce.progres';
   static const _cleRepasPhotos = 'forme_douce.repas_photos';
   static const _clePlan = 'forme_douce.plan';
+  static const _clePlatsPerso = 'forme_douce.plats_perso';
 
   /// Crée le service une fois shared_preferences prêt.
   static Future<StockageService> initialiser() async =>
@@ -108,6 +110,23 @@ class StockageService {
   Future<void> enregistrerRepasPhotos(List<RepasPhoto> repas) => _prefs.setString(
       _cleRepasPhotos, jsonEncode([for (final r in repas) r.toJson()]));
 
+  // ---------- Plats personnels ----------
+
+  List<Plat> chargerPlatsPerso() {
+    final liste = <Plat>[];
+    for (final objet in _lireListe(_clePlatsPerso)) {
+      try {
+        liste.add(Plat.fromJson(objet));
+      } catch (_) {
+        // Plat illisible : ignoré.
+      }
+    }
+    return liste;
+  }
+
+  Future<void> enregistrerPlatsPerso(List<Plat> plats) => _prefs.setString(
+      _clePlatsPerso, jsonEncode([for (final p in plats) p.toJson()]));
+
   // ---------- Récompenses (badges, défis, victoires) ----------
 
   Progres chargerProgres() {
@@ -152,6 +171,7 @@ class StockageService {
       _cleProgres,
       _cleRepasPhotos,
       _clePlan,
+      _clePlatsPerso,
     ]) {
       await _prefs.remove(cle);
     }

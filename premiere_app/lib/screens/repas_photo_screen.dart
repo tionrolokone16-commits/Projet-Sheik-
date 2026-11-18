@@ -75,7 +75,7 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
     final portions = _portions;
     final maintenant = DateTime.now();
     final estAujourdhui = DateUtils.isSameDay(widget.date, maintenant);
-    await habitudes.ajouterRepasPhoto(
+    await habitudes.ajouterRepas(
       date: estAujourdhui
           ? maintenant
           : DateTime(widget.date.year, widget.date.month, widget.date.day, 12),
@@ -92,7 +92,7 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${_repas.emoji} Repas noté, bon appétit !')),
     );
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(true); // true : un repas a été enregistré
   }
 
   @override

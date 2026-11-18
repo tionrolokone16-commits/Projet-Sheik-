@@ -45,8 +45,8 @@ void main() {
       final stockage = await preparerStockage();
       final h = HabitudesProvider(stockage);
       await h.basculerRepas(jour, Repas.petitDejeuner);
-      await h.ajouterRepasPhoto(date: jour, repas: Repas.dejeuner, portions: Portions.equilibre);
-      await h.ajouterRepasPhoto(date: jour, repas: Repas.petitDejeuner, portions: Portions.equilibre);
+      await h.ajouterRepas(date: jour, repas: Repas.dejeuner, portions: Portions.equilibre);
+      await h.ajouterRepas(date: jour, repas: Repas.petitDejeuner, portions: Portions.equilibre);
       // Le petit-déjeuner déjà coché le reste (pas de décochage).
       expect(h.jour(jour).repas, {Repas.petitDejeuner, Repas.dejeuner});
       expect(HabitudesProvider(stockage).repasPhotosDu(jour).length, 2);
@@ -56,7 +56,7 @@ void main() {
       final stockage = await preparerStockage();
       final h = HabitudesProvider(stockage);
       for (var i = 0; i < 25; i++) {
-        await h.ajouterRepasPhoto(
+        await h.ajouterRepas(
           date: DateTime(2026, 11, 1).add(Duration(hours: i)),
           repas: Repas.dejeuner,
           portions: Portions.equilibre,
