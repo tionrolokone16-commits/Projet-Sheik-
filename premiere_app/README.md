@@ -39,6 +39,9 @@ Icônes : `flutter test tool/generer_icones_test.dart` les redessine.
 
 ## Lancer l'application (Codespaces)
 
+Le Codespace installe tout seul Flutter 3.50.0 à sa création
+(`.devcontainer/installer-flutter.sh`, qu'on peut relancer sans risque).
+
 ```bash
 cd premiere_app
 flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0
