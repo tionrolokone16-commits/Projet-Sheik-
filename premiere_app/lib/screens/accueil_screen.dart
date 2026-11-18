@@ -8,6 +8,7 @@ import '../providers/plan_provider.dart';
 import '../providers/poids_provider.dart';
 import '../providers/profil_provider.dart';
 import '../providers/reglages_provider.dart';
+import '../services/bilan_service.dart';
 import '../services/encouragements_service.dart';
 import '../services/habitudes_service.dart';
 import '../services/messages_service.dart';
@@ -18,6 +19,7 @@ import '../widgets/avatar_profil.dart';
 import '../widgets/carte_rappel_repas.dart';
 import '../widgets/plante.dart';
 import 'ajouter_repas_screen.dart';
+import 'bilan_screen.dart';
 import 'chemin_screen.dart';
 import 'mon_plan_screen.dart';
 import 'recettes_screen.dart';
@@ -288,6 +290,55 @@ class AccueilScreen extends StatelessWidget {
                     ),
                   ),
 
+                // ----- Bilan de la semaine (le dimanche et le lundi) -----
+                if (maintenant.weekday == DateTime.sunday ||
+                    maintenant.weekday == DateTime.monday)
+                  Card(
+                    color: theme.colorScheme.primaryContainer,
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      key: const Key('carte_bilan'),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const BilanScreen()),
+                      ),
+                      leading: const Text('📊', style: TextStyle(fontSize: 30)),
+                      title: Text('Ton bilan de la semaine est prêt',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onPrimaryContainer,
+                          )),
+                      subtitle: Text('Ce qui s\'est bien passé, et tes idées pour la suite',
+                          style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                    ),
+                  ),
+
+                // ----- Idées choisies pour cette semaine -----
+                if (context.watch<RecompensesProvider>().ideesDe(
+                        RecompensesService.debutSemaine(maintenant))
+                    case final idees when idees.isNotEmpty)
+                  Card(
+                    key: const Key('carte_idees_semaine'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('✨ Mes idées de la semaine',
+                              style: theme.textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w700)),
+                          for (final nom in idees)
+                            if (IdeeSemaine.depuisNom(nom) case final idee?)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text('${idee.emoji}  ${idee.texte}'),
+                              ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 // ----- Défis & badges -----
                 _CarteRecompenses(
                   onOuvrir: () => Navigator.of(context).push(
@@ -328,9 +379,13 @@ class AccueilScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 FilledButton.tonalIcon(
                   key: const Key('bouton_fringale'),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const RespirationScreen()),
-                  ),
+                  onPressed: () {
+                    // On note le moment (pour les constats du bilan), sans commentaire.
+                    context.read<RecompensesProvider>().noterFringale();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const RespirationScreen()),
+                    );
+                  },
                   icon: const Text('🍫', style: TextStyle(fontSize: 20)),
                   label: const Text('J\'ai une fringale'),
                 ),

@@ -54,11 +54,15 @@ class Progres {
     Map<String, Map<String, int>>? defis,
     List<Victoire>? victoires,
     List<DateTime>? respirations,
+    List<DateTime>? fringales,
+    Map<String, List<String>>? idees,
   })  : badges = badges ?? {},
         celebrations = celebrations ?? {},
         defis = defis ?? {},
         victoires = victoires ?? [],
-        respirations = respirations ?? [];
+        respirations = respirations ?? [],
+        fringales = fringales ?? [],
+        idees = idees ?? {};
 
   /// Badges obtenus, avec leur date d'obtention.
   final Map<String, DateTime> badges;
@@ -75,12 +79,20 @@ class Progres {
   /// Dates des pauses respiration terminées.
   final List<DateTime> respirations;
 
+  /// Moments où le bouton « J'ai une fringale » a été touché (pour le bilan).
+  final List<DateTime> fringales;
+
+  /// Idées choisies dans le bilan, par semaine : { lundi « aaaa-mm-jj » : [idées] }.
+  final Map<String, List<String>> idees;
+
   Map<String, dynamic> toJson() => {
         'badges': badges.map((k, v) => MapEntry(k, v.toIso8601String())),
         'celebrations': celebrations.toList(),
         'defis': defis,
         'victoires': [for (final v in victoires) v.toJson()],
         'respirations': [for (final r in respirations) r.toIso8601String()],
+        'fringales': [for (final f in fringales) f.toIso8601String()],
+        'idees': idees,
       };
 
   factory Progres.fromJson(Map<String, dynamic> json) {
@@ -102,6 +114,12 @@ class Progres {
         for (final r in (json['respirations'] as List? ?? const []))
           DateTime.parse(r as String),
       ],
+      fringales: [
+        for (final f in (json['fringales'] as List? ?? const []))
+          DateTime.parse(f as String),
+      ],
+      idees: (json['idees'] as Map<String, dynamic>? ?? const {})
+          .map((k, v) => MapEntry(k, (v as List).cast<String>())),
     );
   }
 }

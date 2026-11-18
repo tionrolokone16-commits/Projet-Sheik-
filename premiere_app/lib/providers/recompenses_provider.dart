@@ -110,6 +110,32 @@ class RecompensesProvider extends ChangeNotifier {
     await _sauver();
   }
 
+  /// Note le moment d'une fringale (bouton « J'ai une fringale »).
+  /// Sert seulement aux constats du bilan : jamais à un reproche.
+  Future<void> noterFringale() async {
+    _progres.fringales.add(DateTime.now());
+    await _sauver();
+  }
+
+  // ---------------------------------------------------- Idées du bilan
+
+  /// Nombre maximum d'idées choisies pour une semaine.
+  static const ideesMax = 2;
+
+  /// Idées choisies pour la semaine qui commence le [lundi].
+  List<String> ideesDe(DateTime lundi) =>
+      List.unmodifiable(_progres.idees[cleDuJour(lundi)] ?? const []);
+
+  /// Choisit (ou retire) une idée pour la semaine qui commence le [lundi].
+  Future<void> basculerIdee(DateTime lundi, String idee) async {
+    final liste = _progres.idees.putIfAbsent(cleDuJour(lundi), () => []);
+    if (!liste.remove(idee)) {
+      if (liste.length >= ideesMax) return;
+      liste.add(idee);
+    }
+    await _sauver();
+  }
+
   Future<void> _sauver() async {
     notifyListeners();
     await _stockage.enregistrerProgres(_progres);

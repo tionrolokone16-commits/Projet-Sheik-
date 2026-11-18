@@ -11,6 +11,7 @@ import '../widgets/avatar_profil.dart';
 import '../widgets/carte_douce.dart';
 import '../widgets/carte_objectif_calorique.dart';
 import '../widgets/format.dart';
+import 'bilan_screen.dart';
 import 'mon_plan_screen.dart';
 import 'reglages_screen.dart';
 
@@ -312,6 +313,22 @@ class _ProfilScreenState extends State<ProfilScreen> {
                   ),
                   if (profil != null) ...[
                     const SizedBox(height: 12),
+                    // Bilans de la semaine.
+                    Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: ListTile(
+                        key: const Key('acces_bilans'),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        leading: const Text('📊', style: TextStyle(fontSize: 28)),
+                        title: const Text('Mes bilans de la semaine',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
+                        subtitle: const Text('Et le résumé pour ton nutritionniste'),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const BilanScreen()),
+                        ),
+                      ),
+                    ),
                     // Accès au plan de la diététicienne.
                     Card(
                       clipBehavior: Clip.antiAlias,
