@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import '../models/profil.dart';
+import '../providers/plan_provider.dart';
 import '../providers/poids_provider.dart';
 import '../providers/profil_provider.dart';
 import '../services/validation_profil.dart';
@@ -10,6 +11,7 @@ import '../widgets/avatar_profil.dart';
 import '../widgets/carte_douce.dart';
 import '../widgets/carte_objectif_calorique.dart';
 import '../widgets/format.dart';
+import 'mon_plan_screen.dart';
 import 'reglages_screen.dart';
 
 /// Écran de modification du profil (le premier remplissage se fait
@@ -140,6 +142,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
   Widget build(BuildContext context) {
     final profil = context.watch<ProfilProvider>().profil;
     final dernierPoids = context.watch<PoidsProvider>().derniere?.poidsKg;
+    final aUnPlan = context.watch<PlanProvider>().aUnPlan;
     final theme = Theme.of(context);
     const espace = SizedBox(height: 16);
 
@@ -309,8 +312,36 @@ class _ProfilScreenState extends State<ProfilScreen> {
                   ),
                   if (profil != null) ...[
                     const SizedBox(height: 12),
-                    // Repère calorique basé sur la dernière pesée, si elle existe.
-                    CarteObjectifCalorique(profil: profil, poidsActuelKg: dernierPoids),
+                    // Accès au plan de la diététicienne.
+                    Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: ListTile(
+                        key: const Key('acces_mon_plan'),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        leading: const Text('📋', style: TextStyle(fontSize: 28)),
+                        title: const Text('Mon plan nutritionnel',
+                            style: TextStyle(fontWeight: FontWeight.w700)),
+                        subtitle: Text(aUnPlan
+                            ? 'Le plan de ta diététicienne'
+                            : 'Importer le plan de ta diététicienne'),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const MonPlanScreen()),
+                        ),
+                      ),
+                    ),
+                    // Avec un plan professionnel, c'est lui le repère : pas de calcul.
+                    if (aUnPlan)
+                      const CarteDouce(
+                        icone: Icons.verified_outlined,
+                        titre: 'Ton repère : ton plan',
+                        message: 'Tu es accompagnée par une diététicienne : son plan passe '
+                            'avant tout calcul. Les repères caloriques de l\'appli sont '
+                            'donc masqués.',
+                      )
+                    else
+                      // Repère calorique basé sur la dernière pesée, si elle existe.
+                      CarteObjectifCalorique(profil: profil, poidsActuelKg: dernierPoids),
                   ],
                 ]
                     .animate(interval: 60.ms)

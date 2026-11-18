@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/habitudes_provider.dart';
+import 'providers/plan_provider.dart';
 import 'providers/poids_provider.dart';
 import 'providers/profil_provider.dart';
 import 'providers/recompenses_provider.dart';
@@ -60,6 +61,7 @@ class _FormeDouceAppState extends State<FormeDouceApp> {
         ChangeNotifierProvider(create: (_) => HabitudesProvider(stockage)),
         ChangeNotifierProvider(create: (_) => ReglagesProvider(stockage)),
         ChangeNotifierProvider(create: (_) => RecompensesProvider(stockage)),
+        ChangeNotifierProvider(create: (_) => PlanProvider(stockage)),
       ],
       // Consumer : l'application se redessine quand le thème change.
       child: Consumer<ReglagesProvider>(

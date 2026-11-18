@@ -5,6 +5,7 @@ import 'package:premiere_app/models/reglages.dart';
 import 'package:premiere_app/providers/poids_provider.dart';
 import 'package:premiere_app/screens/calendrier_screen.dart';
 import 'package:premiere_app/screens/chemin_screen.dart';
+import 'package:premiere_app/screens/mon_plan_screen.dart';
 import 'package:premiere_app/screens/recettes_screen.dart';
 import 'package:premiere_app/screens/recompenses_screen.dart';
 import 'package:premiere_app/screens/reglages_screen.dart';
@@ -117,6 +118,7 @@ void main() {
       ('recettes', const RecettesScreen()),
       ('calendrier', CalendrierScreen(jourSelectionne: DateTime.now())),
       ('assiette', RepasPhotoScreen(date: DateTime.now())),
+      ('mon plan', const MonPlanScreen()),
     ]) {
       nav.push(MaterialPageRoute(builder: (_) => ecran));
       await tester.pumpAndSettle();

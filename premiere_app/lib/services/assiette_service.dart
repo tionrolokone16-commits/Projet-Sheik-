@@ -39,8 +39,8 @@ class AssietteService {
           'en plus (tomates, concombre, gombo…), si tu en as envie.';
     }
     if (p.proteines < 0.1) {
-      return 'Idée : une petite source de protéines (œuf, poisson, haricots, '
-          'poulet…) aide à tenir jusqu\'au prochain repas.';
+      return 'Idée : une petite source de protéines (poisson, poulet, viande maigre…) '
+          'aide à tenir jusqu\'au prochain repas.';
     }
     return null;
   }

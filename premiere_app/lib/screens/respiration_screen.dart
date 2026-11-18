@@ -187,8 +187,8 @@ class _Suggestions extends StatelessWidget {
     ('💧', 'Un grand verre d\'eau', 'La soif se déguise parfois en faim.'),
     ('🍵', 'Une boisson chaude', 'Une tisane ou un thé, à savourer tranquillement.'),
     ('🍌', 'Un fruit', 'Une banane, une mangue, quelques quartiers d\'orange…'),
-    ('🥜', 'Une poignée d\'arachides', 'Nature, pour tenir jusqu\'au prochain repas.'),
-    ('🥛', 'Un yaourt nature', 'Avec un peu de fruit, c\'est doux et rassasiant.'),
+    ('🥕', 'Quelques crudités', 'Carotte râpée ou bâtonnets de légumes, frais et croquants.'),
+    ('🥛', 'Un yaourt 0 %', 'Avec quelques morceaux de fruit, c\'est doux et rassasiant.'),
     ('🚶', 'Quelques pas', '5 minutes dehors ou dans la maison pour changer d\'air.'),
     ('📞', 'Un appel', 'Parler à quelqu\'un qu\'on aime fait souvent du bien.'),
   ];

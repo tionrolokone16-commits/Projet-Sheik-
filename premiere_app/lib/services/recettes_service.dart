@@ -20,6 +20,7 @@ class RecettesService {
         'Un filet de citron vert remplace très bien une partie de l\'huile.',
       ],
       portions: Portions(legumes: 0.5, proteines: 0.25, feculents: 0.25),
+      ingredients: ['attiéké', 'poisson', 'tomate', 'oignon', 'piment', 'citron'],
     ),
     Recette(
       id: 'alloco',
@@ -29,11 +30,12 @@ class RecettesService {
           'souvent servies avec du poisson, un œuf ou une sauce pimentée.',
       astuces: [
         'Essaie le plantain au four ou braisé : il caramélise tout seul.',
-        'Ajoute une protéine : œuf dur, poisson grillé ou haricots.',
-        'Accompagne d\'une salade d\'avocat et de tomates.',
+        'Ajoute une protéine : poisson braisé ou poulet sans la peau.',
+        'Accompagne d\'une salade de tomates et de carottes râpées.',
         'Envie d\'alloco frit ? Savoure-le pleinement, avec une belle salade à côté.',
       ],
       portions: Portions(legumes: 0.4, proteines: 0.3, feculents: 0.3),
+      ingredients: ['banane plantain', 'friture', 'piment'],
     ),
     Recette(
       id: 'garba',
@@ -47,6 +49,7 @@ class RecettesService {
         'Assaisonne avec piment, citron et cube maison plutôt qu\'avec l\'huile de friture.',
       ],
       portions: Portions(legumes: 0.45, proteines: 0.3, feculents: 0.25),
+      ingredients: ['attiéké', 'thon', 'friture', 'piment', 'oignon'],
     ),
     Recette(
       id: 'foutou_graine',
@@ -61,6 +64,7 @@ class RecettesService {
         'Une boule de foutou à ta faim, accompagnée de beaucoup de sauce aux légumes.',
       ],
       portions: Portions(legumes: 0.4, proteines: 0.3, feculents: 0.3),
+      ingredients: ['banane plantain', 'manioc', 'graine', 'poisson'],
     ),
     Recette(
       id: 'kedjenou',
@@ -75,6 +79,7 @@ class RecettesService {
         'Sers avec un peu d\'attiéké ou de riz.',
       ],
       portions: Portions(legumes: 0.45, proteines: 0.35, feculents: 0.2),
+      ingredients: ['poulet', 'tomate', 'oignon', 'aubergine', 'piment'],
     ),
     Recette(
       id: 'sauce_arachide',
@@ -89,6 +94,7 @@ class RecettesService {
         'Le riz sur un quart de l\'assiette, et le reste pour la sauce aux légumes.',
       ],
       portions: Portions(legumes: 0.45, proteines: 0.3, feculents: 0.25),
+      ingredients: ['riz', 'arachide', 'poulet', 'tomate'],
     ),
     Recette(
       id: 'placali_gombo',
@@ -102,6 +108,7 @@ class RecettesService {
         'Ajoute des feuilles (épinards, kplala) pour encore plus de verdure.',
       ],
       portions: Portions(legumes: 0.5, proteines: 0.25, feculents: 0.25),
+      ingredients: ['placali', 'gombo', 'poisson fumé', 'crabe'],
     ),
     Recette(
       id: 'riz_gras',
@@ -115,6 +122,7 @@ class RecettesService {
         'Mélange moitié riz, moitié légumes dans la marmite.',
       ],
       portions: Portions(legumes: 0.5, proteines: 0.25, feculents: 0.25),
+      ingredients: ['riz', 'huile', 'carotte', 'chou', 'viande'],
     ),
     Recette(
       id: 'claclo',
@@ -128,6 +136,7 @@ class RecettesService {
         'Savoure-les avec un yaourt nature ou un thé, en prenant ton temps.',
       ],
       portions: Portions(legumes: 0.2, proteines: 0.2, feculents: 0.6),
+      ingredients: ['banane plantain', 'friture'],
     ),
     Recette(
       id: 'degue',
@@ -141,6 +150,7 @@ class RecettesService {
         'Une belle bolée en dessert ou au goûter, c\'est parfait.',
       ],
       portions: Portions(legumes: 0.25, proteines: 0.35, feculents: 0.4),
+      ingredients: ['mil', 'lait caillé', 'sucre'],
     ),
   ];
 }

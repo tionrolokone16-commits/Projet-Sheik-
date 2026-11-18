@@ -40,6 +40,7 @@ class Recette {
     required this.description,
     required this.astuces,
     required this.portions,
+    this.ingredients = const [],
   });
 
   final String id;
@@ -54,4 +55,8 @@ class Recette {
 
   /// Répartition indicative de l'assiette revisitée.
   final Portions portions;
+
+  /// Principaux ingrédients et modes de cuisson (au singulier, en minuscules).
+  /// Servent à signaler ce qu'un plan nutritionnel conseille d'éviter.
+  final List<String> ingredients;
 }

@@ -27,6 +27,7 @@ class StockageService {
   static const _cleReglages = 'forme_douce.reglages';
   static const _cleProgres = 'forme_douce.progres';
   static const _cleRepasPhotos = 'forme_douce.repas_photos';
+  static const _clePlan = 'forme_douce.plan';
 
   /// Crée le service une fois shared_preferences prêt.
   static Future<StockageService> initialiser() async =>
@@ -122,6 +123,14 @@ class StockageService {
   Future<void> enregistrerProgres(Progres progres) =>
       _prefs.setString(_cleProgres, jsonEncode(progres.toJson()));
 
+  // ---------- Plan nutritionnel (texte importé) ----------
+
+  /// Texte du plan importé, ou `null` s'il n'y en a pas.
+  String? chargerPlanTexte() => _prefs.getString(_clePlan);
+
+  Future<void> enregistrerPlanTexte(String? texte) =>
+      texte == null ? _prefs.remove(_clePlan) : _prefs.setString(_clePlan, texte);
+
   // ---------- Réglages ----------
 
   Reglages chargerReglages() {
@@ -142,6 +151,7 @@ class StockageService {
       _cleReglages,
       _cleProgres,
       _cleRepasPhotos,
+      _clePlan,
     ]) {
       await _prefs.remove(cle);
     }

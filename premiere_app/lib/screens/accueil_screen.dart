@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/habitudes_provider.dart';
+import '../providers/plan_provider.dart';
 import '../providers/poids_provider.dart';
 import '../providers/profil_provider.dart';
 import '../providers/reglages_provider.dart';
@@ -16,6 +17,7 @@ import '../services/recompenses_service.dart';
 import '../widgets/avatar_profil.dart';
 import '../widgets/plante.dart';
 import 'chemin_screen.dart';
+import 'mon_plan_screen.dart';
 import 'recettes_screen.dart';
 import 'reglages_screen.dart';
 import 'recompenses_screen.dart';
@@ -156,6 +158,16 @@ class AccueilScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                // ----- Mon plan du jour (si un plan est importé) -----
+                if (context.watch<PlanProvider>().plan case final plan?)
+                  CarteMenuDuJour(
+                    key: const Key('accueil_plan_du_jour'),
+                    plan: plan,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const MonPlanScreen()),
+                    ),
+                  ),
 
                 // ----- Plante -----
                 Card(
