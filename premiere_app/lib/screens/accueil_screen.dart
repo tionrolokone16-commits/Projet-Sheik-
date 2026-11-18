@@ -15,6 +15,7 @@ import '../services/plante_service.dart';
 import '../providers/recompenses_provider.dart';
 import '../services/recompenses_service.dart';
 import '../widgets/avatar_profil.dart';
+import '../widgets/carte_rappel_repas.dart';
 import '../widgets/plante.dart';
 import 'ajouter_repas_screen.dart';
 import 'chemin_screen.dart';
@@ -127,6 +128,8 @@ class AccueilScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
+                // ----- Rappel doux de repas (s'il y a lieu) -----
+                const CarteRappelRepas(),
                 // ----- Mot du jour -----
                 Card(
                   color: theme.colorScheme.primaryContainer,

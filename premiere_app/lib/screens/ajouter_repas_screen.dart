@@ -16,17 +16,20 @@ import 'repas_photo_screen.dart';
 ///
 /// Pas de calories, pas de total, pas de remarque sur ce qui a été mangé.
 class AjouterRepasScreen extends StatefulWidget {
-  const AjouterRepasScreen({super.key, required this.date});
+  const AjouterRepasScreen({super.key, required this.date, this.moment});
 
   /// Jour auquel rattacher le repas.
   final DateTime date;
+
+  /// Moment du repas présélectionné (par exemple depuis un rappel).
+  final Repas? moment;
 
   @override
   State<AjouterRepasScreen> createState() => _AjouterRepasScreenState();
 }
 
 class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
-  late Repas _moment = AssietteService.repasSelonHeure(DateTime.now());
+  late Repas _moment = widget.moment ?? AssietteService.repasSelonHeure(DateTime.now());
   PaysPlat? _pays;
   CategoriePlat? _categorie;
   String _recherche = '';

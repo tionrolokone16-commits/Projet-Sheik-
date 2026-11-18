@@ -31,7 +31,10 @@ Future<StockageService> preparerStockage({
   CoucheCelebrations.confettisActives = false; // horloge réelle → test infini
   SharedPreferences.setMockInitialValues({
     if (avecProfil) 'forme_douce.profil': jsonEncode(profilExemple.toJson()),
-    if (reglages != null) 'forme_douce.reglages': jsonEncode(reglages.toJson()),
+    // Rappels désactivés par défaut : sinon les tests dépendraient de l'heure
+    // (la carte de rappel s'afficherait sur l'accueil aux heures de repas).
+    'forme_douce.reglages':
+        jsonEncode((reglages ?? const Reglages(rappelsRepas: false)).toJson()),
   });
   await initializeDateFormatting('fr_FR');
   return StockageService.initialiser();

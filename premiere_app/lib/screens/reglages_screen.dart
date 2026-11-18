@@ -6,6 +6,7 @@ import '../main.dart';
 import '../models/reglages.dart';
 import '../providers/reglages_provider.dart';
 import '../services/calculs_service.dart';
+import '../services/rappels_service.dart';
 import '../services/stockage_service.dart';
 import '../widgets/logo_kira.dart';
 
@@ -163,6 +164,67 @@ class ReglagesScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                  ],
+                ),
+
+                // ----- Rappels -----
+                _Section(
+                  titre: 'Rappels',
+                  enfants: [
+                    SwitchListTile(
+                      key: const Key('interrupteur_rappels'),
+                      secondary: const Text('🔔', style: TextStyle(fontSize: 24)),
+                      title: const Text('Rappels de repas'),
+                      subtitle: const Text('Une invitation douce sur l\'accueil, aux heures '
+                          'de repas, si le repas n\'est pas encore noté. Toujours facultative.'),
+                      value: r.rappelsRepas,
+                      onChanged: (v) => provider.modifier(r.copyWith(rappelsRepas: v)),
+                    ),
+                    if (r.rappelsRepas)
+                      for (final (cle, emoji, libelle, minutes, modifier) in [
+                        ('heure_petit_dejeuner', '🥐', 'Petit-déjeuner', r.heurePetitDejeuner,
+                            (int m) => r.copyWith(heurePetitDejeuner: m)),
+                        ('heure_dejeuner', '🍲', 'Déjeuner', r.heureDejeuner,
+                            (int m) => r.copyWith(heureDejeuner: m)),
+                        ('heure_diner', '🍽️', 'Dîner', r.heureDiner,
+                            (int m) => r.copyWith(heureDiner: m)),
+                      ])
+                        ListTile(
+                          key: Key(cle),
+                          leading: Text(emoji, style: const TextStyle(fontSize: 22)),
+                          title: Text(libelle),
+                          trailing: Text(
+                            RappelsService.formaterHeure(minutes),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          onTap: () async {
+                            final choisie = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
+                              helpText: 'Heure du rappel : ${libelle.toLowerCase()}',
+                              // Affichage sur 24 heures, comme en France et en Côte d'Ivoire.
+                              builder: (context, enfant) => MediaQuery(
+                                data: MediaQuery.of(context)
+                                    .copyWith(alwaysUse24HourFormat: true),
+                                child: enfant!,
+                              ),
+                            );
+                            if (choisie != null) {
+                              await provider
+                                  .modifier(modifier(choisie.hour * 60 + choisie.minute));
+                            }
+                          },
+                        ),
+                    const ListTile(
+                      dense: true,
+                      leading: Icon(Icons.info_outline_rounded),
+                      title: Text('Les rappels apparaissent quand tu ouvres l\'appli : '
+                          'une appli web ne peut pas envoyer de notification quand elle '
+                          'est fermée.'),
                     ),
                   ],
                 ),

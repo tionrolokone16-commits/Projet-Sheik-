@@ -36,7 +36,7 @@ class AssietteService {
     if (p.total <= 0) return null;
     if (p.legumes < seuilLegumesDefi) {
       return 'Idée pour une prochaine fois : quelques crudités ou légumes '
-          'en plus (tomates, concombre, gombo…), si tu en as envie.';
+          'en plus (carotte, haricots verts, gombo…), si tu en as envie.';
     }
     if (p.proteines < 0.1) {
       return 'Idée : une petite source de protéines (poisson, poulet, viande maigre…) '

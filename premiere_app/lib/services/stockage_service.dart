@@ -30,6 +30,7 @@ class StockageService {
   static const _cleRepasPhotos = 'forme_douce.repas_photos';
   static const _clePlan = 'forme_douce.plan';
   static const _clePlatsPerso = 'forme_douce.plats_perso';
+  static const _cleRappels = 'forme_douce.rappels';
 
   /// Crée le service une fois shared_preferences prêt.
   static Future<StockageService> initialiser() async =>
@@ -150,6 +151,21 @@ class StockageService {
   Future<void> enregistrerPlanTexte(String? texte) =>
       texte == null ? _prefs.remove(_clePlan) : _prefs.setString(_clePlan, texte);
 
+  // ---------- Rappels mis de côté (« Plus tard ») ----------
+
+  /// Jour (« aaaa-mm-jj ») et repas dont le rappel a été mis de côté ce jour-là.
+  (String, Set<String>) chargerRappelsMisDeCote() {
+    final objet = _lireObjet(_cleRappels);
+    if (objet == null) return ('', <String>{});
+    return (
+      objet['jour'] as String? ?? '',
+      {...(objet['repas'] as List? ?? const []).cast<String>()},
+    );
+  }
+
+  Future<void> enregistrerRappelsMisDeCote(String jour, Set<String> repas) =>
+      _prefs.setString(_cleRappels, jsonEncode({'jour': jour, 'repas': repas.toList()}));
+
   // ---------- Réglages ----------
 
   Reglages chargerReglages() {
@@ -172,6 +188,7 @@ class StockageService {
       _cleRepasPhotos,
       _clePlan,
       _clePlatsPerso,
+      _cleRappels,
     ]) {
       await _prefs.remove(cle);
     }
