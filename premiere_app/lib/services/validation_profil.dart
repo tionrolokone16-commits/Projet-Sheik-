@@ -17,7 +17,7 @@ class ValidationProfil {
   static String? age(String? texte) {
     final age = lireDecimal(texte);
     if (age == null) return 'Merci d\'indiquer ton âge';
-    if (age < 18) return 'Forme Douce est pensée pour les adultes (18 ans et plus)';
+    if (age < 18) return 'Kira\'s FAT est pensée pour les adultes (18 ans et plus)';
     if (age > 110) return 'Merci de vérifier ton âge';
     return null;
   }

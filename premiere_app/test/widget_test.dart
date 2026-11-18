@@ -18,7 +18,7 @@ void main() {
   Future<void> jusquaObjectif(WidgetTester tester, {required String objectif}) async {
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();
-    expect(find.text('Bienvenue dans Forme Douce'), findsOneWidget);
+    expect(find.text('Bienvenue dans Kira\'s FAT'), findsOneWidget);
     await suivant(tester);
 
     await tester.enterText(find.byKey(const Key('champ_prenom')), 'Kira');

@@ -1,0 +1,71 @@
+# Publie automatiquement l'application Kira's FAT sur GitHub Pages
+# à chaque mise à jour de la branche main.
+#
+# Adresse : https://tionrolokone16-commits.github.io/Projet-Sheik-/
+#
+# Si un test échoue, rien n'est publié : la version en ligne reste la précédente.
+name: Publier Kira's FAT
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'premiere_app/**'
+      - '.github/workflows/publier-kiras-fat.yml'
+  workflow_dispatch: # bouton « Run workflow » pour publier à la main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication à la fois.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construire:
+    name: Tester et construire
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: premiere_app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.50.0
+          cache: true
+
+      - name: Télécharger les packages
+        run: flutter pub get
+
+      - name: Vérifier le code
+        run: flutter analyze
+
+      - name: Lancer les tests
+        run: flutter test
+
+      - name: Construire le site
+        # L'appli est servie dans le sous-dossier /Projet-Sheik-/
+        run: flutter build web --release --base-href /Projet-Sheik-/
+
+      - name: Préparer la publication
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: premiere_app/build/web
+
+  publier:
+    name: Mettre en ligne
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publication.outputs.page_url }}
+    steps:
+      - id: publication
+        uses: actions/deploy-pages@v4

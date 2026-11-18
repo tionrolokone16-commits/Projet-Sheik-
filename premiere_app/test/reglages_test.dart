@@ -91,7 +91,7 @@ void main() {
     await tester.tap(find.byKey(const Key('confirmer_effacement')));
     await tester.pumpAndSettle();
     expect(stockage.chargerProfil(), isNull);
-    expect(find.text('Bienvenue dans Forme Douce'), findsOneWidget);
+    expect(find.text('Bienvenue dans Kira\'s FAT'), findsOneWidget);
   });
 
   testWidgets('tour complet en mode sombre sur petit téléphone', (tester) async {

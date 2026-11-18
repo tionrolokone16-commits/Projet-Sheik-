@@ -164,7 +164,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _pageBienvenue(ThemeData theme) {
     return _PageOnboarding(
       emoji: '🌸',
-      titre: 'Bienvenue dans Forme Douce',
+      titre: 'Bienvenue dans Kira\'s FAT',
       texte: 'Une app pour prendre soin de toi, à ton rythme, sans pression.',
       enfants: const [
         _Atout(emoji: '💧', texte: 'Des petites habitudes qui font du bien'),

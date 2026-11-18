@@ -1,11 +1,11 @@
 {
-    "name": "Forme Douce",
-    "short_name": "Forme Douce",
+    "name": "Kira's FAT",
+    "short_name": "Kira's FAT",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFF0F5",
     "theme_color": "#D01A5E",
-    "description": "Forme Douce : prendre soin de soi en douceur, à son rythme.",
+    "description": "Kira's FAT : prendre soin de soi en douceur, à son rythme.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

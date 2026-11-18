@@ -1,7 +1,7 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// Palette de Forme Douce : rose poudré, framboise, corail et doré.
+/// Palette de Kira's FAT : rose poudré, framboise, corail et doré.
 ///
 /// Contraste (lisibilité) : le framboise vif #E91E63 n'atteint pas le
 /// minimum recommandé de 4,5:1 pour du petit texte sur fond clair. On le

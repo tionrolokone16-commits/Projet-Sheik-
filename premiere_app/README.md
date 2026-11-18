@@ -1,4 +1,4 @@
-# Forme Douce 🌸
+# Kira's FAT 🌸
 
 Application de suivi bien-être pour perdre du poids de façon saine et
 progressive, avec un ton bienveillant. Interface en français, thème rose
@@ -23,6 +23,19 @@ Règles bien-être appliquées partout : aucun message culpabilisant, jamais de
 rouge si le poids augmente, la plante et les badges récompensent les
 habitudes (jamais une restriction), et toutes les données restent sur
 l'appareil.
+
+## Installer sur iPhone et iPad
+
+1. Ouvrir **https://tionrolokone16-commits.github.io/Projet-Sheik-/** dans **Safari**.
+2. Toucher **Partager** (le carré avec une flèche), puis **Sur l'écran d'accueil**.
+3. Toujours ouvrir l'appli depuis cette icône : elle s'ouvre en plein écran
+   et ses données sont conservées durablement.
+
+Les données restent sur chaque appareil (l'iPad et l'iPhone ne les partagent pas).
+La version en ligne se met à jour toute seule à chaque mise à jour de la branche
+`main` (voir `.github/workflows/publier-kiras-fat.yml`).
+
+Icônes : `flutter test tool/generer_icones_test.dart` les redessine.
 
 ## Lancer l'application (Codespaces)
 

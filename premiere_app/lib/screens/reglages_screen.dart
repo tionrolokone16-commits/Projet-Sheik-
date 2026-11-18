@@ -193,7 +193,7 @@ class ReglagesScreen extends StatelessWidget {
                   enfants: [
                     ListTile(
                       leading: const Text('🌸', style: TextStyle(fontSize: 24)),
-                      title: const Text('Forme Douce · version 1.0'),
+                      title: const Text('Kira\'s FAT · version 1.0'),
                       subtitle: Text(
                         'Une app pour prendre soin de soi, à son rythme.\n'
                         '${CalculsService.mentionMedicale} En cas de doute, ou si tu '

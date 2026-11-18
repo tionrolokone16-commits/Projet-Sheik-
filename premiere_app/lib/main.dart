@@ -14,7 +14,7 @@ import 'services/stockage_service.dart';
 import 'theme.dart';
 import 'widgets/couche_celebrations.dart';
 
-/// Point d'entrée de Forme Douce.
+/// Point d'entrée de Kira's FAT.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -64,7 +64,7 @@ class _FormeDouceAppState extends State<FormeDouceApp> {
       // Consumer : l'application se redessine quand le thème change.
       child: Consumer<ReglagesProvider>(
         builder: (context, reglages, _) => MaterialApp(
-          title: 'Forme Douce',
+          title: 'Kira\'s FAT',
           debugShowCheckedModeBanner: false,
           theme: ThemeFormeDouce.clair(),
           darkTheme: ThemeFormeDouce.sombre(),
