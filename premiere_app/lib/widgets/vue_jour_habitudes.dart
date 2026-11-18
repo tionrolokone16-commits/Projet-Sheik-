@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +12,9 @@ import '../providers/habitudes_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/habitudes_service.dart';
 import '../services/stockage_service.dart';
+import '../models/repas_photo.dart';
+import '../screens/repas_photo_screen.dart';
+import 'assiette.dart';
 import 'bouteille_eau.dart';
 import 'dialogue_activite.dart';
 import 'selecteur_ressenti.dart';
@@ -130,6 +134,21 @@ class VueJourHabitudes extends StatelessWidget {
               Text(
                 'Prendre des repas réguliers aide ton corps à trouver son équilibre.',
                 style: Theme.of(context).textTheme.bodySmall,
+              ),
+              // Repas notés avec leur assiette ce jour-là.
+              for (final r in habitudes.repasPhotosDu(date))
+                _LigneRepasPhoto(
+                  repas: r,
+                  onSupprimer: () => habitudes.supprimerRepasPhoto(r.id),
+                ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                key: const Key('bouton_photo_repas'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => RepasPhotoScreen(date: date)),
+                ),
+                icon: const Icon(Icons.photo_camera_rounded),
+                label: const Text('Noter mon assiette'),
               ),
             ],
           ),
@@ -537,6 +556,38 @@ class _CarteNoteState extends State<_CarteNote> {
           hintText: 'Une victoire, un moment doux, une pensée… '
               'Écris ce qui te fait du bien.',
         ),
+      ),
+    );
+  }
+}
+
+/// Un repas noté : photo (ou mini-assiette), type de repas et heure.
+class _LigneRepasPhoto extends StatelessWidget {
+  const _LigneRepasPhoto({required this.repas, required this.onSupprimer});
+
+  final RepasPhoto repas;
+  final VoidCallback onSupprimer;
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = repas.photoBase64;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: photo != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(base64Decode(photo),
+                  width: 48, height: 48, fit: BoxFit.cover, gaplessPlayback: true),
+            )
+          : Assiette(portions: repas.portions, taille: 48),
+      title: Text('${repas.repas.emoji} ${repas.repas.libelle}'),
+      subtitle: Text('🥦 ${(repas.portions.legumes * 100).round()} % · '
+          '🍗 ${(repas.portions.proteines * 100).round()} % · '
+          '🍚 ${(repas.portions.feculents * 100).round()} %'),
+      trailing: IconButton(
+        tooltip: 'Supprimer',
+        icon: const Icon(Icons.delete_outline_rounded),
+        onPressed: onSupprimer,
       ),
     );
   }

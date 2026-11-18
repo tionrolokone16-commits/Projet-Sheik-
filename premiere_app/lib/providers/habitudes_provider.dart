@@ -2,20 +2,83 @@ import 'package:flutter/foundation.dart';
 
 import '../models/activite.dart';
 import '../models/jour_habitudes.dart';
+import '../models/recette.dart';
+import '../models/repas_photo.dart';
 import '../services/stockage_service.dart';
 
-/// Gère le journal des habitudes (eau, sommeil, repas, ressentis)
-/// et la liste des activités physiques.
+/// Gère le journal des habitudes (eau, sommeil, repas, ressentis),
+/// la liste des activités physiques et les repas notés avec leur assiette.
 class HabitudesProvider extends ChangeNotifier {
   HabitudesProvider(this._stockage)
       : _journal = _stockage.chargerJournal(),
-        _activites = _stockage.chargerActivites();
+        _activites = _stockage.chargerActivites(),
+        _repasPhotos = _stockage.chargerRepasPhotos();
 
   final StockageService _stockage;
   final Map<String, JourHabitudes> _journal;
 
   /// Activités, de la plus récente à la plus ancienne.
   final List<Activite> _activites;
+
+  /// Repas notés avec leur assiette, du plus récent au plus ancien.
+  final List<RepasPhoto> _repasPhotos;
+
+  /// Nombre de photos conservées : le navigateur n'offre qu'environ 5 Mo,
+  /// les photos plus anciennes sont retirées (l'assiette, elle, est gardée).
+  static const photosConservees = 20;
+
+  // ------------------------------------------------------ Repas notés
+
+  List<RepasPhoto> get repasPhotos => List.unmodifiable(_repasPhotos);
+
+  List<RepasPhoto> repasPhotosDu(DateTime date) {
+    final cle = cleDuJour(date);
+    return _repasPhotos.where((r) => cleDuJour(r.date) == cle).toList();
+  }
+
+  /// Enregistre un repas et le coche dans le journal du jour.
+  Future<void> ajouterRepasPhoto({
+    required DateTime date,
+    required Repas repas,
+    required Portions portions,
+    String? photoBase64,
+  }) async {
+    _repasPhotos
+      ..insert(
+        0,
+        RepasPhoto(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          date: date,
+          repas: repas,
+          portions: portions,
+          photoBase64: photoBase64,
+        ),
+      )
+      ..sort((a, b) => b.date.compareTo(a.date));
+    // On ne garde que les photos les plus récentes.
+    var photos = 0;
+    for (var i = 0; i < _repasPhotos.length; i++) {
+      if (_repasPhotos[i].photoBase64 == null) continue;
+      photos++;
+      if (photos > photosConservees) _repasPhotos[i] = _repasPhotos[i].sansPhoto();
+    }
+    await _stockage.enregistrerRepasPhotos(_repasPhotos);
+    // Coche le repas dans le journal (sans le décocher s'il l'est déjà).
+    if (!jour(date).repas.contains(repas)) {
+      await basculerRepas(date, repas);
+    } else {
+      notifyListeners();
+    }
+  }
+
+  Future<RepasPhoto?> supprimerRepasPhoto(String id) async {
+    final index = _repasPhotos.indexWhere((r) => r.id == id);
+    if (index < 0) return null;
+    final supprime = _repasPhotos.removeAt(index);
+    notifyListeners();
+    await _stockage.enregistrerRepasPhotos(_repasPhotos);
+    return supprime;
+  }
 
   // ------------------------------------------------------------ Journal
 

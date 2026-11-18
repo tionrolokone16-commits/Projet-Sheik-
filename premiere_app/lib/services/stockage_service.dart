@@ -8,6 +8,7 @@ import '../models/pesee.dart';
 import '../models/profil.dart';
 import '../models/progres.dart';
 import '../models/reglages.dart';
+import '../models/repas_photo.dart';
 
 /// Lecture et écriture des données sur l'appareil (shared_preferences).
 ///
@@ -25,6 +26,7 @@ class StockageService {
   static const _cleJournal = 'forme_douce.journal';
   static const _cleReglages = 'forme_douce.reglages';
   static const _cleProgres = 'forme_douce.progres';
+  static const _cleRepasPhotos = 'forme_douce.repas_photos';
 
   /// Crée le service une fois shared_preferences prêt.
   static Future<StockageService> initialiser() async =>
@@ -87,6 +89,24 @@ class StockageService {
       _prefs.setString(_cleJournal,
           jsonEncode(journal.map((cle, jour) => MapEntry(cle, jour.toJson()))));
 
+  // ---------- Repas photographiés ----------
+
+  /// Repas notés avec l'assiette, du plus récent au plus ancien.
+  List<RepasPhoto> chargerRepasPhotos() {
+    final liste = <RepasPhoto>[];
+    for (final objet in _lireListe(_cleRepasPhotos)) {
+      try {
+        liste.add(RepasPhoto.fromJson(objet));
+      } catch (_) {
+        // Repas illisible : ignoré.
+      }
+    }
+    return liste..sort((a, b) => b.date.compareTo(a.date));
+  }
+
+  Future<void> enregistrerRepasPhotos(List<RepasPhoto> repas) => _prefs.setString(
+      _cleRepasPhotos, jsonEncode([for (final r in repas) r.toJson()]));
+
   // ---------- Récompenses (badges, défis, victoires) ----------
 
   Progres chargerProgres() {
@@ -121,6 +141,7 @@ class StockageService {
       _cleJournal,
       _cleReglages,
       _cleProgres,
+      _cleRepasPhotos,
     ]) {
       await _prefs.remove(cle);
     }

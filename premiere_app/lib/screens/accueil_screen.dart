@@ -15,6 +15,7 @@ import '../providers/recompenses_provider.dart';
 import '../services/recompenses_service.dart';
 import '../widgets/plante.dart';
 import 'chemin_screen.dart';
+import 'recettes_screen.dart';
 import 'recompenses_screen.dart';
 import 'respiration_screen.dart';
 
@@ -250,6 +251,24 @@ class AccueilScreen extends StatelessWidget {
                 _CarteRecompenses(
                   onOuvrir: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const RecompensesScreen()),
+                  ),
+                ),
+
+                // ----- Recettes -----
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: ListTile(
+                    key: const Key('carte_recettes'),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const RecettesScreen()),
+                    ),
+                    leading: const Text('🍲', style: TextStyle(fontSize: 30)),
+                    title: Text('Recettes de chez nous',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700)),
+                    subtitle: const Text('Nos plats, en version revisitée'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
                   ),
                 ),
 
