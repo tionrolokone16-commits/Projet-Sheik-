@@ -9,6 +9,7 @@ import '../services/validation_profil.dart';
 import '../widgets/carte_douce.dart';
 import '../widgets/carte_objectif_calorique.dart';
 import '../widgets/format.dart';
+import 'reglages_screen.dart';
 
 /// Écran de modification du profil (le premier remplissage se fait
 /// dans l'onboarding).
@@ -91,7 +92,20 @@ class _ProfilScreenState extends State<ProfilScreen> {
     const espace = SizedBox(height: 16);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mon profil')),
+      appBar: AppBar(
+        title: const Text('Mon profil'),
+        actions: [
+          IconButton(
+            key: const Key('bouton_reglages_profil'),
+            tooltip: 'Réglages',
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ReglagesScreen()),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           // Largeur limitée pour rester lisible sur iPad.

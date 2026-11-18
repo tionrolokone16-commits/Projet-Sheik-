@@ -16,6 +16,7 @@ import '../services/recompenses_service.dart';
 import '../widgets/plante.dart';
 import 'chemin_screen.dart';
 import 'recettes_screen.dart';
+import 'reglages_screen.dart';
 import 'recompenses_screen.dart';
 import 'respiration_screen.dart';
 
@@ -76,23 +77,38 @@ class AccueilScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
               children: [
-                // ----- Salutation -----
+                // ----- Salutation (+ accès aux réglages) -----
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        EncouragementsService.salutation(profil?.prenom ?? ''),
-                        key: const Key('salutation'),
-                        style: theme.textTheme.headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.w800),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              EncouragementsService.salutation(profil?.prenom ?? ''),
+                              key: const Key('salutation'),
+                              style: theme.textTheme.headlineMedium
+                                  ?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                            Text(
+                              toBeginningOfSentenceCase(
+                                  DateFormat('EEEE d MMMM', 'fr_FR').format(maintenant)),
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
                       ),
-                      Text(
-                        toBeginningOfSentenceCase(
-                            DateFormat('EEEE d MMMM', 'fr_FR').format(maintenant)),
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant),
+                      IconButton(
+                        key: const Key('bouton_reglages_accueil'),
+                        tooltip: 'Réglages',
+                        icon: const Icon(Icons.settings_rounded),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const ReglagesScreen()),
+                        ),
                       ),
                     ],
                   ),

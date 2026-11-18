@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../models/jour_habitudes.dart';
@@ -49,7 +50,10 @@ class SelecteurRessenti extends StatelessWidget {
                 emoji: ressenti.emojis[niveau - 1],
                 description: '${ressenti.libelle} : ${ressenti.descriptions[niveau - 1]}',
                 choisi: valeur == niveau,
-                onTap: () => onChoisir(niveau),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onChoisir(niveau);
+                },
               ),
           ],
         ),

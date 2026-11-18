@@ -28,14 +28,31 @@ Future<void> main() async {
   runApp(FormeDouceApp(stockage: stockage));
 }
 
-class FormeDouceApp extends StatelessWidget {
+class FormeDouceApp extends StatefulWidget {
   const FormeDouceApp({super.key, required this.stockage});
 
   final StockageService stockage;
 
+  /// Repart de zéro : toutes les données sont relues depuis le stockage
+  /// (utilisé après « Tout effacer »).
+  static void redemarrer(BuildContext context) =>
+      context.findAncestorStateOfType<_FormeDouceAppState>()?._redemarrer();
+
+  @override
+  State<FormeDouceApp> createState() => _FormeDouceAppState();
+}
+
+class _FormeDouceAppState extends State<FormeDouceApp> {
+  /// Changer cette clé recrée tous les providers.
+  Key _cle = UniqueKey();
+
+  void _redemarrer() => setState(() => _cle = UniqueKey());
+
   @override
   Widget build(BuildContext context) {
+    final stockage = widget.stockage;
     return MultiProvider(
+      key: _cle,
       providers: [
         Provider.value(value: stockage),
         ChangeNotifierProvider(create: (_) => ProfilProvider(stockage)),

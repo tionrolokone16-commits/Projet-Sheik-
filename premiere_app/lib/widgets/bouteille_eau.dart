@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Bouteille d'eau dessinée à la main, qui se remplit à chaque toucher.
@@ -57,7 +58,10 @@ class _BouteilleEauState extends State<BouteilleEau>
           'Toucher pour ajouter un verre.',
       child: GestureDetector(
         key: const Key('bouteille_eau'),
-        onTap: widget.onAjouter,
+        onTap: () {
+          HapticFeedback.lightImpact(); // petite vibration (si l'appareil le permet)
+          widget.onAjouter();
+        },
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: TweenAnimationBuilder<double>(

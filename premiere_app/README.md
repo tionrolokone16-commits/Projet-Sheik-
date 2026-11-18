@@ -1,17 +1,58 @@
-# premiere_app
+# Forme Douce 🌸
 
-A new Flutter project.
+Application de suivi bien-être pour perdre du poids de façon saine et
+progressive, avec un ton bienveillant. Interface en français, thème rose
+clair et sombre, fonctionne dans le navigateur (Flutter Web).
 
-## Getting Started
+> Indications générales, pas un avis médical.
 
-This project is a starting point for a Flutter application.
+## Fonctionnalités
 
-A few resources to get you started if this is your first Flutter project:
+| Onglet / écran | Contenu |
+|---|---|
+| **Onboarding** | 6 pages animées pour créer le profil (objectif refusé si IMC < 18,5) |
+| **Accueil** | Salutation selon l'heure, mot du jour, plante 🌸 qui grandit avec les habitudes, eau, dernière activité, « J'ai une fringale » (respiration d'1 minute) |
+| **Poids** | Pesées, courbe avec tendance sur 7 jours, chemin des paliers (5 % + 2 semaines de stabilisation) |
+| **Habitudes** | Journal à glisser jour par jour : eau (bouteille animée), humeur, sommeil, repas (avec assiette en photo), activités, petit mot, calendrier coloré |
+| **Profil** | Modification du profil et repère calorique (Mifflin-St Jeor, jamais sous 1200 kcal) |
+| **Défis & badges** | 10 défis doux par semaine (3 max), victoires hors balance, 20 badges, confettis |
+| **Recettes** | 10 plats ivoiriens en cartes à retourner : plat d'origine / version revisitée |
+| **Réglages** | Masquer le poids sur l'accueil, objectif d'eau, thème, tout effacer |
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Règles bien-être appliquées partout : aucun message culpabilisant, jamais de
+rouge si le poids augmente, la plante et les badges récompensent les
+habitudes (jamais une restriction), et toutes les données restent sur
+l'appareil.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Lancer l'application (Codespaces)
+
+```bash
+cd premiere_app
+flutter run -d web-server --web-port 8080 --web-hostname 0.0.0.0
+```
+
+Puis ouvrir le port **8080** dans l'onglet *Ports* de VS Code.
+
+## Vérifier le code
+
+```bash
+flutter analyze   # recherche d'erreurs
+flutter test      # tests automatiques
+```
+
+## Organisation du code
+
+```
+lib/
+  main.dart        point d'entrée, providers, thème
+  theme.dart       palette rose et thèmes clair / sombre
+  models/          données (profil, pesée, activité, journée, recette…)
+  services/        stockage local et règles (calculs, messages, paliers…)
+  providers/       état de l'application (provider)
+  screens/         écrans
+  widgets/         éléments réutilisables (bouteille, plante, assiette…)
+test/              tests automatiques
+```
+
+Packages : provider, shared_preferences, fl_chart, intl, google_fonts,
+flutter_animate, confetti, image_picker (tous compatibles web).

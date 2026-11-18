@@ -20,13 +20,22 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // IndexedStack garde chaque onglet en mémoire (pas de perte de saisie).
+      // Chaque onglet apparaît en fondu quand on le choisit.
       body: IndexedStack(
         index: _onglet,
         children: [
-          AccueilScreen(onAllerOnglet: (i) => setState(() => _onglet = i)),
-          const PoidsScreen(),
-          const HabitudesScreen(),
-          const ProfilScreen(),
+          for (final (i, ecran) in [
+            AccueilScreen(onAllerOnglet: (i) => setState(() => _onglet = i)),
+            const PoidsScreen(),
+            const HabitudesScreen(),
+            const ProfilScreen(),
+          ].indexed)
+            AnimatedOpacity(
+              opacity: i == _onglet ? 1 : 0,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+              child: ecran,
+            ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

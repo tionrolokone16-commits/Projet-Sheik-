@@ -3,9 +3,9 @@
     "short_name": "Forme Douce",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFF0F5",
+    "theme_color": "#D01A5E",
+    "description": "Forme Douce : prendre soin de soi en douceur, à son rythme.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
