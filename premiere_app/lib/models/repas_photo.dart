@@ -1,3 +1,4 @@
+import 'ingredient.dart';
 import 'jour_habitudes.dart';
 import 'plat.dart';
 import 'recette.dart';
@@ -19,6 +20,7 @@ class RepasPhoto {
     this.taille = TaillePortion.moyenne,
     this.ressentis = const {},
     this.kcalManuel,
+    this.composition = const [],
   });
 
   final String id;
@@ -45,6 +47,9 @@ class RepasPhoto {
   /// Calories saisies à la main (`null` : estimation automatique).
   final int? kcalManuel;
 
+  /// Ingrédients pesés (plat composé au gramme près). Vide sinon.
+  final List<Composant> composition;
+
   /// Nom à afficher dans le journal.
   String get titre => nomPlat ?? 'Repas en photo';
 
@@ -55,14 +60,19 @@ class RepasPhoto {
     bool retirerPhoto = false,
     int? kcalManuel,
     bool effacerKcal = false,
+    List<Composant>? composition,
+    Portions? portions,
+    String? nomPlat,
+    String? emojiPlat,
   }) => RepasPhoto(
     id: id,
     date: date,
     repas: repas ?? this.repas,
-    portions: portions,
+    portions: portions ?? this.portions,
     photoBase64: retirerPhoto ? null : photoBase64,
-    nomPlat: nomPlat,
-    emojiPlat: emojiPlat,
+    nomPlat: nomPlat ?? this.nomPlat,
+    emojiPlat: emojiPlat ?? this.emojiPlat,
+    composition: composition ?? this.composition,
     taille: taille ?? this.taille,
     ressentis: ressentis ?? this.ressentis,
     kcalManuel: effacerKcal ? null : (kcalManuel ?? this.kcalManuel),
@@ -83,6 +93,7 @@ class RepasPhoto {
     'taille': taille.name,
     if (ressentis.isNotEmpty) 'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
     if (kcalManuel != null) 'kcal': kcalManuel,
+    if (composition.isNotEmpty) 'composition': [for (final c in composition) c.toJson()],
   };
 
   factory RepasPhoto.fromJson(Map<String, dynamic> json) {
@@ -107,6 +118,10 @@ class RepasPhoto {
       taille: TaillePortion.depuisNom(json['taille'] as String?),
       ressentis: ressentis,
       kcalManuel: (json['kcal'] as num?)?.toInt(),
+      composition: [
+        for (final c in (json['composition'] as List? ?? const []))
+          Composant.fromJson(c as Map<String, dynamic>),
+      ],
     );
   }
 }

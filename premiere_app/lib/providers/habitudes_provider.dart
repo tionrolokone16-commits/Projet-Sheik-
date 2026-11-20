@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/activite.dart';
+import '../models/ingredient.dart';
 import '../models/jour_habitudes.dart';
 import '../models/plat.dart';
 import '../models/recette.dart';
 import '../models/repas_photo.dart';
 import '../services/calories_service.dart';
+import '../services/ingredients_service.dart';
 import '../services/plats_service.dart';
 import '../services/stockage_service.dart';
 
@@ -57,6 +59,8 @@ class HabitudesProvider extends ChangeNotifier {
     String? emojiPlat,
     TaillePortion taille = TaillePortion.moyenne,
     Map<RessentiRepas, int> ressentis = const {},
+    int? kcalManuel,
+    List<Composant> composition = const [],
   }) async {
     final nouveau = RepasPhoto(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
@@ -68,6 +72,8 @@ class HabitudesProvider extends ChangeNotifier {
       emojiPlat: emojiPlat,
       taille: taille,
       ressentis: ressentis,
+      kcalManuel: kcalManuel,
+      composition: composition,
     );
     _repasPhotos
       ..insert(0, nouveau)
@@ -132,7 +138,29 @@ class HabitudesProvider extends ChangeNotifier {
     nomPlat: modele.nomPlat,
     emojiPlat: modele.emojiPlat,
     taille: modele.taille,
+    // Un plat composé garde ses ingrédients et ses calories.
+    kcalManuel: modele.composition.isEmpty ? null : modele.kcalManuel,
+    composition: modele.composition,
   );
+
+  /// Remplace la composition d'un repas (ingrédients pesés) : ses calories
+  /// et son assiette en découlent.
+  Future<void> modifierComposition(
+    String id,
+    List<Composant> composition, {
+    String? nomPlat,
+  }) async {
+    final index = _repasPhotos.indexWhere((r) => r.id == id);
+    if (index < 0) return;
+    _repasPhotos[index] = _repasPhotos[index].copyWith(
+      composition: composition,
+      kcalManuel: IngredientsService.kcal(composition),
+      portions: IngredientsService.portions(composition),
+      nomPlat: nomPlat,
+    );
+    notifyListeners();
+    _remplacerRepas(await _stockage.enregistrerRepasPhotos(_repasPhotos));
+  }
 
   /// Modifie un repas noté (moment, taille de portion, ressentis).
   Future<void> modifierRepas(

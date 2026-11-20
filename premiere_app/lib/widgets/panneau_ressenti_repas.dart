@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../models/jour_habitudes.dart';
 import '../models/plat.dart';
 import '../providers/habitudes_provider.dart';
+import '../screens/composer_plat_screen.dart';
 import '../services/calories_service.dart';
+import '../services/ingredients_service.dart';
 import 'dialogue_nombre.dart';
 import 'selecteur_ressenti.dart';
 
@@ -85,6 +87,34 @@ class _Panneau extends StatelessWidget {
                 selected: {repas.taille},
                 showSelectedIcon: false,
                 onSelectionChanged: (s) => habitudes.modifierRepas(idRepas, taille: s.first),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // ----- Ingrédients pesés -----
+            if (repas.composition.isNotEmpty) ...[
+              Text('Ingrédients', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 4),
+              Text(
+                [
+                  for (final c in repas.composition)
+                    if (IngredientsService.parId(c.idIngredient) case final i?)
+                      '${i.emoji} ${i.nom.split(' (').first} ${c.grammes} g',
+                ].join(' · '),
+                key: const Key('ingredients_repas'),
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+            ],
+            OutlinedButton.icon(
+              key: const Key('detailler_grammes'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ComposerPlatScreen(date: repas.date, idRepas: repas.id),
+                ),
+              ),
+              icon: const Text('⚖️'),
+              label: Text(
+                repas.composition.isEmpty ? 'Détailler en grammes' : 'Modifier les ingrédients',
               ),
             ),
             const SizedBox(height: 16),

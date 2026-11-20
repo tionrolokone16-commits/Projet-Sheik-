@@ -11,6 +11,7 @@ import '../services/assiette_service.dart';
 import '../services/calories_service.dart';
 import '../services/plats_service.dart';
 import '../widgets/panneau_ressenti_repas.dart';
+import 'composer_plat_screen.dart';
 import 'repas_photo_screen.dart';
 
 /// Noter un repas en 2 touches : on ouvre cet écran, on touche un plat.
@@ -291,6 +292,22 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+
+                // ----- Composer au gramme près -----
+                FilledButton.tonalIcon(
+                  key: const Key('bouton_composer_plat'),
+                  onPressed: () async {
+                    final note = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(
+                        builder: (_) => ComposerPlatScreen(date: widget.date, moment: _moment),
+                      ),
+                    );
+                    if (note == true && context.mounted) Navigator.of(context).pop();
+                  },
+                  icon: const Text('⚖️', style: TextStyle(fontSize: 18)),
+                  label: const Text('Composer mon plat en grammes'),
                 ),
                 const SizedBox(height: 12),
 
