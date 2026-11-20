@@ -99,7 +99,7 @@ void main() {
 
     stockage = await preparerStockage(
       avecProfil: true,
-      reglages: const Reglages(masquerPoidsAccueil: true),
+      reglages: const Reglages(masquerPoidsAccueil: true, bilanSoir: false),
     );
     await tester.pumpWidget(FormeDouceApp(key: UniqueKey(), stockage: stockage));
     await tester.pumpAndSettle();

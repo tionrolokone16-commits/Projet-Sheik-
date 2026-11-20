@@ -23,6 +23,8 @@ class Reglages {
     this.heureDiner = 20 * 60,
     this.suiviCycle = false,
     this.joursSeance = const {},
+    this.bilanSoir = true,
+    this.heureBilanSoir = 21 * 60,
   });
 
   /// Si vrai, le poids n'apparaît pas sur l'écran d'accueil.
@@ -48,6 +50,12 @@ class Reglages {
   /// Vide : pas de planning, la séance est proposée selon l'énergie seule.
   final Set<int> joursSeance;
 
+  /// Bilan du soir affiché sur l'accueil à partir de [heureBilanSoir].
+  final bool bilanSoir;
+
+  /// Heure du bilan du soir, en minutes depuis minuit (21 h = 1260).
+  final int heureBilanSoir;
+
   Reglages copyWith({
     bool? masquerPoidsAccueil,
     int? objectifVerres,
@@ -58,6 +66,8 @@ class Reglages {
     int? heureDiner,
     bool? suiviCycle,
     Set<int>? joursSeance,
+    bool? bilanSoir,
+    int? heureBilanSoir,
   }) => Reglages(
     masquerPoidsAccueil: masquerPoidsAccueil ?? this.masquerPoidsAccueil,
     objectifVerres: objectifVerres ?? this.objectifVerres,
@@ -68,6 +78,8 @@ class Reglages {
     heureDiner: heureDiner ?? this.heureDiner,
     suiviCycle: suiviCycle ?? this.suiviCycle,
     joursSeance: joursSeance ?? this.joursSeance,
+    bilanSoir: bilanSoir ?? this.bilanSoir,
+    heureBilanSoir: heureBilanSoir ?? this.heureBilanSoir,
   );
 
   Map<String, dynamic> toJson() => {
@@ -80,6 +92,8 @@ class Reglages {
     'heureDiner': heureDiner,
     'suiviCycle': suiviCycle,
     'joursSeance': [...joursSeance]..sort(),
+    'bilanSoir': bilanSoir,
+    'heureBilanSoir': heureBilanSoir,
   };
 
   factory Reglages.fromJson(Map<String, dynamic> json) => Reglages(
@@ -95,5 +109,7 @@ class Reglages {
       for (final j in (json['joursSeance'] as List? ?? const []))
         if (j is num && j >= 1 && j <= 7) j.toInt(),
     },
+    bilanSoir: json['bilanSoir'] as bool? ?? true,
+    heureBilanSoir: (json['heureBilanSoir'] as num?)?.toInt() ?? 21 * 60,
   );
 }

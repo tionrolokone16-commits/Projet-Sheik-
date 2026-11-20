@@ -70,6 +70,7 @@ void main() {
       heureDejeuner: (minutes - 10) % 1440,
       heurePetitDejeuner: (minutes + 300) % 1440,
       heureDiner: (minutes + 600) % 1440,
+      bilanSoir: false,
     );
   }
 
@@ -116,7 +117,7 @@ void main() {
   });
 
   testWidgets('réglages : couper les rappels masque les heures', (tester) async {
-    await lancer(tester, const Reglages());
+    await lancer(tester, const Reglages(bilanSoir: false));
     tester
         .state<NavigatorState>(find.byType(Navigator).first)
         .push(MaterialPageRoute(builder: (_) => const ReglagesScreen()));

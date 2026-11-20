@@ -158,6 +158,31 @@ class RecompensesProvider extends ChangeNotifier {
     await _sauver();
   }
 
+  // ------------------------------------------------- Bilan du soir
+
+  static String _cleIdeesDuJour(DateTime date) => 'demain:${cleDuJour(date)}';
+
+  /// Idées choisies la veille (« journée compliquée ») pour la journée [date].
+  List<String> ideesDuJour(DateTime date) =>
+      List.unmodifiable(_progres.idees[_cleIdeesDuJour(date)] ?? const []);
+
+  /// Choisit (ou retire) une idée pour la journée [date] (2 au plus).
+  Future<void> basculerIdeeDuJour(DateTime date, String idee) async {
+    final liste = _progres.idees.putIfAbsent(_cleIdeesDuJour(date), () => []);
+    if (!liste.remove(idee)) {
+      if (liste.length >= ideesMax) return;
+      liste.add(idee);
+    }
+    await _sauver();
+  }
+
+  /// Vrai si le bilan du soir de [date] a déjà été ouvert.
+  bool bilanSoirVu(DateTime date) => _progres.celebrations.contains('bilanSoir:${cleDuJour(date)}');
+
+  Future<void> marquerBilanSoirVu(DateTime date) async {
+    if (_progres.celebrations.add('bilanSoir:${cleDuJour(date)}')) await _sauver();
+  }
+
   Future<void> _sauver() async {
     notifyListeners();
     await _stockage.enregistrerProgres(_progres);

@@ -31,7 +31,9 @@ Future<StockageService> preparerStockage({bool avecProfil = false, Reglages? reg
     if (avecProfil) 'forme_douce.profil': jsonEncode(profilExemple.toJson()),
     // Rappels désactivés par défaut : sinon les tests dépendraient de l'heure
     // (la carte de rappel s'afficherait sur l'accueil aux heures de repas).
-    'forme_douce.reglages': jsonEncode((reglages ?? const Reglages(rappelsRepas: false)).toJson()),
+    'forme_douce.reglages': jsonEncode(
+      (reglages ?? const Reglages(rappelsRepas: false, bilanSoir: false)).toJson(),
+    ),
   });
   await initializeDateFormatting('fr_FR');
   return StockageService.initialiser();

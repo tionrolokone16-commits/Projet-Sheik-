@@ -270,6 +270,52 @@ class ReglagesScreen extends StatelessWidget {
                                     }
                                   },
                                 ),
+                            SwitchListTile(
+                              key: const Key('interrupteur_bilan_soir'),
+                              secondary: const Text('🌙', style: TextStyle(fontSize: 24)),
+                              title: const Text('Bilan du soir'),
+                              subtitle: const Text(
+                                'Un bravo pour ce que tu as fait dans la journée, '
+                                'sur l\'accueil à partir de l\'heure choisie.',
+                              ),
+                              value: r.bilanSoir,
+                              onChanged: (v) => provider.modifier(r.copyWith(bilanSoir: v)),
+                            ),
+                            if (r.bilanSoir)
+                              ListTile(
+                                key: const Key('heure_bilan_soir'),
+                                leading: const Text('🕘', style: TextStyle(fontSize: 22)),
+                                title: const Text('Heure du bilan'),
+                                trailing: Text(
+                                  RappelsService.formaterHeure(r.heureBilanSoir),
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                onTap: () async {
+                                  final choisie = await showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay(
+                                      hour: r.heureBilanSoir ~/ 60,
+                                      minute: r.heureBilanSoir % 60,
+                                    ),
+                                    helpText: 'Heure du bilan du soir',
+                                    builder: (context, enfant) => MediaQuery(
+                                      data: MediaQuery.of(context)
+                                          .copyWith(alwaysUse24HourFormat: true),
+                                      child: enfant!,
+                                    ),
+                                  );
+                                  if (choisie != null) {
+                                    await provider.modifier(
+                                      r.copyWith(
+                                        heureBilanSoir: choisie.hour * 60 + choisie.minute,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
                             const ListTile(
                               dense: true,
                               leading: Icon(Icons.info_outline_rounded),

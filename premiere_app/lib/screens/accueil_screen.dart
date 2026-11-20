@@ -10,6 +10,7 @@ import '../providers/profil_provider.dart';
 import '../providers/recompenses_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/bilan_service.dart';
+import '../services/bilan_soir_service.dart';
 import '../services/encouragements_service.dart';
 import '../services/habitudes_service.dart';
 import '../services/messages_service.dart';
@@ -20,6 +21,7 @@ import '../widgets/carte_rappel_repas.dart';
 import '../widgets/plante.dart';
 import 'ajouter_repas_screen.dart';
 import 'bilan_screen.dart';
+import 'bilan_soir_screen.dart';
 import 'chemin_screen.dart';
 import 'exercices_screen.dart';
 import 'mon_plan_screen.dart';
@@ -67,6 +69,9 @@ class AccueilScreen extends StatelessWidget {
     );
     final stade = PlanteService.stade(gouttes);
     final idees = recompenses.ideesDe(RecompensesService.debutSemaine(maintenant));
+    final ideesDuJour = [
+      for (final nom in recompenses.ideesDuJour(maintenant)) ?IdeeDemain.depuisNom(nom),
+    ];
     final derniere = habitudes.derniereActivite;
     final badges = recompenses.progres.badges.length;
     final defis = recompenses.defisDeLaSemaine(maintenant).length;
@@ -184,6 +189,59 @@ class AccueilScreen extends StatelessWidget {
 
                         // ----- 3. Aujourd'hui (seulement s'il y a lieu) -----
                         const CarteRappelRepas(),
+                        if (BilanSoirService.aAfficher(
+                          maintenant: maintenant,
+                          reglages: reglages,
+                          dejaVu: recompenses.bilanSoirVu(maintenant),
+                        ))
+                          Card(
+                            color: theme.colorScheme.primaryContainer,
+                            clipBehavior: Clip.antiAlias,
+                            child: ListTile(
+                              key: const Key('carte_bilan_soir'),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
+                              onTap: () => _ouvrir(context, const BilanSoirScreen()),
+                              leading: const Text('🌙', style: TextStyle(fontSize: 30)),
+                              title: Text(
+                                'Ton bilan du soir',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Un bravo pour ta journée, en une minute',
+                                style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+                              ),
+                              trailing: const Icon(Icons.chevron_right_rounded),
+                            ),
+                          ),
+                        if (ideesDuJour.isNotEmpty)
+                          Card(
+                            key: const Key('carte_idees_du_jour'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '🌱 Mes idées pour aujourd\'hui',
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  for (final idee in ideesDuJour)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Text('${idee.emoji}  ${idee.texte}'),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
                         if (plan != null)
                           CarteMenuDuJour(
                             key: const Key('accueil_plan_du_jour'),
