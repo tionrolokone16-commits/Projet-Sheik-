@@ -43,9 +43,12 @@ class CalendrierMois extends StatelessWidget {
             for (final i in _initiales)
               Expanded(
                 child: Center(
-                  child: Text(i,
-                      style: theme.textTheme.labelMedium
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  child: Text(
+                    i,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
           ],
@@ -74,8 +77,8 @@ class CalendrierMois extends StatelessWidget {
                   ton: JournalService.ton(jour),
                   nbHabitudes: nbHabitudes,
                   estAujourdhui: date == aujourdhui,
-                  estSelectionne: jourSelectionne != null &&
-                      DateUtils.isSameDay(date, jourSelectionne),
+                  estSelectionne:
+                      jourSelectionne != null && DateUtils.isSameDay(date, jourSelectionne),
                   estFutur: date.isAfter(aujourdhui),
                   onTap: () => onChoisir(date),
                 );
@@ -129,8 +132,8 @@ class _CaseJour extends StatelessWidget {
               color: estSelectionne
                   ? couleurs.primary
                   : estAujourdhui
-                      ? couleurs.primary.withValues(alpha: 0.5)
-                      : Colors.transparent,
+                  ? couleurs.primary.withValues(alpha: 0.5)
+                  : Colors.transparent,
               width: estSelectionne ? 2.5 : 1.5,
             ),
           ),

@@ -42,16 +42,17 @@ class _HabitudesScreenState extends State<HabitudesScreen> {
     if ((index - _index).abs() > 3) {
       _pages.jumpToPage(index);
     } else {
-      _pages.animateToPage(index,
-          duration: const Duration(milliseconds: 350), curve: Curves.easeOutCubic);
+      _pages.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOutCubic,
+      );
     }
   }
 
   Future<void> _ouvrirCalendrier() async {
     final choisie = await Navigator.of(context).push<DateTime>(
-      MaterialPageRoute(
-        builder: (_) => CalendrierScreen(jourSelectionne: _dateDe(_index)),
-      ),
+      MaterialPageRoute(builder: (_) => CalendrierScreen(jourSelectionne: _dateDe(_index))),
     );
     if (choisie == null) return;
     final n = DateTime.now();
@@ -63,8 +64,7 @@ class _HabitudesScreenState extends State<HabitudesScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final date = _dateDe(_index);
-    final dateEnClair =
-        toBeginningOfSentenceCase(DateFormat('EEEE d MMMM', 'fr_FR').format(date));
+    final dateEnClair = toBeginningOfSentenceCase(DateFormat('EEEE d MMMM', 'fr_FR').format(date));
     final titreJour = JournalService.nomRelatif(date) ?? dateEnClair;
 
     return Scaffold(
@@ -75,10 +75,7 @@ class _HabitudesScreenState extends State<HabitudesScreen> {
             key: const Key('bouton_calendrier'),
             tooltip: 'Calendrier',
             onPressed: _ouvrirCalendrier,
-            icon: const Hero(
-              tag: 'calendrier',
-              child: Icon(Icons.calendar_month_rounded),
-            ),
+            icon: const Hero(tag: 'calendrier', child: Icon(Icons.calendar_month_rounded)),
           ),
           const SizedBox(width: 8),
         ],
@@ -101,8 +98,7 @@ class _HabitudesScreenState extends State<HabitudesScreen> {
                       titreJour,
                       key: ValueKey(titreJour),
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),

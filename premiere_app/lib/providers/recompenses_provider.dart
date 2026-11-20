@@ -53,9 +53,9 @@ class RecompensesProvider extends ChangeNotifier {
 
   /// Défis choisis pour la semaine de [date].
   List<Defi> defisDeLaSemaine(DateTime date) => [
-        for (final id in (_progres.defis[RecompensesService.cleSemaine(date)] ?? const {}).keys)
-          ?Defi.depuisNom(id), // ignoré si le défi n'existe plus
-      ];
+    for (final id in (_progres.defis[RecompensesService.cleSemaine(date)] ?? const {}).keys)
+      ?Defi.depuisNom(id), // ignoré si le défi n'existe plus
+  ];
 
   Future<void> choisirDefi(DateTime date, Defi defi) async {
     final semaine = _progres.defis.putIfAbsent(RecompensesService.cleSemaine(date), () => {});
@@ -90,11 +90,13 @@ class RecompensesProvider extends ChangeNotifier {
       ),
     );
     // Chaque victoire mérite ses confettis.
-    _file.add(Celebration(
-      emoji: categorie.emoji,
-      titre: 'Bravo pour cette victoire !',
-      message: categorie.libelle,
-    ));
+    _file.add(
+      Celebration(
+        emoji: categorie.emoji,
+        titre: 'Bravo pour cette victoire !',
+        message: categorie.libelle,
+      ),
+    );
     await _sauver();
   }
 
@@ -118,12 +120,15 @@ class RecompensesProvider extends ChangeNotifier {
       _progres.badges['premiereSeance'] = DateTime.now();
       titre = '$titre\n🏅 Nouveau badge !';
     }
-    _file.add(Celebration(
-      emoji: '🎉',
-      titre: titre,
-      message: '$minutes ${minutes > 1 ? 'minutes' : 'minute'} rien que pour toi. '
-          'Ton corps te remercie 💗',
-    ));
+    _file.add(
+      Celebration(
+        emoji: '🎉',
+        titre: titre,
+        message:
+            '$minutes ${minutes > 1 ? 'minutes' : 'minute'} rien que pour toi. '
+            'Ton corps te remercie 💗',
+      ),
+    );
     await _sauver();
   }
 

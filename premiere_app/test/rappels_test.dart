@@ -16,14 +16,18 @@ import 'outils.dart';
 void main() {
   group('quand rappeler', () {
     const r = Reglages(); // 8 h, 13 h, 20 h
-    Repas? a(int h, int m, {Set<Repas> notes = const {}, Set<Repas> deCote = const {},
-            Reglages reglages = r}) =>
-        RappelsService.rappelActuel(
-          maintenant: DateTime(2026, 11, 18, h, m),
-          reglages: reglages,
-          dejaNotes: notes,
-          misDeCote: deCote,
-        );
+    Repas? a(
+      int h,
+      int m, {
+      Set<Repas> notes = const {},
+      Set<Repas> deCote = const {},
+      Reglages reglages = r,
+    }) => RappelsService.rappelActuel(
+      maintenant: DateTime(2026, 11, 18, h, m),
+      reglages: reglages,
+      dejaNotes: notes,
+      misDeCote: deCote,
+    );
 
     test('pendant les 2 h 30 qui suivent l\'heure du repas', () {
       expect(a(12, 59), isNull);
@@ -87,8 +91,9 @@ void main() {
     await tester.pump(const Duration(seconds: 2)); // fin des animations
   });
 
-  testWidgets('« Noter » ouvre le journal sur le bon repas, puis le rappel disparaît',
-      (tester) async {
+  testWidgets('« Noter » ouvre le journal sur le bon repas, puis le rappel disparaît', (
+    tester,
+  ) async {
     await lancer(tester, dejeunerMaintenant());
     await tester.tap(find.byKey(const Key('rappel_noter')));
     await tester.pumpAndSettle();
@@ -126,8 +131,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('heure_dejeuner')), findsNothing);
     final reglages = Provider.of<ReglagesProvider>(
-        tester.element(find.byType(ReglagesScreen)),
-        listen: false);
+      tester.element(find.byType(ReglagesScreen)),
+      listen: false,
+    );
     expect(reglages.reglages.rappelsRepas, isFalse);
   });
 }

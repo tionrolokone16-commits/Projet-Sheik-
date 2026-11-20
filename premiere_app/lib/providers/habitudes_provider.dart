@@ -12,10 +12,10 @@ import '../services/stockage_service.dart';
 /// la liste des activités physiques et les repas notés avec leur assiette.
 class HabitudesProvider extends ChangeNotifier {
   HabitudesProvider(this._stockage)
-      : _journal = _stockage.chargerJournal(),
-        _activites = _stockage.chargerActivites(),
-        _repasPhotos = _stockage.chargerRepasPhotos(),
-        _platsPerso = _stockage.chargerPlatsPerso() {
+    : _journal = _stockage.chargerJournal(),
+      _activites = _stockage.chargerActivites(),
+      _repasPhotos = _stockage.chargerRepasPhotos(),
+      _platsPerso = _stockage.chargerPlatsPerso() {
     // Si des photos ont été retirées pour faire de la place, on se resynchronise.
     _stockage.alerte.addListener(_surAlerteStockage);
   }
@@ -97,8 +97,11 @@ class HabitudesProvider extends ChangeNotifier {
   }) async {
     final index = _repasPhotos.indexWhere((r) => r.id == id);
     if (index < 0) return;
-    _repasPhotos[index] =
-        _repasPhotos[index].copyWith(repas: repas, taille: taille, ressentis: ressentis);
+    _repasPhotos[index] = _repasPhotos[index].copyWith(
+      repas: repas,
+      taille: taille,
+      ressentis: ressentis,
+    );
     notifyListeners();
     _remplacerRepas(await _stockage.enregistrerRepasPhotos(_repasPhotos));
   }
@@ -163,15 +166,15 @@ class HabitudesProvider extends ChangeNotifier {
   Future<void> retirerVerre(DateTime date) =>
       _modifier(date, (j) => j.copyWith(verres: j.verres > 0 ? j.verres - 1 : 0));
 
-  Future<void> definirSommeil(DateTime date, double? heures) => _modifier(
-      date, (j) => j.copyWith(sommeilHeures: heures, effacerSommeil: heures == null));
+  Future<void> definirSommeil(DateTime date, double? heures) =>
+      _modifier(date, (j) => j.copyWith(sommeilHeures: heures, effacerSommeil: heures == null));
 
   /// Coche ou décoche un repas.
   Future<void> basculerRepas(DateTime date, Repas repas) => _modifier(date, (j) {
-        final nouveaux = {...j.repas};
-        if (!nouveaux.remove(repas)) nouveaux.add(repas);
-        return j.copyWith(repas: nouveaux);
-      });
+    final nouveaux = {...j.repas};
+    if (!nouveaux.remove(repas)) nouveaux.add(repas);
+    return j.copyWith(repas: nouveaux);
+  });
 
   /// Note un ressenti de 1 à 5. Toucher à nouveau la même valeur l'efface.
   Future<void> definirRessenti(DateTime date, Ressenti ressenti, int valeur) =>
@@ -188,8 +191,7 @@ class HabitudesProvider extends ChangeNotifier {
   Future<void> definirNote(DateTime date, String note) =>
       _modifier(date, (j) => j.copyWith(note: note));
 
-  Future<void> _modifier(
-      DateTime date, JourHabitudes Function(JourHabitudes) changement) async {
+  Future<void> _modifier(DateTime date, JourHabitudes Function(JourHabitudes) changement) async {
     final cle = cleDuJour(date);
     final nouveau = changement(_journal[cle] ?? const JourHabitudes());
     if (nouveau.estVide) {
@@ -221,13 +223,15 @@ class HabitudesProvider extends ChangeNotifier {
     String? note,
   }) async {
     _activites
-      ..add(Activite(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        date: date,
-        type: type,
-        dureeMinutes: dureeMinutes,
-        note: (note == null || note.trim().isEmpty) ? null : note.trim(),
-      ))
+      ..add(
+        Activite(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          date: date,
+          type: type,
+          dureeMinutes: dureeMinutes,
+          note: (note == null || note.trim().isEmpty) ? null : note.trim(),
+        ),
+      )
       ..sort((a, b) => b.date.compareTo(a.date));
     await _sauverActivites();
   }

@@ -16,10 +16,10 @@ class RappelsService {
 
   /// Heure du rappel de chaque repas, en minutes depuis minuit.
   static Map<Repas, int> heures(Reglages r) => {
-        Repas.petitDejeuner: r.heurePetitDejeuner,
-        Repas.dejeuner: r.heureDejeuner,
-        Repas.diner: r.heureDiner,
-      };
+    Repas.petitDejeuner: r.heurePetitDejeuner,
+    Repas.dejeuner: r.heureDejeuner,
+    Repas.diner: r.heureDiner,
+  };
 
   /// Repas à rappeler maintenant, ou `null`.
   static Repas? rappelActuel({
@@ -33,9 +33,7 @@ class RappelsService {
     for (final MapEntry(key: repas, value: heure) in heures(reglages).entries) {
       // Écart depuis l'heure du repas (calcul « modulo 24 h » pour minuit).
       final ecart = (minutes - heure) % (24 * 60);
-      if (ecart < fenetreMinutes &&
-          !dejaNotes.contains(repas) &&
-          !misDeCote.contains(repas)) {
+      if (ecart < fenetreMinutes && !dejaNotes.contains(repas) && !misDeCote.contains(repas)) {
         return repas;
       }
     }
@@ -44,11 +42,11 @@ class RappelsService {
 
   /// Message du rappel : une invitation, jamais une obligation.
   static String message(Repas repas) => switch (repas) {
-        Repas.petitDejeuner => 'Bonjour ! Tu veux noter ton petit-déjeuner ? 🌸',
-        Repas.dejeuner => 'Tu veux noter ton déjeuner ? 🌸',
-        Repas.diner => 'Tu veux noter ton dîner ? 🌙',
-        Repas.collation => 'Tu veux noter ton en-cas ? 🍊',
-      };
+    Repas.petitDejeuner => 'Bonjour ! Tu veux noter ton petit-déjeuner ? 🌸',
+    Repas.dejeuner => 'Tu veux noter ton déjeuner ? 🌸',
+    Repas.diner => 'Tu veux noter ton dîner ? 🌙',
+    Repas.collation => 'Tu veux noter ton en-cas ? 🍊',
+  };
 
   /// « 13:00 » à partir de 780 minutes.
   static String formaterHeure(int minutes) =>

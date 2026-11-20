@@ -27,8 +27,10 @@ class FigureExercice extends StatefulWidget {
 }
 
 class _FigureExerciceState extends State<FigureExercice> with SingleTickerProviderStateMixin {
-  late final AnimationController _mouvement =
-      AnimationController(vsync: this, duration: widget.dureeMouvement);
+  late final AnimationController _mouvement = AnimationController(
+    vsync: this,
+    duration: widget.dureeMouvement,
+  );
 
   @override
   void initState() {
@@ -78,12 +80,7 @@ class _FigureExerciceState extends State<FigureExercice> with SingleTickerProvid
 }
 
 class _PeintreFigure extends CustomPainter {
-  _PeintreFigure({
-    required this.pose,
-    required this.mur,
-    required this.couleur,
-    required this.sol,
-  });
+  _PeintreFigure({required this.pose, required this.mur, required this.couleur, required this.sol});
 
   final Pose pose;
   final bool mur;

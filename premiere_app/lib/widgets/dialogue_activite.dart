@@ -51,8 +51,7 @@ class _PanneauActiviteState extends State<_PanneauActivite> {
           children: [
             Text('Noter une activité', style: theme.textTheme.titleLarge),
             const SizedBox(height: 4),
-            Text('Chaque mouvement compte, même 10 minutes 💗',
-                style: theme.textTheme.bodyMedium),
+            Text('Chaque mouvement compte, même 10 minutes 💗', style: theme.textTheme.bodyMedium),
             const SizedBox(height: 20),
             Text('Quoi ?', style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
@@ -115,11 +114,9 @@ class _PanneauActiviteState extends State<_PanneauActivite> {
               width: double.infinity,
               child: FilledButton.icon(
                 key: const Key('bouton_valider_activite'),
-                onPressed: () => Navigator.of(context).pop((
-                  type: _type,
-                  dureeMinutes: _duree.round(),
-                  note: _note.text,
-                )),
+                onPressed: () =>
+                    Navigator.of(context)
+                        .pop((type: _type, dureeMinutes: _duree.round(), note: _note.text)),
                 icon: const Icon(Icons.check_rounded),
                 label: const Text('Enregistrer'),
               ),

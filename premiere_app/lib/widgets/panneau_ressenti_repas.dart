@@ -50,8 +50,10 @@ class _Panneau extends StatelessWidget {
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
             if (vientDEtreNote)
-              Text('Si tu veux, ajoute quelques détails. Sinon, tu peux fermer 🌸',
-                  style: theme.textTheme.bodyMedium),
+              Text(
+                'Si tu veux, ajoute quelques détails. Sinon, tu peux fermer 🌸',
+                style: theme.textTheme.bodyMedium,
+              ),
             const SizedBox(height: 16),
             Text('Moment', style: theme.textTheme.titleSmall),
             const SizedBox(height: 6),

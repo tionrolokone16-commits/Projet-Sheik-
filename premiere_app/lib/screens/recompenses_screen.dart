@@ -30,13 +30,13 @@ class RecompensesScreen extends StatelessWidget {
     final badges = recompenses.progres.badges;
 
     int progresDe(Defi d) => RecompensesService.progresDefi(
-          d,
-          lundi: lundi,
-          journal: habitudes.journal,
-          activites: habitudes.activites,
-          progres: recompenses.progres,
-          objectifVerres: objectifVerres,
-        );
+      d,
+      lundi: lundi,
+      journal: habitudes.journal,
+      activites: habitudes.activites,
+      progres: recompenses.progres,
+      objectifVerres: objectifVerres,
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Défis & badges')),
@@ -46,91 +46,102 @@ class RecompensesScreen extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 700),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              children: [
-                // ----------------------------------------------- Défis
-                _Titre(
-                  'Mes défis de la semaine',
-                  'Du ${DateFormat('d MMMM', 'fr_FR').format(lundi)} '
-                      'au ${DateFormat('d MMMM', 'fr_FR').format(dimanche)} · '
-                      'jusqu\'à ${RecompensesService.defisMax} défis, à ton rythme',
-                ),
-                if (defis.isEmpty)
-                  const Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text('Choisis un petit défi qui te fait envie cette '
-                          'semaine. Aucun n\'est obligatoire 💗'),
-                    ),
-                  ),
-                for (final d in defis)
-                  _CarteDefi(
-                    defi: d,
-                    progres: progresDe(d),
-                    onRetirer: () => recompenses.retirerDefi(maintenant, d),
-                    onAjuster: (delta) => recompenses.ajusterDefi(maintenant, d, delta),
-                  ),
-                if (defis.length < RecompensesService.defisMax)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: OutlinedButton.icon(
-                      key: const Key('bouton_choisir_defi'),
-                      onPressed: () => _choisirDefi(context, defis),
-                      icon: const Icon(Icons.add_rounded),
-                      label: const Text('Choisir un défi'),
-                    ),
-                  ),
-                const SizedBox(height: 24),
+              children:
+                  [
+                        // ----------------------------------------------- Défis
+                        _Titre(
+                          'Mes défis de la semaine',
+                          'Du ${DateFormat('d MMMM', 'fr_FR').format(lundi)} '
+                              'au ${DateFormat('d MMMM', 'fr_FR').format(dimanche)} · '
+                              'jusqu\'à ${RecompensesService.defisMax} défis, à ton rythme',
+                        ),
+                        if (defis.isEmpty)
+                          const Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text(
+                                'Choisis un petit défi qui te fait envie cette '
+                                'semaine. Aucun n\'est obligatoire 💗',
+                              ),
+                            ),
+                          ),
+                        for (final d in defis)
+                          _CarteDefi(
+                            defi: d,
+                            progres: progresDe(d),
+                            onRetirer: () => recompenses.retirerDefi(maintenant, d),
+                            onAjuster: (delta) => recompenses.ajusterDefi(maintenant, d, delta),
+                          ),
+                        if (defis.length < RecompensesService.defisMax)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: OutlinedButton.icon(
+                              key: const Key('bouton_choisir_defi'),
+                              onPressed: () => _choisirDefi(context, defis),
+                              icon: const Icon(Icons.add_rounded),
+                              label: const Text('Choisir un défi'),
+                            ),
+                          ),
+                        const SizedBox(height: 24),
 
-                // -------------------------------------------- Victoires
-                const _Titre('Mes victoires hors balance',
-                    'Énergie, sommeil, vêtements, humeur… elles comptent toutes.'),
-                FilledButton.icon(
-                  key: const Key('bouton_noter_victoire'),
-                  onPressed: () => _noterVictoire(context),
-                  icon: const Text('🏆', style: TextStyle(fontSize: 18)),
-                  label: const Text('Noter une victoire'),
-                ),
-                const SizedBox(height: 8),
-                for (final v in recompenses.progres.victoires.take(10))
-                  Card(
-                    child: ListTile(
-                      leading: Text(v.categorie.emoji, style: const TextStyle(fontSize: 28)),
-                      title: Text(v.texte?.isNotEmpty == true ? v.texte! : v.categorie.libelle),
-                      subtitle: Text(DateFormat('EEEE d MMMM', 'fr_FR').format(v.date)),
-                      trailing: IconButton(
-                        tooltip: 'Supprimer',
-                        icon: const Icon(Icons.delete_outline_rounded),
-                        onPressed: () => recompenses.supprimerVictoire(v.id),
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 24),
+                        // -------------------------------------------- Victoires
+                        const _Titre(
+                          'Mes victoires hors balance',
+                          'Énergie, sommeil, vêtements, humeur… elles comptent toutes.',
+                        ),
+                        FilledButton.icon(
+                          key: const Key('bouton_noter_victoire'),
+                          onPressed: () => _noterVictoire(context),
+                          icon: const Text('🏆', style: TextStyle(fontSize: 18)),
+                          label: const Text('Noter une victoire'),
+                        ),
+                        const SizedBox(height: 8),
+                        for (final v in recompenses.progres.victoires.take(10))
+                          Card(
+                            child: ListTile(
+                              leading: Text(
+                                v.categorie.emoji,
+                                style: const TextStyle(fontSize: 28),
+                              ),
+                              title: Text(
+                                v.texte?.isNotEmpty == true ? v.texte! : v.categorie.libelle,
+                              ),
+                              subtitle: Text(DateFormat('EEEE d MMMM', 'fr_FR').format(v.date)),
+                              trailing: IconButton(
+                                tooltip: 'Supprimer',
+                                icon: const Icon(Icons.delete_outline_rounded),
+                                onPressed: () => recompenses.supprimerVictoire(v.id),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 24),
 
-                // ----------------------------------------------- Badges
-                _Titre('Ma collection de badges',
-                    '${badges.length} sur ${catalogue.length} · les autres sont à découvrir'),
-                GridView.extent(
-                  maxCrossAxisExtent: 130,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 0.78,
-                  children: [
-                    for (final b in catalogue)
-                      _Badge(info: b, obtenuLe: badges[b.id]),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Aucun badge ne récompense le fait de manger moins : '
-                  'ils célèbrent les habitudes qui te font du bien.',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ]
-                  .animate(interval: 40.ms)
-                  .fadeIn(duration: 300.ms)
-                  .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+                        // ----------------------------------------------- Badges
+                        _Titre(
+                          'Ma collection de badges',
+                          '${badges.length} sur ${catalogue.length} · les autres sont à découvrir',
+                        ),
+                        GridView.extent(
+                          maxCrossAxisExtent: 130,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                          childAspectRatio: 0.78,
+                          children: [
+                            for (final b in catalogue) _Badge(info: b, obtenuLe: badges[b.id]),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Aucun badge ne récompense le fait de manger moins : '
+                          'ils célèbrent les habitudes qui te font du bien.',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ]
+                      .animate(interval: 40.ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideY(begin: 0.05, curve: Curves.easeOutCubic),
             ),
           ),
         ),
@@ -195,8 +206,7 @@ class _Titre extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(titre,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          Text(titre, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
           Text(sousTitre, style: theme.textTheme.bodySmall),
         ],
       ),
@@ -233,8 +243,10 @@ class _CarteDefi extends StatelessWidget {
                 Text(defi.emoji, style: const TextStyle(fontSize: 26)),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(defi.titre,
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                  child: Text(
+                    defi.titre,
+                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                  ),
                 ),
                 if (reussi) const Text('✅', style: TextStyle(fontSize: 20)),
                 IconButton(
@@ -261,8 +273,10 @@ class _CarteDefi extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text('${progres.clamp(0, defi.cible)} / ${defi.cible}',
-                      style: theme.textTheme.titleSmall),
+                  Text(
+                    '${progres.clamp(0, defi.cible)} / ${defi.cible}',
+                    style: theme.textTheme.titleSmall,
+                  ),
                   // Défis notés à la main : boutons − et +.
                   if (defi.manuel) ...[
                     IconButton(
@@ -319,7 +333,9 @@ class _Badge extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: obtenu
-                    ? LinearGradient(colors: [couleurs.primaryContainer, couleurs.tertiaryContainer])
+                    ? LinearGradient(
+                        colors: [couleurs.primaryContainer, couleurs.tertiaryContainer],
+                      )
                     : null,
                 color: obtenu ? null : couleurs.surfaceContainerHigh,
                 border: Border.all(
@@ -342,8 +358,10 @@ class _Badge extends StatelessWidget {
               ),
             ),
             if (obtenu)
-              Text(DateFormat('d MMM', 'fr_FR').format(obtenuLe!),
-                  style: theme.textTheme.labelSmall),
+              Text(
+                DateFormat('d MMM', 'fr_FR').format(obtenuLe!),
+                style: theme.textTheme.labelSmall,
+              ),
           ],
         ),
       ),

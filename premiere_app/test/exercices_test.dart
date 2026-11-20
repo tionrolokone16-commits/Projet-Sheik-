@@ -44,11 +44,25 @@ void main() {
 
     test('bouger pour le plaisir : jamais pour « payer » un repas', () {
       final textes = [
-        for (final e in ExercicesService.exercices) ...[e.nom, ...e.etapes, e.conseil, e.versionDouce],
+        for (final e in ExercicesService.exercices) ...[
+          e.nom,
+          ...e.etapes,
+          e.conseil,
+          e.versionDouce,
+        ],
         for (final s in ExercicesService.seances) ...[s.nom, s.description],
         for (final n in [1, 3, 4, 5]) ExercicesService.proposer(energie: n)!.raison,
       ].join(' ').toLowerCase();
-      for (final mot in ['compens', 'brûler', 'éliminer', 'calorie', 'rattrap', 'repas', 'payer', 'mérit']) {
+      for (final mot in [
+        'compens',
+        'brûler',
+        'éliminer',
+        'calorie',
+        'rattrap',
+        'repas',
+        'payer',
+        'mérit',
+      ]) {
         expect(textes, isNot(contains(mot)), reason: mot);
       }
     });
@@ -59,10 +73,13 @@ void main() {
     await tester.pumpWidget(FormeDouceApp(stockage: await preparerStockage(avecProfil: true)));
     await tester.pumpAndSettle();
     final carte = find.byKey(const Key('carte_exercices'));
-    await tester.scrollUntilVisible(carte, 300,
-        scrollable: find
-            .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
-            .first);
+    await tester.scrollUntilVisible(
+      carte,
+      300,
+      scrollable: find
+          .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
+          .first,
+    );
     await tester.ensureVisible(carte);
     await tester.pumpAndSettle();
     await tester.tap(carte);
@@ -82,8 +99,11 @@ void main() {
     await tester.pumpWidget(FormeDouceApp(stockage: await preparerStockage(avecProfil: true)));
     await tester.pumpAndSettle();
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
-    nav.push(MaterialPageRoute(
-        builder: (_) => SeanceScreen(seance: ExercicesService.essai(ExercicesService.squat))));
+    nav.push(
+      MaterialPageRoute(
+        builder: (_) => SeanceScreen(seance: ExercicesService.essai(ExercicesService.squat)),
+      ),
+    );
     // La figurine s'anime en boucle : on avance le temps à la main.
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
@@ -96,8 +116,9 @@ void main() {
     }
   }
 
-  testWidgets('séance complète : minuteur, fin, activité notée, badge et confettis',
-      (tester) async {
+  testWidgets('séance complète : minuteur, fin, activité notée, badge et confettis', (
+    tester,
+  ) async {
     await ouvrirEssai(tester);
     expect(find.text('Prépare-toi'), findsOneWidget);
     await avancer(tester, SeanceScreen.secondesPreparation);
@@ -112,8 +133,10 @@ void main() {
     final activite = Provider.of<HabitudesProvider>(contexte, listen: false).activites.single;
     expect(activite.type, TypeActivite.renforcement);
     expect(activite.dureeMinutes, 1);
-    expect(Provider.of<RecompensesProvider>(contexte, listen: false).progres.badges,
-        contains('premiereSeance'));
+    expect(
+      Provider.of<RecompensesProvider>(contexte, listen: false).progres.badges,
+      contains('premiereSeance'),
+    );
 
     await tester.tap(find.byKey(const Key('terminer_seance')));
     await avancer(tester, 6); // fin des animations et de la bannière

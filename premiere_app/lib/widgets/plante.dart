@@ -195,8 +195,12 @@ class _PeintrePlante extends CustomPainter {
       Paint()..color = _terre,
     );
     // Petit cœur sur le pot.
-    _coeur(canvas, Offset(centreX, hautPot + 36), 9,
-        Colors.white.withValues(alpha: sombre ? 0.55 : 0.8));
+    _coeur(
+      canvas,
+      Offset(centreX, hautPot + 36),
+      9,
+      Colors.white.withValues(alpha: sombre ? 0.55 : 0.8),
+    );
   }
 
   void _feuille(Canvas canvas, Offset base, double cote, double taille) {
@@ -214,7 +218,11 @@ class _PeintrePlante extends CustomPainter {
 
   void _bouton(Canvas canvas, Offset centre, double taille) {
     canvas.drawOval(
-      Rect.fromCenter(center: centre.translate(0, -8 * taille), width: 18 * taille, height: 26 * taille),
+      Rect.fromCenter(
+        center: centre.translate(0, -8 * taille),
+        width: 18 * taille,
+        height: 26 * taille,
+      ),
       Paint()..color = Palette.framboise,
     );
     canvas.drawPath(
@@ -226,8 +234,13 @@ class _PeintrePlante extends CustomPainter {
     );
   }
 
-  void _fleur(Canvas canvas, Offset centre, double echelle,
-      {required double ouverture, int variante = 0}) {
+  void _fleur(
+    Canvas canvas,
+    Offset centre,
+    double echelle, {
+    required double ouverture,
+    int variante = 0,
+  }) {
     final teintes = [Palette.framboise, Palette.corail, const Color(0xFFF48FB1)];
     final couleur = teintes[variante % teintes.length];
     final rayon = 22 * echelle * ouverture;
@@ -245,8 +258,22 @@ class _PeintrePlante extends CustomPainter {
   void _coeur(Canvas canvas, Offset c, double t, Color couleur) {
     final chemin = Path()
       ..moveTo(c.dx, c.dy + t * 0.9)
-      ..cubicTo(c.dx - t * 1.6, c.dy - t * 0.2, c.dx - t * 0.6, c.dy - t * 1.3, c.dx, c.dy - t * 0.4)
-      ..cubicTo(c.dx + t * 0.6, c.dy - t * 1.3, c.dx + t * 1.6, c.dy - t * 0.2, c.dx, c.dy + t * 0.9)
+      ..cubicTo(
+        c.dx - t * 1.6,
+        c.dy - t * 0.2,
+        c.dx - t * 0.6,
+        c.dy - t * 1.3,
+        c.dx,
+        c.dy - t * 0.4,
+      )
+      ..cubicTo(
+        c.dx + t * 0.6,
+        c.dy - t * 1.3,
+        c.dx + t * 1.6,
+        c.dy - t * 0.2,
+        c.dx,
+        c.dy + t * 0.9,
+      )
       ..close();
     canvas.drawPath(chemin, Paint()..color = couleur);
   }

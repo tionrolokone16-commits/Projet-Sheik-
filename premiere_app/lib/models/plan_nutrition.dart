@@ -69,8 +69,7 @@ class PlanNutrition {
   /// Texte importé, conservé tel quel (pour pouvoir le relire ou le remplacer).
   final String texteSource;
 
-  Iterable<SectionPlan> sectionsDeType(TypeSection type) =>
-      sections.where((s) => s.type == type);
+  Iterable<SectionPlan> sectionsDeType(TypeSection type) => sections.where((s) => s.type == type);
 
   /// Menu de la semaine (vide si le plan n'en contient pas).
   List<JourMenu> get menu => [for (final s in sectionsDeType(TypeSection.menu)) ...s.menu];

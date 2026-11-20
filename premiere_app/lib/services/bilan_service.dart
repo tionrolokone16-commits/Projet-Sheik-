@@ -117,10 +117,12 @@ class BilanService {
     final respirations = progres.respirations.where(dansSemaine).length;
     final victoires = progres.victoires.where((v) => dansSemaine(v.date)).length;
     final joursNotes = jours
-        .where((d) =>
-            !jour(d).estVide ||
-            activitesSemaine.any((a) => cleDuJour(a.date) == cleDuJour(d)) ||
-            repas.any((r) => cleDuJour(r.date) == cleDuJour(d)))
+        .where(
+          (d) =>
+              !jour(d).estVide ||
+              activitesSemaine.any((a) => cleDuJour(a.date) == cleDuJour(d)) ||
+              repas.any((r) => cleDuJour(r.date) == cleDuJour(d)),
+        )
         .length;
 
     String pluriel(int n, String un, String plusieurs) => n > 1 ? plusieurs : un;
@@ -128,41 +130,50 @@ class BilanService {
     // ----- Ce qui s'est bien passé -----
     final reussites = <LigneBilan>[
       if (repas.isNotEmpty)
-        (emoji: '🍽️', texte: '${repas.length} ${pluriel(repas.length, 'repas noté', 'repas notés')}'),
+        (
+          emoji: '🍽️',
+          texte: '${repas.length} ${pluriel(repas.length, 'repas noté', 'repas notés')}',
+        ),
       if (petitsDej > 0)
-        (emoji: '🥐', texte: 'Petit-déjeuner pris $petitsDej ${pluriel(petitsDej, 'jour', 'jours')} sur 7'),
+        (
+          emoji: '🥐',
+          texte: 'Petit-déjeuner pris $petitsDej ${pluriel(petitsDej, 'jour', 'jours')} sur 7',
+        ),
       if (joursEau > 0)
         (
           emoji: '💧',
-          texte: 'Objectif d\'eau atteint $joursEau ${pluriel(joursEau, 'jour', 'jours')} '
-              '($verres verres en tout)'
+          texte:
+              'Objectif d\'eau atteint $joursEau ${pluriel(joursEau, 'jour', 'jours')} '
+              '($verres verres en tout)',
         ),
       if (activitesSemaine.isNotEmpty)
         (
           emoji: '🚶',
-          texte: '${activitesSemaine.length} ${pluriel(activitesSemaine.length, 'moment', 'moments')} '
-              'de mouvement, ${HabitudesService.formaterMinutes(minutes)} au total'
+          texte:
+              '${activitesSemaine.length} ${pluriel(activitesSemaine.length, 'moment', 'moments')} '
+              'de mouvement, ${HabitudesService.formaterMinutes(minutes)} au total',
         ),
       if (nuitsReparatrices > 0)
         (
           emoji: '🌙',
-          texte: '$nuitsReparatrices ${pluriel(nuitsReparatrices, 'nuit', 'nuits')} '
-              'de 7 h ou plus'
+          texte:
+              '$nuitsReparatrices ${pluriel(nuitsReparatrices, 'nuit', 'nuits')} '
+              'de 7 h ou plus',
         ),
       if (plaisirs > 0)
         (
           emoji: '😋',
-          texte: '$plaisirs ${pluriel(plaisirs, 'repas savouré', 'repas savourés')} avec plaisir'
+          texte: '$plaisirs ${pluriel(plaisirs, 'repas savouré', 'repas savourés')} avec plaisir',
         ),
       if (respirations > 0)
         (
           emoji: '🫁',
-          texte: '$respirations ${pluriel(respirations, 'pause', 'pauses')} respiration'
+          texte: '$respirations ${pluriel(respirations, 'pause', 'pauses')} respiration',
         ),
       if (victoires > 0)
         (
           emoji: '🏆',
-          texte: '$victoires ${pluriel(victoires, 'victoire', 'victoires')} hors balance'
+          texte: '$victoires ${pluriel(victoires, 'victoire', 'victoires')} hors balance',
         ),
     ];
 
@@ -170,8 +181,7 @@ class BilanService {
     final constats = <LigneBilan>[];
     final suggerees = <IdeeSemaine>[];
 
-    final dinersTardifs =
-        repas.where((r) => r.repas == Repas.diner && r.date.hour >= 21).length;
+    final dinersTardifs = repas.where((r) => r.repas == Repas.diner && r.date.hour >= 21).length;
     if (dinersTardifs >= 3) {
       constats.add((emoji: '🌙', texte: 'Tu as souvent dîné après 21 h ($dinersTardifs soirs).'));
       suggerees.add(IdeeSemaine.dinerPlusTot);
@@ -180,25 +190,27 @@ class BilanService {
     if (joursNotes >= 4 && petitsDej <= 2) {
       constats.add((
         emoji: '🥐',
-        texte: 'Le petit-déjeuner a été pris $petitsDej ${pluriel(petitsDej, 'jour', 'jours')} sur 7.'
+        texte:
+            'Le petit-déjeuner a été pris $petitsDej ${pluriel(petitsDej, 'jour', 'jours')} sur 7.',
       ));
       suggerees.add(IdeeSemaine.prepPetitDej);
     }
 
     if (fringales.length >= 2) {
-      final avecStress = [
-        for (final f in fringales) ?jour(f).ressentis[Ressenti.stress],
-      ];
+      final avecStress = [for (final f in fringales) ?jour(f).ressentis[Ressenti.stress]];
       final stresses = avecStress.where((s) => s >= 4).length;
       final tardives = fringales.where((f) => f.hour >= 15).length;
       if (avecStress.length >= 2 && stresses / avecStress.length >= 0.6) {
         constats.add((
           emoji: '💭',
-          texte: 'Les fringales sont surtout arrivées les jours de stress.'
+          texte: 'Les fringales sont surtout arrivées les jours de stress.',
         ));
         suggerees.add(IdeeSemaine.respiration);
       } else if (tardives / fringales.length >= 0.6) {
-        constats.add((emoji: '🕓', texte: 'Les fringales sont surtout arrivées en fin de journée.'));
+        constats.add((
+          emoji: '🕓',
+          texte: 'Les fringales sont surtout arrivées en fin de journée.',
+        ));
         suggerees.add(IdeeSemaine.fruit);
       }
     }
@@ -207,7 +219,7 @@ class BilanService {
     if (tresFaim >= 3) {
       constats.add((
         emoji: '😋',
-        texte: 'Tu arrivais souvent aux repas avec très faim ($tresFaim fois).'
+        texte: 'Tu arrivais souvent aux repas avec très faim ($tresFaim fois).',
       ));
       suggerees.add(IdeeSemaine.fruit);
     }
@@ -229,7 +241,7 @@ class BilanService {
         energieBonnesNuits - energieCourtesNuits >= 1) {
       constats.add((
         emoji: '⚡',
-        texte: 'Ton énergie était plus haute après les nuits de 7 h ou plus.'
+        texte: 'Ton énergie était plus haute après les nuits de 7 h ou plus.',
       ));
       suggerees.add(IdeeSemaine.coucherTot);
     }
@@ -267,8 +279,10 @@ class BilanService {
   }) {
     final jourMois = DateFormat('d MMMM', 'fr_FR');
     final b = StringBuffer()
-      ..writeln('Bilan Kira\'s FAT — semaine du ${jourMois.format(bilan.lundi)} '
-          'au ${jourMois.format(bilan.dimanche)} ${bilan.dimanche.year}')
+      ..writeln(
+        'Bilan Kira\'s FAT — semaine du ${jourMois.format(bilan.lundi)} '
+        'au ${jourMois.format(bilan.dimanche)} ${bilan.dimanche.year}',
+      )
       ..writeln(prenom.isEmpty ? '' : 'Prénom : $prenom')
       ..writeln()
       ..writeln('CE QUI S\'EST BIEN PASSÉ');
@@ -307,15 +321,20 @@ class BilanService {
     }
 
     final peseesSemaine = pesees
-        .where((p) => !p.date.isBefore(bilan.lundi) &&
-            p.date.isBefore(bilan.dimanche.add(const Duration(days: 1))))
+        .where(
+          (p) =>
+              !p.date.isBefore(bilan.lundi) &&
+              p.date.isBefore(bilan.dimanche.add(const Duration(days: 1))),
+        )
         .toList();
     if (peseesSemaine.isNotEmpty) {
       b
         ..writeln()
         ..writeln('PESÉES');
       for (final p in peseesSemaine) {
-        b.writeln('- ${DateFormat('d/MM', 'fr_FR').format(p.date)} : ${formaterDecimal(p.poidsKg)} kg');
+        b.writeln(
+          '- ${DateFormat('d/MM', 'fr_FR').format(p.date)} : ${formaterDecimal(p.poidsKg)} kg',
+        );
       }
     }
 
@@ -330,7 +349,9 @@ class BilanService {
 
     b
       ..writeln()
-      ..writeln('Résumé préparé avec l\'application Kira\'s FAT, à partir de mes notes personnelles.');
+      ..writeln(
+        'Résumé préparé avec l\'application Kira\'s FAT, à partir de mes notes personnelles.',
+      );
     return b.toString().replaceAll('\n\n\n', '\n\n');
   }
 }

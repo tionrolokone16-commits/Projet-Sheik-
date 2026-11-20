@@ -11,7 +11,8 @@ class RecettesService {
       id: 'attieke_poisson',
       nom: 'Attiéké poisson braisé',
       emoji: '🐟',
-      description: 'La semoule de manioc fermentée, servie avec un poisson '
+      description:
+          'La semoule de manioc fermentée, servie avec un poisson '
           'braisé, des oignons, de la tomate et du piment. Un classique du maquis.',
       astuces: [
         'Garde le poisson braisé : il est déjà délicieux sans friture.',
@@ -26,7 +27,8 @@ class RecettesService {
       id: 'alloco',
       nom: 'Alloco',
       emoji: '🍌',
-      description: 'Des bananes plantain bien mûres, frites et dorées, '
+      description:
+          'Des bananes plantain bien mûres, frites et dorées, '
           'souvent servies avec du poisson, un œuf ou une sauce pimentée.',
       astuces: [
         'Essaie le plantain au four ou braisé : il caramélise tout seul.',
@@ -41,7 +43,8 @@ class RecettesService {
       id: 'garba',
       nom: 'Garba',
       emoji: '🥘',
-      description: 'L\'attiéké avec du thon frit, des oignons et du piment frais. '
+      description:
+          'L\'attiéké avec du thon frit, des oignons et du piment frais. '
           'Le plat convivial et rassasiant par excellence.',
       astuces: [
         'Fais griller ou cuire le thon au four, avec un peu d\'huile au pinceau.',
@@ -55,7 +58,8 @@ class RecettesService {
       id: 'foutou_graine',
       nom: 'Foutou banane, sauce graine',
       emoji: '🍲',
-      description: 'Le foutou pilé de banane plantain et de manioc, avec la '
+      description:
+          'Le foutou pilé de banane plantain et de manioc, avec la '
           'sauce à la graine de palme, riche et parfumée.',
       astuces: [
         'Laisse reposer la sauce et retire l\'huile qui remonte en surface.',
@@ -70,7 +74,8 @@ class RecettesService {
       id: 'kedjenou',
       nom: 'Kédjénou de poulet',
       emoji: '🍗',
-      description: 'Le poulet mijoté à l\'étouffée dans son jus, avec tomates, '
+      description:
+          'Le poulet mijoté à l\'étouffée dans son jus, avec tomates, '
           'oignons, aubergines et piment. Sans ajout de matière grasse !',
       astuces: [
         'Déjà une merveille d\'équilibre : cuit dans son jus, sans huile.',
@@ -85,7 +90,8 @@ class RecettesService {
       id: 'sauce_arachide',
       nom: 'Riz sauce arachide',
       emoji: '🥜',
-      description: 'La sauce onctueuse à la pâte d\'arachide, avec viande ou '
+      description:
+          'La sauce onctueuse à la pâte d\'arachide, avec viande ou '
           'poisson, servie sur du riz blanc.',
       astuces: [
         'Utilise un peu moins de pâte d\'arachide et plus de bouillon et de tomates.',
@@ -100,7 +106,8 @@ class RecettesService {
       id: 'placali_gombo',
       nom: 'Placali, sauce gombo',
       emoji: '🌿',
-      description: 'La pâte de manioc fermenté avec la sauce gombo gluante, '
+      description:
+          'La pâte de manioc fermenté avec la sauce gombo gluante, '
           'au poisson fumé et au crabe.',
       astuces: [
         'La sauce gombo est riche en légumes : profites-en !',
@@ -114,7 +121,8 @@ class RecettesService {
       id: 'riz_gras',
       nom: 'Riz gras',
       emoji: '🍚',
-      description: 'Le riz cuit dans une sauce tomate généreuse, avec viande '
+      description:
+          'Le riz cuit dans une sauce tomate généreuse, avec viande '
           'et légumes. Le plat des grandes occasions.',
       astuces: [
         'Fais revenir les oignons dans une cuillère d\'huile, pas plus.',
@@ -128,7 +136,8 @@ class RecettesService {
       id: 'claclo',
       nom: 'Claclo',
       emoji: '🍪',
-      description: 'Les petits beignets de banane plantain bien mûre, '
+      description:
+          'Les petits beignets de banane plantain bien mûre, '
           'dorés et fondants. La gourmandise de l\'après-midi.',
       astuces: [
         'Version au four : petites boules sur une plaque, 20 minutes à 200 °C.',
@@ -142,7 +151,8 @@ class RecettesService {
       id: 'degue',
       nom: 'Dêguê',
       emoji: '🥣',
-      description: 'Le dessert frais au mil et au lait caillé, sucré et '
+      description:
+          'Le dessert frais au mil et au lait caillé, sucré et '
           'rafraîchissant.',
       astuces: [
         'Prends un yaourt ou un lait caillé nature, et sucre toi-même, un peu.',

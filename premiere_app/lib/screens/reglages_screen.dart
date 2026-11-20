@@ -67,213 +67,252 @@ class ReglagesScreen extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 600),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              children: [
-                // ----- Affichage -----
-                _Section(
-                  titre: 'Affichage',
-                  enfants: [
-                    SwitchListTile(
-                      key: const Key('interrupteur_masquer_poids'),
-                      secondary: const Text('🙈', style: TextStyle(fontSize: 24)),
-                      title: const Text('Masquer le poids sur l\'accueil'),
-                      subtitle: const Text('Pour te concentrer sur tes habitudes. '
-                          'Il reste visible dans l\'onglet Poids.'),
-                      value: r.masquerPoidsAccueil,
-                      onChanged: (v) => provider.modifier(r.copyWith(masquerPoidsAccueil: v)),
-                    ),
-                    const Divider(height: 1),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('🎨 Thème', style: theme.textTheme.titleSmall),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: SegmentedButton<ThemeChoisi>(
-                              segments: const [
-                                ButtonSegment(
-                                  value: ThemeChoisi.clair,
-                                  icon: Icon(Icons.light_mode_rounded),
-                                  label: Text('Clair'),
-                                ),
-                                ButtonSegment(
-                                  value: ThemeChoisi.sombre,
-                                  icon: Icon(Icons.dark_mode_rounded),
-                                  label: Text('Sombre'),
-                                ),
-                                ButtonSegment(
-                                  value: ThemeChoisi.systeme,
-                                  icon: Icon(Icons.phone_iphone_rounded),
-                                  label: Text('Auto'),
-                                ),
-                              ],
-                              selected: {r.theme},
-                              showSelectedIcon: false,
-                              onSelectionChanged: (s) =>
-                                  provider.modifier(r.copyWith(theme: s.first)),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text('« Auto » suit le réglage de ton appareil.',
-                              style: theme.textTheme.bodySmall),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                // ----- Habitudes -----
-                _Section(
-                  titre: 'Habitudes',
-                  enfants: [
-                    ListTile(
-                      leading: const Text('💧', style: TextStyle(fontSize: 24)),
-                      title: const Text('Objectif d\'eau'),
-                      subtitle: Text('${r.objectifVerres} verres par jour '
-                          '(environ ${(r.objectifVerres * 0.25).toStringAsFixed(1).replaceAll('.', ',')} L)'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton.filledTonal(
-                            tooltip: 'Un verre de moins',
-                            onPressed: r.objectifVerres > verresMin
-                                ? () => provider.modifier(
-                                    r.copyWith(objectifVerres: r.objectifVerres - 1))
-                                : null,
-                            icon: const Icon(Icons.remove_rounded),
-                          ),
-                          SizedBox(
-                            width: 32,
-                            child: Text(
-                              '${r.objectifVerres}',
-                              key: const Key('valeur_objectif_eau'),
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                          ),
-                          IconButton.filledTonal(
-                            key: const Key('plus_verre_objectif'),
-                            tooltip: 'Un verre de plus',
-                            onPressed: r.objectifVerres < verresMax
-                                ? () => provider.modifier(
-                                    r.copyWith(objectifVerres: r.objectifVerres + 1))
-                                : null,
-                            icon: const Icon(Icons.add_rounded),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                // ----- Rappels -----
-                _Section(
-                  titre: 'Rappels',
-                  enfants: [
-                    SwitchListTile(
-                      key: const Key('interrupteur_rappels'),
-                      secondary: const Text('🔔', style: TextStyle(fontSize: 24)),
-                      title: const Text('Rappels de repas'),
-                      subtitle: const Text('Une invitation douce sur l\'accueil, aux heures '
-                          'de repas, si le repas n\'est pas encore noté. Toujours facultative.'),
-                      value: r.rappelsRepas,
-                      onChanged: (v) => provider.modifier(r.copyWith(rappelsRepas: v)),
-                    ),
-                    if (r.rappelsRepas)
-                      for (final (cle, emoji, libelle, minutes, modifier) in [
-                        ('heure_petit_dejeuner', '🥐', 'Petit-déjeuner', r.heurePetitDejeuner,
-                            (int m) => r.copyWith(heurePetitDejeuner: m)),
-                        ('heure_dejeuner', '🍲', 'Déjeuner', r.heureDejeuner,
-                            (int m) => r.copyWith(heureDejeuner: m)),
-                        ('heure_diner', '🍽️', 'Dîner', r.heureDiner,
-                            (int m) => r.copyWith(heureDiner: m)),
-                      ])
-                        ListTile(
-                          key: Key(cle),
-                          leading: Text(emoji, style: const TextStyle(fontSize: 22)),
-                          title: Text(libelle),
-                          trailing: Text(
-                            RappelsService.formaterHeure(minutes),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          onTap: () async {
-                            final choisie = await showTimePicker(
-                              context: context,
-                              initialTime: TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
-                              helpText: 'Heure du rappel : ${libelle.toLowerCase()}',
-                              // Affichage sur 24 heures, comme en France et en Côte d'Ivoire.
-                              builder: (context, enfant) => MediaQuery(
-                                data: MediaQuery.of(context)
-                                    .copyWith(alwaysUse24HourFormat: true),
-                                child: enfant!,
+              children:
+                  [
+                        // ----- Affichage -----
+                        _Section(
+                          titre: 'Affichage',
+                          enfants: [
+                            SwitchListTile(
+                              key: const Key('interrupteur_masquer_poids'),
+                              secondary: const Text('🙈', style: TextStyle(fontSize: 24)),
+                              title: const Text('Masquer le poids sur l\'accueil'),
+                              subtitle: const Text(
+                                'Pour te concentrer sur tes habitudes. '
+                                'Il reste visible dans l\'onglet Poids.',
                               ),
-                            );
-                            if (choisie != null) {
-                              await provider
-                                  .modifier(modifier(choisie.hour * 60 + choisie.minute));
-                            }
-                          },
+                              value: r.masquerPoidsAccueil,
+                              onChanged: (v) =>
+                                  provider.modifier(r.copyWith(masquerPoidsAccueil: v)),
+                            ),
+                            const Divider(height: 1),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('🎨 Thème', style: theme.textTheme.titleSmall),
+                                  const SizedBox(height: 10),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: SegmentedButton<ThemeChoisi>(
+                                      segments: const [
+                                        ButtonSegment(
+                                          value: ThemeChoisi.clair,
+                                          icon: Icon(Icons.light_mode_rounded),
+                                          label: Text('Clair'),
+                                        ),
+                                        ButtonSegment(
+                                          value: ThemeChoisi.sombre,
+                                          icon: Icon(Icons.dark_mode_rounded),
+                                          label: Text('Sombre'),
+                                        ),
+                                        ButtonSegment(
+                                          value: ThemeChoisi.systeme,
+                                          icon: Icon(Icons.phone_iphone_rounded),
+                                          label: Text('Auto'),
+                                        ),
+                                      ],
+                                      selected: {r.theme},
+                                      showSelectedIcon: false,
+                                      onSelectionChanged: (s) =>
+                                          provider.modifier(r.copyWith(theme: s.first)),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '« Auto » suit le réglage de ton appareil.',
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                    const ListTile(
-                      dense: true,
-                      leading: Icon(Icons.info_outline_rounded),
-                      title: Text('Les rappels apparaissent quand tu ouvres l\'appli : '
-                          'une appli web ne peut pas envoyer de notification quand elle '
-                          'est fermée.'),
-                    ),
-                  ],
-                ),
 
-                // ----- Mes données -----
-                _Section(
-                  titre: 'Mes données',
-                  enfants: [
-                    const ListTile(
-                      leading: Text('🔒', style: TextStyle(fontSize: 24)),
-                      title: Text('Tout reste sur ton appareil'),
-                      subtitle: Text('Rien n\'est envoyé sur internet. Les données '
-                          'sont gardées dans ce navigateur : si tu effaces les données '
-                          'du navigateur, elles disparaissent aussi.'),
-                    ),
-                    const Divider(height: 1),
-                    // Espace utilisé dans le navigateur (environ 5 Mo disponibles).
-                    const _EspaceUtilise(),
-                    const Divider(height: 1),
-                    ListTile(
-                      key: const Key('bouton_tout_effacer'),
-                      leading: Icon(Icons.restart_alt_rounded, color: theme.colorScheme.primary),
-                      title: const Text('Tout effacer et recommencer'),
-                      onTap: () => _toutEffacer(context),
-                    ),
-                  ],
-                ),
+                        // ----- Habitudes -----
+                        _Section(
+                          titre: 'Habitudes',
+                          enfants: [
+                            ListTile(
+                              leading: const Text('💧', style: TextStyle(fontSize: 24)),
+                              title: const Text('Objectif d\'eau'),
+                              subtitle: Text(
+                                '${r.objectifVerres} verres par jour '
+                                '(environ ${(r.objectifVerres * 0.25).toStringAsFixed(1).replaceAll('.', ',')} L)',
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton.filledTonal(
+                                    tooltip: 'Un verre de moins',
+                                    onPressed: r.objectifVerres > verresMin
+                                        ? () => provider.modifier(
+                                            r.copyWith(objectifVerres: r.objectifVerres - 1),
+                                          )
+                                        : null,
+                                    icon: const Icon(Icons.remove_rounded),
+                                  ),
+                                  SizedBox(
+                                    width: 32,
+                                    child: Text(
+                                      '${r.objectifVerres}',
+                                      key: const Key('valeur_objectif_eau'),
+                                      textAlign: TextAlign.center,
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton.filledTonal(
+                                    key: const Key('plus_verre_objectif'),
+                                    tooltip: 'Un verre de plus',
+                                    onPressed: r.objectifVerres < verresMax
+                                        ? () => provider.modifier(
+                                            r.copyWith(objectifVerres: r.objectifVerres + 1),
+                                          )
+                                        : null,
+                                    icon: const Icon(Icons.add_rounded),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
 
-                // ----- À propos -----
-                _Section(
-                  titre: 'À propos',
-                  enfants: [
-                    ListTile(
-                      leading: const LogoKira(taille: 40),
-                      title: const Text('Kira\'s FAT · version 1.0'),
-                      subtitle: Text(
-                        'Une app pour prendre soin de soi, à son rythme.\n'
-                        '${CalculsService.mentionMedicale} En cas de doute, ou si tu '
-                        'suis un traitement, parles-en à un professionnel de santé.',
-                      ),
-                      isThreeLine: true,
-                    ),
-                  ],
-                ),
-              ]
-                  .animate(interval: 60.ms)
-                  .fadeIn(duration: 350.ms)
-                  .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+                        // ----- Rappels -----
+                        _Section(
+                          titre: 'Rappels',
+                          enfants: [
+                            SwitchListTile(
+                              key: const Key('interrupteur_rappels'),
+                              secondary: const Text('🔔', style: TextStyle(fontSize: 24)),
+                              title: const Text('Rappels de repas'),
+                              subtitle: const Text(
+                                'Une invitation douce sur l\'accueil, aux heures '
+                                'de repas, si le repas n\'est pas encore noté. Toujours facultative.',
+                              ),
+                              value: r.rappelsRepas,
+                              onChanged: (v) => provider.modifier(r.copyWith(rappelsRepas: v)),
+                            ),
+                            if (r.rappelsRepas)
+                              for (final (cle, emoji, libelle, minutes, modifier) in [
+                                (
+                                  'heure_petit_dejeuner',
+                                  '🥐',
+                                  'Petit-déjeuner',
+                                  r.heurePetitDejeuner,
+                                  (int m) => r.copyWith(heurePetitDejeuner: m),
+                                ),
+                                (
+                                  'heure_dejeuner',
+                                  '🍲',
+                                  'Déjeuner',
+                                  r.heureDejeuner,
+                                  (int m) => r.copyWith(heureDejeuner: m),
+                                ),
+                                (
+                                  'heure_diner',
+                                  '🍽️',
+                                  'Dîner',
+                                  r.heureDiner,
+                                  (int m) => r.copyWith(heureDiner: m),
+                                ),
+                              ])
+                                ListTile(
+                                  key: Key(cle),
+                                  leading: Text(emoji, style: const TextStyle(fontSize: 22)),
+                                  title: Text(libelle),
+                                  trailing: Text(
+                                    RappelsService.formaterHeure(minutes),
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    final choisie = await showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay(
+                                        hour: minutes ~/ 60,
+                                        minute: minutes % 60,
+                                      ),
+                                      helpText: 'Heure du rappel : ${libelle.toLowerCase()}',
+                                      // Affichage sur 24 heures, comme en France et en Côte d'Ivoire.
+                                      builder: (context, enfant) => MediaQuery(
+                                        data: MediaQuery.of(context)
+                                            .copyWith(alwaysUse24HourFormat: true),
+                                        child: enfant!,
+                                      ),
+                                    );
+                                    if (choisie != null) {
+                                      await provider.modifier(
+                                        modifier(choisie.hour * 60 + choisie.minute),
+                                      );
+                                    }
+                                  },
+                                ),
+                            const ListTile(
+                              dense: true,
+                              leading: Icon(Icons.info_outline_rounded),
+                              title: Text(
+                                'Les rappels apparaissent quand tu ouvres l\'appli : '
+                                'une appli web ne peut pas envoyer de notification quand elle '
+                                'est fermée.',
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // ----- Mes données -----
+                        _Section(
+                          titre: 'Mes données',
+                          enfants: [
+                            const ListTile(
+                              leading: Text('🔒', style: TextStyle(fontSize: 24)),
+                              title: Text('Tout reste sur ton appareil'),
+                              subtitle: Text(
+                                'Rien n\'est envoyé sur internet. Les données '
+                                'sont gardées dans ce navigateur : si tu effaces les données '
+                                'du navigateur, elles disparaissent aussi.',
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            // Espace utilisé dans le navigateur (environ 5 Mo disponibles).
+                            const _EspaceUtilise(),
+                            const Divider(height: 1),
+                            ListTile(
+                              key: const Key('bouton_tout_effacer'),
+                              leading: Icon(
+                                Icons.restart_alt_rounded,
+                                color: theme.colorScheme.primary,
+                              ),
+                              title: const Text('Tout effacer et recommencer'),
+                              onTap: () => _toutEffacer(context),
+                            ),
+                          ],
+                        ),
+
+                        // ----- À propos -----
+                        _Section(
+                          titre: 'À propos',
+                          enfants: [
+                            ListTile(
+                              leading: const LogoKira(taille: 40),
+                              title: const Text('Kira\'s FAT · version 1.0'),
+                              subtitle: Text(
+                                'Une app pour prendre soin de soi, à son rythme.\n'
+                                '${CalculsService.mentionMedicale} En cas de doute, ou si tu '
+                                'suis un traitement, parles-en à un professionnel de santé.',
+                              ),
+                              isThreeLine: true,
+                            ),
+                          ],
+                        ),
+                      ]
+                      .animate(interval: 60.ms)
+                      .fadeIn(duration: 350.ms)
+                      .slideY(begin: 0.05, curve: Curves.easeOutCubic),
             ),
           ),
         ),
@@ -330,8 +369,10 @@ class _EspaceUtilise extends StatelessWidget {
       builder: (context) => AlertDialog(
         icon: const Text('📸', style: TextStyle(fontSize: 36)),
         title: const Text('Retirer les photos de repas ?'),
-        content: const Text('Tes repas restent notés (plat, portion, ressentis) : '
-            'seules les photos sont retirées, pour libérer de la place.'),
+        content: const Text(
+          'Tes repas restent notés (plat, portion, ressentis) : '
+          'seules les photos sont retirées, pour libérer de la place.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -348,25 +389,31 @@ class _EspaceUtilise extends StatelessWidget {
     if (ok != true) return;
     final nombre = await habitudes.retirerToutesLesPhotos();
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(nombre == 0
-          ? 'Il n\'y avait aucune photo à retirer.'
-          : '$nombre ${nombre > 1 ? 'photos retirées' : 'photo retirée'}. '
-              'Tes repas restent notés 🌸'),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          nombre == 0
+              ? 'Il n\'y avait aucune photo à retirer.'
+              : '$nombre ${nombre > 1 ? 'photos retirées' : 'photo retirée'}. '
+                    'Tes repas restent notés 🌸',
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     // Se met à jour quand les repas (et leurs photos) changent.
-    final photos =
-        context.watch<HabitudesProvider>().repasPhotos.where((r) => r.photoBase64 != null).length;
+    final photos = context
+        .watch<HabitudesProvider>()
+        .repasPhotos
+        .where((r) => r.photoBase64 != null)
+        .length;
     final stockage = context.read<StockageService>();
     final utilise = stockage.espaceUtiliseOctets();
     final part = (utilise / StockageService.placeDisponibleOctets).clamp(0.0, 1.0);
-    String enMo(int octets) =>
-        (octets / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',');
+    String enMo(int octets) => (octets / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),

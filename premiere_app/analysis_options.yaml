@@ -33,3 +33,7 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+# Mise en forme du code (dart format) : lignes de 100 caractères au plus.
+formatter:
+  page_width: 100

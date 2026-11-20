@@ -16,28 +16,32 @@ class RecettesScreen extends StatelessWidget {
   Future<void> _cuisinee(BuildContext context, Recette recette) async {
     final recompenses = context.read<RecompensesProvider>();
     final maintenant = DateTime.now();
-    final defiChoisi =
-        recompenses.defisDeLaSemaine(maintenant).contains(Defi.recetteIvoirienne);
+    final defiChoisi = recompenses.defisDeLaSemaine(maintenant).contains(Defi.recetteIvoirienne);
     if (defiChoisi) {
       // Fait avancer le défi « recette ivoirienne revisitée ».
       await recompenses.ajusterDefi(maintenant, Defi.recetteIvoirienne, 1);
     }
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(defiChoisi
-          ? '${recette.emoji} Bravo ! Ton défi de la semaine avance.'
-          : '${recette.emoji} Bravo, bon appétit !'),
-      action: defiChoisi ||
-              recompenses.defisDeLaSemaine(maintenant).length >= RecompensesService.defisMax
-          ? null
-          : SnackBarAction(
-              label: 'En faire un défi',
-              onPressed: () async {
-                await recompenses.choisirDefi(maintenant, Defi.recetteIvoirienne);
-                await recompenses.ajusterDefi(maintenant, Defi.recetteIvoirienne, 1);
-              },
-            ),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          defiChoisi
+              ? '${recette.emoji} Bravo ! Ton défi de la semaine avance.'
+              : '${recette.emoji} Bravo, bon appétit !',
+        ),
+        action:
+            defiChoisi ||
+                recompenses.defisDeLaSemaine(maintenant).length >= RecompensesService.defisMax
+            ? null
+            : SnackBarAction(
+                label: 'En faire un défi',
+                onPressed: () async {
+                  await recompenses.choisirDefi(maintenant, Defi.recetteIvoirienne);
+                  await recompenses.ajusterDefi(maintenant, Defi.recetteIvoirienne, 1);
+                },
+              ),
+      ),
+    );
   }
 
   @override
@@ -69,12 +73,12 @@ class RecettesScreen extends StatelessWidget {
                       children: [
                         for (final (i, r) in RecettesService.recettes.indexed)
                           SizedBox(
-                            width: largeur,
-                            child: CarteRecette(
-                              recette: r,
-                              onCuisinee: () => _cuisinee(context, r),
-                            ),
-                          )
+                                width: largeur,
+                                child: CarteRecette(
+                                  recette: r,
+                                  onCuisinee: () => _cuisinee(context, r),
+                                ),
+                              )
                               .animate(delay: (60 * i).ms)
                               .fadeIn(duration: 350.ms)
                               .slideY(begin: 0.08, curve: Curves.easeOutCubic),

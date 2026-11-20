@@ -8,10 +8,7 @@ typedef SaisiePesee = ({DateTime date, double poidsKg});
 
 /// Ouvre une fenêtre pour saisir une pesée (date + poids).
 /// Renvoie `null` si l'utilisateur annule.
-Future<SaisiePesee?> afficherDialoguePesee(
-  BuildContext context, {
-  double? poidsPropose,
-}) {
+Future<SaisiePesee?> afficherDialoguePesee(BuildContext context, {double? poidsPropose}) {
   return showDialog<SaisiePesee>(
     context: context,
     builder: (_) => _DialoguePesee(poidsPropose: poidsPropose),
@@ -90,10 +87,7 @@ class _DialoguePeseeState extends State<_DialoguePesee> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Annuler')),
         FilledButton(
           key: const Key('bouton_valider_pesee'),
           onPressed: _valider,

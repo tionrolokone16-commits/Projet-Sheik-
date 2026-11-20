@@ -71,11 +71,13 @@ class _FormeDouceAppState extends State<FormeDouceApp> {
     if (alerte == null) return;
     _messager.currentState
       ?..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        key: const Key('alerte_stockage'),
-        content: Text(alerte.message),
-        duration: const Duration(seconds: 8),
-      ));
+      ..showSnackBar(
+        SnackBar(
+          key: const Key('alerte_stockage'),
+          content: Text(alerte.message),
+          duration: const Duration(seconds: 8),
+        ),
+      );
   }
 
   @override

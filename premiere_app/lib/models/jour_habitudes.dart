@@ -26,13 +26,27 @@ abstract interface class Echelle {
 
 /// Ressentis notés en un geste, sur une échelle de 1 à 5.
 enum Ressenti implements Echelle {
-  energie('Énergie', ['😴', '😕', '😐', '🙂', '🤩'],
-      ['Très peu d\'énergie', 'Peu d\'énergie', 'Énergie correcte', 'Bonne énergie',
-       'Pleine d\'énergie']),
-  stress('Stress', ['😌', '🙂', '😐', '😟', '😣'],
-      ['Très calme', 'Calme', 'Stress moyen', 'Un peu de stress', 'Beaucoup de stress']),
-  sommeil('Sommeil', ['😫', '😕', '😐', '🙂', '😴'],
-      ['Très mauvais', 'Moyen', 'Correct', 'Bon', 'Excellent']);
+  energie(
+    'Énergie',
+    ['😴', '😕', '😐', '🙂', '🤩'],
+    [
+      'Très peu d\'énergie',
+      'Peu d\'énergie',
+      'Énergie correcte',
+      'Bonne énergie',
+      'Pleine d\'énergie',
+    ],
+  ),
+  stress(
+    'Stress',
+    ['😌', '🙂', '😐', '😟', '😣'],
+    ['Très calme', 'Calme', 'Stress moyen', 'Un peu de stress', 'Beaucoup de stress'],
+  ),
+  sommeil(
+    'Sommeil',
+    ['😫', '😕', '😐', '🙂', '😴'],
+    ['Très mauvais', 'Moyen', 'Correct', 'Bon', 'Excellent'],
+  );
 
   const Ressenti(this.libelle, this.emojis, this.descriptions);
   @override
@@ -100,12 +114,12 @@ class JourHabitudes {
   }
 
   Map<String, dynamic> toJson() => {
-        'verres': verres,
-        if (sommeilHeures != null) 'sommeilHeures': sommeilHeures,
-        'repas': [for (final r in repas) r.name],
-        'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
-        if (note != null && note!.isNotEmpty) 'note': note,
-      };
+    'verres': verres,
+    if (sommeilHeures != null) 'sommeilHeures': sommeilHeures,
+    'repas': [for (final r in repas) r.name],
+    'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
+    if (note != null && note!.isNotEmpty) 'note': note,
+  };
 
   factory JourHabitudes.fromJson(Map<String, dynamic> json) {
     final repas = <Repas>{};

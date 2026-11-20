@@ -42,10 +42,13 @@ void main() {
     await tester.pumpAndSettle();
     final carte = find.byKey(const Key('carte_recettes'));
     // On fait défiler la liste de l'accueil jusqu'à la carte, puis on la centre.
-    await tester.scrollUntilVisible(carte, 300,
-        scrollable: find
-            .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
-            .first);
+    await tester.scrollUntilVisible(
+      carte,
+      300,
+      scrollable: find
+          .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
+          .first,
+    );
     await tester.ensureVisible(carte);
     await tester.pumpAndSettle();
     await tester.tap(carte);
@@ -94,10 +97,13 @@ void main() {
     // On retourne chaque carte visible pour vérifier aussi les versos.
     for (final r in RecettesService.recettes.take(3)) {
       final carte = find.byKey(Key('recette_${r.id}'));
-      await tester.scrollUntilVisible(carte, 200,
-          scrollable: find
-              .descendant(of: find.byType(RecettesScreen), matching: find.byType(Scrollable))
-              .first);
+      await tester.scrollUntilVisible(
+        carte,
+        200,
+        scrollable: find
+            .descendant(of: find.byType(RecettesScreen), matching: find.byType(Scrollable))
+            .first,
+      );
       await tester.tap(carte);
       await tester.pumpAndSettle();
     }

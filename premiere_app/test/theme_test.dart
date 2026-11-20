@@ -39,7 +39,6 @@ void main() {
   }
 
   test('framboise texte lisible sur rose poudré', () {
-    expect(contraste(Palette.framboiseTexte, Palette.rosePoudre),
-        greaterThanOrEqualTo(4.5));
+    expect(contraste(Palette.framboiseTexte, Palette.rosePoudre), greaterThanOrEqualTo(4.5));
   });
 }

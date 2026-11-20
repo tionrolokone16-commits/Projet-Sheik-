@@ -14,7 +14,8 @@ class CarteImcTropBas extends StatelessWidget {
     final minimum = formaterDecimal(CalculsService.poidsObjectifMinimal(tailleCm));
     return CarteDouce(
       titre: 'Prenons soin de toi',
-      message: 'Cet objectif correspondrait à un IMC inférieur à 18,5, nous ne '
+      message:
+          'Cet objectif correspondrait à un IMC inférieur à 18,5, nous ne '
           'pouvons donc pas le retenir. Pour ta taille, le repère minimum est '
           'de $minimum kg. N\'hésite pas à en parler à un professionnel de '
           'santé : il pourra t\'aider à définir un objectif adapté 💗',
@@ -62,10 +63,7 @@ class CarteDouce extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Text(
-                    message,
-                    style: TextStyle(color: couleurs.onTertiaryContainer),
-                  ),
+                  Text(message, style: TextStyle(color: couleurs.onTertiaryContainer)),
                 ],
               ),
             ),

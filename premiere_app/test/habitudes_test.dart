@@ -47,13 +47,8 @@ void main() {
     const vide = JourHabitudes();
     expect(HabitudesService.tenues(vide, activitesDuJour: [], objectifVerres: 8), isEmpty);
 
-    final complet = JourHabitudes(
-      verres: 8,
-      sommeilHeures: 7,
-      repas: Repas.principaux,
-    );
-    final marche = Activite(
-        id: '1', date: jour, type: TypeActivite.marche, dureeMinutes: 20);
+    final complet = JourHabitudes(verres: 8, sommeilHeures: 7, repas: Repas.principaux);
+    final marche = Activite(id: '1', date: jour, type: TypeActivite.marche, dureeMinutes: 20);
     expect(
       HabitudesService.tenues(complet, activitesDuJour: [marche], objectifVerres: 8),
       Habitude.values.toSet(),
@@ -109,11 +104,14 @@ void main() {
 
     final bouton = find.byKey(const Key('bouton_noter_activite'));
     // Le bouton est en bas de la liste : on fait défiler jusqu'à lui.
-    await tester.scrollUntilVisible(bouton, 300,
-        // La liste verticale du jour, à l'intérieur du journal glissant.
-        scrollable: find
-            .descendant(of: find.byType(PageView), matching: find.byType(Scrollable))
-            .last);
+    await tester.scrollUntilVisible(
+      bouton,
+      300,
+      // La liste verticale du jour, à l'intérieur du journal glissant.
+      scrollable: find
+          .descendant(of: find.byType(PageView), matching: find.byType(Scrollable))
+          .last,
+    );
     await tester.pumpAndSettle();
     await tester.tap(bouton);
     await tester.pumpAndSettle();

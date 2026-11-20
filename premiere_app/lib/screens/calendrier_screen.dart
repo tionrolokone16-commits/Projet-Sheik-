@@ -20,8 +20,7 @@ class CalendrierScreen extends StatefulWidget {
 }
 
 class _CalendrierScreenState extends State<CalendrierScreen> {
-  late DateTime _mois =
-      DateTime(widget.jourSelectionne.year, widget.jourSelectionne.month);
+  late DateTime _mois = DateTime(widget.jourSelectionne.year, widget.jourSelectionne.month);
 
   /// Sens de la dernière navigation (pour l'animation de glissement).
   int _sens = 1;
@@ -42,8 +41,7 @@ class _CalendrierScreenState extends State<CalendrierScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final titreMois = toBeginningOfSentenceCase(
-        DateFormat('MMMM y', 'fr_FR').format(_mois));
+    final titreMois = toBeginningOfSentenceCase(DateFormat('MMMM y', 'fr_FR').format(_mois));
 
     return Scaffold(
       appBar: AppBar(
@@ -78,8 +76,9 @@ class _CalendrierScreenState extends State<CalendrierScreen> {
                               child: Text(
                                 titreMois,
                                 textAlign: TextAlign.center,
-                                style: theme.textTheme.titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.w800),
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
                             IconButton(
@@ -150,9 +149,11 @@ class _ResumeMois extends StatelessWidget {
       final jour = habitudes.jour(date);
       final activites = habitudes.activitesDu(date);
       if (!jour.estVide || activites.isNotEmpty) joursNotes++;
-      totalHabitudes += HabitudesService.tenues(jour,
-              activitesDuJour: activites, objectifVerres: objectifVerres)
-          .length;
+      totalHabitudes += HabitudesService.tenues(
+        jour,
+        activitesDuJour: activites,
+        objectifVerres: objectifVerres,
+      ).length;
     }
     final theme = Theme.of(context);
     return Card(
@@ -163,8 +164,8 @@ class _ResumeMois extends StatelessWidget {
           joursNotes == 0
               ? 'Un mois tout neuf à écrire 🌱'
               : '$joursNotes ${joursNotes > 1 ? 'jours notés' : 'jour noté'} et '
-                  '$totalHabitudes ${totalHabitudes > 1 ? 'habitudes prises' : 'habitude prise'} '
-                  'en soin ce mois-ci 🌸',
+                    '$totalHabitudes ${totalHabitudes > 1 ? 'habitudes prises' : 'habitude prise'} '
+                    'en soin ce mois-ci 🌸',
           style: theme.textTheme.titleSmall?.copyWith(
             color: theme.colorScheme.onPrimaryContainer,
             fontWeight: FontWeight.w700,

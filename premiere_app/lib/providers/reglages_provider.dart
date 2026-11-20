@@ -27,10 +27,10 @@ class ReglagesProvider extends ChangeNotifier {
 
   /// Thème à transmettre à MaterialApp.
   ThemeMode get themeMode => switch (_reglages.theme) {
-        ThemeChoisi.clair => ThemeMode.light,
-        ThemeChoisi.sombre => ThemeMode.dark,
-        ThemeChoisi.systeme => ThemeMode.system,
-      };
+    ThemeChoisi.clair => ThemeMode.light,
+    ThemeChoisi.sombre => ThemeMode.dark,
+    ThemeChoisi.systeme => ThemeMode.system,
+  };
 
   Future<void> modifier(Reglages nouveaux) async {
     _reglages = nouveaux;

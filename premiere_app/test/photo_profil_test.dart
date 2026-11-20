@@ -32,8 +32,7 @@ void main() {
     await provider.enregistrer(profilExemple.copyWith(photoBase64: _photoTest));
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();
-    return Provider.of<ProfilProvider>(
-        tester.element(find.byType(Scaffold).first), listen: false);
+    return Provider.of<ProfilProvider>(tester.element(find.byType(Scaffold).first), listen: false);
   }
 
   testWidgets('la photo s\'affiche sur l\'accueil et dans le profil', (tester) async {
@@ -77,14 +76,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(provider.profil!.photoBase64, isNull);
     // Sans photo : l'initiale du prénom.
-    expect(find.descendant(of: find.byKey(const Key('avatar_profil')), matching: find.text('K')),
-        findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(const Key('avatar_profil')), matching: find.text('K')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('avatar sans prénom : une silhouette, pas de « ? »', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(body: AvatarProfil(photoBase64: null, prenom: '')),
-    ));
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: AvatarProfil(photoBase64: null, prenom: '')),
+      ),
+    );
     expect(find.byIcon(Icons.person_rounded), findsOneWidget);
     expect(find.text('?'), findsNothing);
   });

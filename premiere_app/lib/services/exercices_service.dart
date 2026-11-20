@@ -13,9 +13,17 @@ class ExercicesService {
 
   /// Debout, bras le long du corps.
   static const _debout = Pose(
-    tete: Offset(50, 12), cou: Offset(50, 22), hanche: Offset(50, 52),
-    genouA: Offset(51, 72), piedA: Offset(52, 93), genouB: Offset(49, 72), piedB: Offset(48, 93),
-    coudeA: Offset(52, 37), mainA: Offset(53, 51), coudeB: Offset(48, 37), mainB: Offset(47, 51),
+    tete: Offset(50, 12),
+    cou: Offset(50, 22),
+    hanche: Offset(50, 52),
+    genouA: Offset(51, 72),
+    piedA: Offset(52, 93),
+    genouB: Offset(49, 72),
+    piedB: Offset(48, 93),
+    coudeA: Offset(52, 37),
+    mainA: Offset(53, 51),
+    coudeB: Offset(48, 37),
+    mainB: Offset(47, 51),
   );
 
   // ------------------------------------------------------- Exercices
@@ -34,14 +42,30 @@ class ExercicesService {
     conseil: 'Garde le dos droit et les genoux dans l\'axe des pieds. Expire en remontant.',
     versionDouce: 'Descends seulement à moitié, ou assieds-toi vraiment sur une chaise.',
     poseDepart: Pose(
-      tete: Offset(50, 12), cou: Offset(50, 22), hanche: Offset(50, 52),
-      genouA: Offset(51, 72), piedA: Offset(52, 93), genouB: Offset(49, 72), piedB: Offset(48, 93),
-      coudeA: Offset(62, 25), mainA: Offset(74, 25), coudeB: Offset(60, 27), mainB: Offset(72, 27),
+      tete: Offset(50, 12),
+      cou: Offset(50, 22),
+      hanche: Offset(50, 52),
+      genouA: Offset(51, 72),
+      piedA: Offset(52, 93),
+      genouB: Offset(49, 72),
+      piedB: Offset(48, 93),
+      coudeA: Offset(62, 25),
+      mainA: Offset(74, 25),
+      coudeB: Offset(60, 27),
+      mainB: Offset(72, 27),
     ),
     poseArrivee: Pose(
-      tete: Offset(46, 34), cou: Offset(47, 44), hanche: Offset(36, 68),
-      genouA: Offset(58, 70), piedA: Offset(53, 93), genouB: Offset(56, 72), piedB: Offset(50, 93),
-      coudeA: Offset(60, 44), mainA: Offset(72, 44), coudeB: Offset(58, 46), mainB: Offset(70, 46),
+      tete: Offset(46, 34),
+      cou: Offset(47, 44),
+      hanche: Offset(36, 68),
+      genouA: Offset(58, 70),
+      piedA: Offset(53, 93),
+      genouB: Offset(56, 72),
+      piedB: Offset(50, 93),
+      coudeA: Offset(60, 44),
+      mainA: Offset(72, 44),
+      coudeB: Offset(58, 46),
+      mainB: Offset(70, 46),
     ),
   );
 
@@ -59,14 +83,30 @@ class ExercicesService {
     conseil: 'Les épaules restent au sol. Expire en montant, inspire en descendant.',
     versionDouce: 'Monte le bassin seulement de quelques centimètres.',
     poseDepart: Pose(
-      tete: Offset(12, 86), cou: Offset(21, 87), hanche: Offset(48, 89),
-      genouA: Offset(62, 67), piedA: Offset(74, 93), genouB: Offset(60, 69), piedB: Offset(72, 93),
-      coudeA: Offset(30, 91), mainA: Offset(41, 92), coudeB: Offset(30, 92), mainB: Offset(41, 93),
+      tete: Offset(12, 86),
+      cou: Offset(21, 87),
+      hanche: Offset(48, 89),
+      genouA: Offset(62, 67),
+      piedA: Offset(74, 93),
+      genouB: Offset(60, 69),
+      piedB: Offset(72, 93),
+      coudeA: Offset(30, 91),
+      mainA: Offset(41, 92),
+      coudeB: Offset(30, 92),
+      mainB: Offset(41, 93),
     ),
     poseArrivee: Pose(
-      tete: Offset(12, 86), cou: Offset(21, 85), hanche: Offset(46, 68),
-      genouA: Offset(65, 62), piedA: Offset(74, 93), genouB: Offset(63, 63), piedB: Offset(72, 93),
-      coudeA: Offset(30, 91), mainA: Offset(41, 92), coudeB: Offset(30, 92), mainB: Offset(41, 93),
+      tete: Offset(12, 86),
+      cou: Offset(21, 85),
+      hanche: Offset(46, 68),
+      genouA: Offset(65, 62),
+      piedA: Offset(74, 93),
+      genouB: Offset(63, 63),
+      piedB: Offset(72, 93),
+      coudeA: Offset(30, 91),
+      mainA: Offset(41, 92),
+      coudeB: Offset(30, 92),
+      mainB: Offset(41, 93),
     ),
   );
 
@@ -85,14 +125,30 @@ class ExercicesService {
     versionDouce: 'Rapproche les pieds du mur : c\'est plus facile.',
     mur: true,
     poseDepart: Pose(
-      tete: Offset(63, 19), cou: Offset(59, 27), hanche: Offset(43, 58),
-      genouA: Offset(37, 76), piedA: Offset(31, 93), genouB: Offset(36, 76), piedB: Offset(29, 93),
-      coudeA: Offset(72, 29), mainA: Offset(84, 30), coudeB: Offset(71, 31), mainB: Offset(84, 32),
+      tete: Offset(63, 19),
+      cou: Offset(59, 27),
+      hanche: Offset(43, 58),
+      genouA: Offset(37, 76),
+      piedA: Offset(31, 93),
+      genouB: Offset(36, 76),
+      piedB: Offset(29, 93),
+      coudeA: Offset(72, 29),
+      mainA: Offset(84, 30),
+      coudeB: Offset(71, 31),
+      mainB: Offset(84, 32),
     ),
     poseArrivee: Pose(
-      tete: Offset(72, 22), cou: Offset(67, 30), hanche: Offset(48, 59),
-      genouA: Offset(40, 77), piedA: Offset(31, 93), genouB: Offset(39, 77), piedB: Offset(29, 93),
-      coudeA: Offset(72, 42), mainA: Offset(84, 30), coudeB: Offset(70, 43), mainB: Offset(84, 32),
+      tete: Offset(72, 22),
+      cou: Offset(67, 30),
+      hanche: Offset(48, 59),
+      genouA: Offset(40, 77),
+      piedA: Offset(31, 93),
+      genouB: Offset(39, 77),
+      piedB: Offset(29, 93),
+      coudeA: Offset(72, 42),
+      mainA: Offset(84, 30),
+      coudeB: Offset(70, 43),
+      mainB: Offset(84, 32),
     ),
   );
 
@@ -110,14 +166,30 @@ class ExercicesService {
     conseil: 'Ne bloque pas ta respiration. Rentre doucement le nombril.',
     versionDouce: 'Tiens 10 secondes, repose-toi, recommence.',
     poseDepart: Pose(
-      tete: Offset(80, 63), cou: Offset(72, 68), hanche: Offset(42, 76),
-      genouA: Offset(28, 91), piedA: Offset(12, 86), genouB: Offset(27, 92), piedB: Offset(11, 87),
-      coudeA: Offset(70, 91), mainA: Offset(82, 92), coudeB: Offset(69, 92), mainB: Offset(81, 93),
+      tete: Offset(80, 63),
+      cou: Offset(72, 68),
+      hanche: Offset(42, 76),
+      genouA: Offset(28, 91),
+      piedA: Offset(12, 86),
+      genouB: Offset(27, 92),
+      piedB: Offset(11, 87),
+      coudeA: Offset(70, 91),
+      mainA: Offset(82, 92),
+      coudeB: Offset(69, 92),
+      mainB: Offset(81, 93),
     ),
     poseArrivee: Pose(
-      tete: Offset(80, 62), cou: Offset(72, 67), hanche: Offset(42, 74),
-      genouA: Offset(28, 91), piedA: Offset(12, 86), genouB: Offset(27, 92), piedB: Offset(11, 87),
-      coudeA: Offset(70, 91), mainA: Offset(82, 92), coudeB: Offset(69, 92), mainB: Offset(81, 93),
+      tete: Offset(80, 62),
+      cou: Offset(72, 67),
+      hanche: Offset(42, 74),
+      genouA: Offset(28, 91),
+      piedA: Offset(12, 86),
+      genouB: Offset(27, 92),
+      piedB: Offset(11, 87),
+      coudeA: Offset(70, 91),
+      mainA: Offset(82, 92),
+      coudeB: Offset(69, 92),
+      mainB: Offset(81, 93),
     ),
   );
 
@@ -135,14 +207,30 @@ class ExercicesService {
     conseil: 'Le genou avant reste au-dessus de la cheville. Tiens-toi à une chaise si besoin.',
     versionDouce: 'Fais un plus petit pas, sans descendre trop bas.',
     poseDepart: Pose(
-      tete: Offset(50, 12), cou: Offset(50, 22), hanche: Offset(50, 52),
-      genouA: Offset(51, 72), piedA: Offset(52, 93), genouB: Offset(49, 72), piedB: Offset(48, 93),
-      coudeA: Offset(41, 39), mainA: Offset(49, 50), coudeB: Offset(59, 39), mainB: Offset(52, 50),
+      tete: Offset(50, 12),
+      cou: Offset(50, 22),
+      hanche: Offset(50, 52),
+      genouA: Offset(51, 72),
+      piedA: Offset(52, 93),
+      genouB: Offset(49, 72),
+      piedB: Offset(48, 93),
+      coudeA: Offset(41, 39),
+      mainA: Offset(49, 50),
+      coudeB: Offset(59, 39),
+      mainB: Offset(52, 50),
     ),
     poseArrivee: Pose(
-      tete: Offset(49, 24), cou: Offset(49, 34), hanche: Offset(47, 63),
-      genouA: Offset(63, 73), piedA: Offset(65, 93), genouB: Offset(37, 88), piedB: Offset(24, 92),
-      coudeA: Offset(40, 50), mainA: Offset(47, 61), coudeB: Offset(57, 50), mainB: Offset(50, 61),
+      tete: Offset(49, 24),
+      cou: Offset(49, 34),
+      hanche: Offset(47, 63),
+      genouA: Offset(63, 73),
+      piedA: Offset(65, 93),
+      genouB: Offset(37, 88),
+      piedB: Offset(24, 92),
+      coudeA: Offset(40, 50),
+      mainA: Offset(47, 61),
+      coudeB: Offset(57, 50),
+      mainB: Offset(50, 61),
     ),
   );
 
@@ -160,14 +248,30 @@ class ExercicesService {
     conseil: 'Mets ta chanson préférée : ça passe tout seul !',
     versionDouce: 'Lève à peine les pieds, ou marche assise sur une chaise.',
     poseDepart: Pose(
-      tete: Offset(50, 12), cou: Offset(50, 22), hanche: Offset(50, 52),
-      genouA: Offset(63, 63), piedA: Offset(60, 81), genouB: Offset(50, 72), piedB: Offset(50, 93),
-      coudeA: Offset(45, 37), mainA: Offset(40, 50), coudeB: Offset(57, 36), mainB: Offset(62, 46),
+      tete: Offset(50, 12),
+      cou: Offset(50, 22),
+      hanche: Offset(50, 52),
+      genouA: Offset(63, 63),
+      piedA: Offset(60, 81),
+      genouB: Offset(50, 72),
+      piedB: Offset(50, 93),
+      coudeA: Offset(45, 37),
+      mainA: Offset(40, 50),
+      coudeB: Offset(57, 36),
+      mainB: Offset(62, 46),
     ),
     poseArrivee: Pose(
-      tete: Offset(50, 12), cou: Offset(50, 22), hanche: Offset(50, 52),
-      genouA: Offset(51, 72), piedA: Offset(51, 93), genouB: Offset(62, 63), piedB: Offset(59, 81),
-      coudeA: Offset(57, 36), mainA: Offset(62, 46), coudeB: Offset(45, 37), mainB: Offset(40, 50),
+      tete: Offset(50, 12),
+      cou: Offset(50, 22),
+      hanche: Offset(50, 52),
+      genouA: Offset(51, 72),
+      piedA: Offset(51, 93),
+      genouB: Offset(62, 63),
+      piedB: Offset(59, 81),
+      coudeA: Offset(57, 36),
+      mainA: Offset(62, 46),
+      coudeB: Offset(45, 37),
+      mainB: Offset(40, 50),
     ),
   );
 
@@ -186,9 +290,17 @@ class ExercicesService {
     versionDouce: 'Reste à plat sur tes pieds, lève les bras à mi-hauteur.',
     poseDepart: _debout,
     poseArrivee: Pose(
-      tete: Offset(50, 10), cou: Offset(50, 20), hanche: Offset(50, 50),
-      genouA: Offset(51, 70), piedA: Offset(53, 91), genouB: Offset(49, 70), piedB: Offset(49, 91),
-      coudeA: Offset(60, 11), mainA: Offset(62, 1), coudeB: Offset(58, 12), mainB: Offset(60, 2),
+      tete: Offset(50, 10),
+      cou: Offset(50, 20),
+      hanche: Offset(50, 50),
+      genouA: Offset(51, 70),
+      piedA: Offset(53, 91),
+      genouB: Offset(49, 70),
+      piedB: Offset(49, 91),
+      coudeA: Offset(60, 11),
+      mainA: Offset(62, 1),
+      coudeB: Offset(58, 12),
+      mainB: Offset(60, 2),
     ),
   );
 
@@ -206,19 +318,42 @@ class ExercicesService {
     conseil: 'Relâche les épaules, elles ne montent pas vers les oreilles.',
     versionDouce: 'Fais de petits mouvements, coudes un peu pliés.',
     poseDepart: Pose(
-      tete: Offset(50, 12), cou: Offset(50, 22), hanche: Offset(50, 52),
-      genouA: Offset(51, 72), piedA: Offset(52, 93), genouB: Offset(49, 72), piedB: Offset(48, 93),
-      coudeA: Offset(62, 25), mainA: Offset(74, 25), coudeB: Offset(60, 27), mainB: Offset(72, 27),
+      tete: Offset(50, 12),
+      cou: Offset(50, 22),
+      hanche: Offset(50, 52),
+      genouA: Offset(51, 72),
+      piedA: Offset(52, 93),
+      genouB: Offset(49, 72),
+      piedB: Offset(48, 93),
+      coudeA: Offset(62, 25),
+      mainA: Offset(74, 25),
+      coudeB: Offset(60, 27),
+      mainB: Offset(72, 27),
     ),
     poseArrivee: Pose(
-      tete: Offset(50, 12), cou: Offset(50, 22), hanche: Offset(50, 52),
-      genouA: Offset(51, 72), piedA: Offset(52, 93), genouB: Offset(49, 72), piedB: Offset(48, 93),
-      coudeA: Offset(60, 12), mainA: Offset(63, 1), coudeB: Offset(58, 13), mainB: Offset(61, 2),
+      tete: Offset(50, 12),
+      cou: Offset(50, 22),
+      hanche: Offset(50, 52),
+      genouA: Offset(51, 72),
+      piedA: Offset(52, 93),
+      genouB: Offset(49, 72),
+      piedB: Offset(48, 93),
+      coudeA: Offset(60, 12),
+      mainA: Offset(63, 1),
+      coudeB: Offset(58, 13),
+      mainB: Offset(61, 2),
     ),
   );
 
   static const exercices = [
-    squat, pontFessier, pompesMur, gainage, fentes, marcheSurPlace, brasCiel, cerclesBras,
+    squat,
+    pontFessier,
+    pompesMur,
+    gainage,
+    fentes,
+    marcheSurPlace,
+    brasCiel,
+    cerclesBras,
   ];
 
   // --------------------------------------------------------- Séances
@@ -297,30 +432,33 @@ class ExercicesService {
 
   /// Séance courte avec un seul exercice (« Essayer 30 secondes »).
   static Seance essai(Exercice e) => Seance(
-        id: 'essai_${e.id}',
-        nom: e.nom,
-        emoji: e.emoji,
-        description: 'Un essai de 30 secondes.',
-        niveau: e.niveau,
-        reposSecondes: 0,
-        etapes: [EtapeSeance(e, 30)],
-      );
+    id: 'essai_${e.id}',
+    nom: e.nom,
+    emoji: e.emoji,
+    description: 'Un essai de 30 secondes.',
+    niveau: e.niveau,
+    reposSecondes: 0,
+    etapes: [EtapeSeance(e, 30)],
+  );
 
   /// Séance proposée selon l'énergie et le stress du jour (de 1 à 5).
   /// Jamais selon les repas. Renvoie `null` si l'énergie n'est pas notée.
   static ({Seance seance, String raison})? proposer({int? energie, int? stress}) {
     if (energie == null) return null;
     if (energie <= 2 || (stress ?? 0) >= 4) {
-      return (
-        seance: detente,
-        raison: 'Journée chargée ou énergie basse : place à la douceur 🌿',
-      );
+      return (seance: detente, raison: 'Journée chargée ou énergie basse : place à la douceur 🌿');
     }
     if (energie == 3) {
-      return (seance: reveil, raison: 'Une énergie tranquille : on réveille le corps en douceur ☀️');
+      return (
+        seance: reveil,
+        raison: 'Une énergie tranquille : on réveille le corps en douceur ☀️',
+      );
     }
     if (energie == 4) {
-      return (seance: renfoDoux, raison: 'Belle énergie aujourd\'hui : un peu de renfo, si ça te dit 💪🏾');
+      return (
+        seance: renfoDoux,
+        raison: 'Belle énergie aujourd\'hui : un peu de renfo, si ça te dit 💪🏾',
+      );
     }
     return (seance: seanceEnergie, raison: 'Énergie au top : profite-en pour une séance tonique ⚡');
   }

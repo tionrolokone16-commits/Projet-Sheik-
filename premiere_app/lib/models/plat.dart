@@ -51,12 +51,21 @@ enum TaillePortion {
 
 /// Ressentis autour d'un repas, sur une échelle de 1 à 5 (facultatifs).
 enum RessentiRepas implements Echelle {
-  faim('Faim avant', ['😐', '🙂', '😋', '😩', '🥴'],
-      ['Pas faim', 'Un peu faim', 'Faim', 'Très faim', 'Énormément faim']),
-  satiete('Satiété après', ['🤏', '🙂', '😌', '😮‍💨', '🫠'],
-      ['Encore faim', 'Juste bien', 'Bien calé', 'Très plein', 'Trop plein']),
-  plaisir('Plaisir', ['😐', '🙂', '😋', '😍', '🤩'],
-      ['Bof', 'Correct', 'Bon', 'Délicieux', 'Un régal']);
+  faim(
+    'Faim avant',
+    ['😐', '🙂', '😋', '😩', '🥴'],
+    ['Pas faim', 'Un peu faim', 'Faim', 'Très faim', 'Énormément faim'],
+  ),
+  satiete(
+    'Satiété après',
+    ['🤏', '🙂', '😌', '😮‍💨', '🫠'],
+    ['Encore faim', 'Juste bien', 'Bien calé', 'Très plein', 'Trop plein'],
+  ),
+  plaisir(
+    'Plaisir',
+    ['😐', '🙂', '😋', '😍', '🤩'],
+    ['Bof', 'Correct', 'Bon', 'Délicieux', 'Un régal'],
+  );
 
   const RessentiRepas(this.libelle, this.emojis, this.descriptions);
 
@@ -93,26 +102,26 @@ class Plat {
   final List<String> ingredients;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'nom': nom,
-        'emoji': emoji,
-        'categorie': categorie.name,
-        'legumes': portions.legumes,
-        'proteines': portions.proteines,
-        'feculents': portions.feculents,
-      };
+    'id': id,
+    'nom': nom,
+    'emoji': emoji,
+    'categorie': categorie.name,
+    'legumes': portions.legumes,
+    'proteines': portions.proteines,
+    'feculents': portions.feculents,
+  };
 
   /// Les plats enregistrés en JSON sont toujours des plats personnels.
   factory Plat.fromJson(Map<String, dynamic> json) => Plat(
-        id: json['id'] as String,
-        nom: json['nom'] as String,
-        emoji: json['emoji'] as String? ?? '🍽️',
-        pays: PaysPlat.mesPlats,
-        categorie: CategoriePlat.depuisNom(json['categorie'] as String?),
-        portions: Portions(
-          legumes: (json['legumes'] as num?)?.toDouble() ?? 1 / 3,
-          proteines: (json['proteines'] as num?)?.toDouble() ?? 1 / 3,
-          feculents: (json['feculents'] as num?)?.toDouble() ?? 1 / 3,
-        ),
-      );
+    id: json['id'] as String,
+    nom: json['nom'] as String,
+    emoji: json['emoji'] as String? ?? '🍽️',
+    pays: PaysPlat.mesPlats,
+    categorie: CategoriePlat.depuisNom(json['categorie'] as String?),
+    portions: Portions(
+      legumes: (json['legumes'] as num?)?.toDouble() ?? 1 / 3,
+      proteines: (json['proteines'] as num?)?.toDouble() ?? 1 / 3,
+      feculents: (json['feculents'] as num?)?.toDouble() ?? 1 / 3,
+    ),
+  );
 }

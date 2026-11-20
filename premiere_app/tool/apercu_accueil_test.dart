@@ -34,17 +34,23 @@ void main() {
       addTearDown(tester.view.reset);
 
       final stockage = await preparerStockage(
-          avecProfil: true, reglages: Reglages(theme: theme, rappelsRepas: false));
+        avecProfil: true,
+        reglages: Reglages(theme: theme, rappelsRepas: false),
+      );
       final h = HabitudesProvider(stockage);
       for (var i = 0; i < 3; i++) {
         await h.ajouterVerre(DateTime.now());
       }
-      await h.ajouterActivite(
-          date: DateTime.now(), type: TypeActivite.marche, dureeMinutes: 30);
+      await h.ajouterActivite(date: DateTime.now(), type: TypeActivite.marche, dureeMinutes: 30);
       await PoidsProvider(stockage).ajouter(DateTime.now(), 78);
 
       final cle = GlobalKey();
-      await tester.pumpWidget(RepaintBoundary(key: cle, child: FormeDouceApp(stockage: stockage)));
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: cle,
+          child: FormeDouceApp(stockage: stockage),
+        ),
+      );
       await tester.pumpAndSettle();
 
       final image = await tester.runAsync(() async {

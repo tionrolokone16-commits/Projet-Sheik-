@@ -53,8 +53,7 @@ class PlanteService {
     return total;
   }
 
-  static StadePlante stade(int gouttes) =>
-      StadePlante.values.lastWhere((s) => gouttes >= s.seuil);
+  static StadePlante stade(int gouttes) => StadePlante.values.lastWhere((s) => gouttes >= s.seuil);
 
   /// Croissance continue entre 0 (graine) et 6 (jardin) : la partie entière
   /// est le stade, la partie décimale l'avancée vers le stade suivant.

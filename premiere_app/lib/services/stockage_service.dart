@@ -45,8 +45,7 @@ class StockageService {
     return objet == null ? null : Profil.fromJson(objet);
   }
 
-  Future<void> enregistrerProfil(Profil profil) =>
-      _ecrire(_cleProfil, jsonEncode(profil.toJson()));
+  Future<void> enregistrerProfil(Profil profil) => _ecrire(_cleProfil, jsonEncode(profil.toJson()));
 
   // ---------- Pesées ----------
 
@@ -57,8 +56,8 @@ class StockageService {
     return liste;
   }
 
-  Future<void> enregistrerPesees(List<Pesee> pesees) => _ecrire(
-      _clePesees, jsonEncode(pesees.map((p) => p.toJson()).toList()));
+  Future<void> enregistrerPesees(List<Pesee> pesees) =>
+      _ecrire(_clePesees, jsonEncode(pesees.map((p) => p.toJson()).toList()));
 
   // ---------- Activités ----------
 
@@ -70,8 +69,7 @@ class StockageService {
   }
 
   Future<void> enregistrerActivites(List<Activite> activites) =>
-      _ecrire(_cleActivites,
-          jsonEncode(activites.map((a) => a.toJson()).toList()));
+      _ecrire(_cleActivites, jsonEncode(activites.map((a) => a.toJson()).toList()));
 
   // ---------- Journal des habitudes ----------
 
@@ -91,8 +89,7 @@ class StockageService {
   }
 
   Future<void> enregistrerJournal(Map<String, JourHabitudes> journal) =>
-      _ecrire(_cleJournal,
-          jsonEncode(journal.map((cle, jour) => MapEntry(cle, jour.toJson()))));
+      _ecrire(_cleJournal, jsonEncode(journal.map((cle, jour) => MapEntry(cle, jour.toJson()))));
 
   // ---------- Repas photographiés ----------
 
@@ -118,8 +115,7 @@ class StockageService {
     var photosRetirees = false;
     while (true) {
       try {
-        await _prefs.setString(
-            _cleRepasPhotos, jsonEncode([for (final r in liste) r.toJson()]));
+        await _prefs.setString(_cleRepasPhotos, jsonEncode([for (final r in liste) r.toJson()]));
         break;
       } catch (_) {
         final allegee = _sansPhotosAnciennes(liste);
@@ -171,8 +167,8 @@ class StockageService {
     return liste;
   }
 
-  Future<void> enregistrerPlatsPerso(List<Plat> plats) => _ecrire(
-      _clePlatsPerso, jsonEncode([for (final p in plats) p.toJson()]));
+  Future<void> enregistrerPlatsPerso(List<Plat> plats) =>
+      _ecrire(_clePlatsPerso, jsonEncode([for (final p in plats) p.toJson()]));
 
   // ---------- Récompenses (badges, défis, victoires) ----------
 
@@ -288,8 +284,7 @@ class StockageService {
     final allegee = _sansPhotosAnciennes(chargerRepasPhotos());
     if (allegee == null) return false;
     try {
-      await _prefs.setString(
-          _cleRepasPhotos, jsonEncode([for (final r in allegee) r.toJson()]));
+      await _prefs.setString(_cleRepasPhotos, jsonEncode([for (final r in allegee) r.toJson()]));
     } catch (_) {
       return false;
     }
@@ -341,11 +336,11 @@ class AlerteStockage {
   final TypeAlerteStockage type;
 
   String get message => switch (type) {
-        TypeAlerteStockage.photosRetirees =>
-          '📸 Ton appareil manquait de place : les photos des repas les plus '
-              'anciens ont été retirées. Les repas, eux, restent notés.',
-        TypeAlerteStockage.echec =>
-          '⚠️ Ton appareil manque de place : la dernière modification n\'a pas pu '
-              'être enregistrée. Tu peux libérer de la place dans Réglages → Mes données.',
-      };
+    TypeAlerteStockage.photosRetirees =>
+      '📸 Ton appareil manquait de place : les photos des repas les plus '
+          'anciens ont été retirées. Les repas, eux, restent notés.',
+    TypeAlerteStockage.echec =>
+      '⚠️ Ton appareil manque de place : la dernière modification n\'a pas pu '
+          'être enregistrée. Tu peux libérer de la place dans Réglages → Mes données.',
+  };
 }

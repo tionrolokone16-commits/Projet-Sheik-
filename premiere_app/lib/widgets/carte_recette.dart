@@ -12,11 +12,7 @@ import 'assiette.dart';
 /// - recto : le plat d'origine ;
 /// - verso : la version plus équilibrée, avec son assiette.
 class CarteRecette extends StatefulWidget {
-  const CarteRecette({
-    super.key,
-    required this.recette,
-    required this.onCuisinee,
-  });
+  const CarteRecette({super.key, required this.recette, required this.onCuisinee});
 
   final Recette recette;
 
@@ -29,8 +25,7 @@ class CarteRecette extends StatefulWidget {
   State<CarteRecette> createState() => _CarteRecetteState();
 }
 
-class _CarteRecetteState extends State<CarteRecette>
-    with SingleTickerProviderStateMixin {
+class _CarteRecetteState extends State<CarteRecette> with SingleTickerProviderStateMixin {
   late final AnimationController _rotation = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 600),
@@ -64,8 +59,7 @@ class _CarteRecetteState extends State<CarteRecette>
         child: AnimatedBuilder(
           animation: _rotation,
           builder: (context, _) {
-            final angle =
-                Curves.easeInOutCubic.transform(_rotation.value) * math.pi;
+            final angle = Curves.easeInOutCubic.transform(_rotation.value) * math.pi;
             return Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()
@@ -76,10 +70,7 @@ class _CarteRecetteState extends State<CarteRecette>
                   ? Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.identity()..rotateY(math.pi),
-                      child: _Verso(
-                        recette: widget.recette,
-                        onCuisinee: widget.onCuisinee,
-                      ),
+                      child: _Verso(recette: widget.recette, onCuisinee: widget.onCuisinee),
                     )
                   : _Recto(recette: widget.recette),
             );
@@ -143,36 +134,25 @@ class _Recto extends StatelessWidget {
             child: Center(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text(
-                  recette.emoji,
-                  style: const TextStyle(fontSize: 84),
-                ),
+                child: Text(recette.emoji, style: const TextStyle(fontSize: 84)),
               ),
             ),
           ),
           Text(
             recette.nom,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
+            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 8),
           Text(recette.description, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 8),
           Text(
             'Il a toute sa place dans ta vie 💗',
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontStyle: FontStyle.italic,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Icon(
-                Icons.touch_app_rounded,
-                size: 18,
-                color: theme.colorScheme.primary,
-              ),
+              Icon(Icons.touch_app_rounded, size: 18, color: theme.colorScheme.primary),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -212,16 +192,10 @@ class _Verso extends StatelessWidget {
                 child: Text(
                   'Version revisitée',
                   key: Key('verso_${recette.id}'),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
-              Icon(
-                Icons.flip_rounded,
-                size: 18,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              Icon(Icons.flip_rounded, size: 18, color: theme.colorScheme.onSurfaceVariant),
             ],
           ),
           const SizedBox(height: 12),
@@ -239,9 +213,7 @@ class _Verso extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Note neutre si le plan nutritionnel conseille d'éviter un ingrédient.
-                  if (context.watch<PlanProvider>().aEviterParmi(
-                        recette.ingredients,
-                      )
+                  if (context.watch<PlanProvider>().aEviterParmi(recette.ingredients)
                       case final aEviter when aEviter.isNotEmpty)
                     Container(
                       key: Key('note_plan_${recette.id}'),
@@ -265,12 +237,7 @@ class _Verso extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('🌸 '),
-                          Expanded(
-                            child: Text(
-                              astuce,
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                          ),
+                          Expanded(child: Text(astuce, style: theme.textTheme.bodyMedium)),
                         ],
                       ),
                     ),

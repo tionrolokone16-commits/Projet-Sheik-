@@ -59,8 +59,10 @@ void main() {
     });
 
     test('texte qui n\'est pas un plan : message clair', () {
-      expect(() => PlanService.lire('Bonjour, voici ma liste de courses'),
-          throwsA(isA<ErreurPlan>()));
+      expect(
+        () => PlanService.lire('Bonjour, voici ma liste de courses'),
+        throwsA(isA<ErreurPlan>()),
+      );
       expect(() => PlanService.lire("[[Kira's FAT · plan]]\nrien"), throwsA(isA<ErreurPlan>()));
     });
 
@@ -70,8 +72,10 @@ void main() {
       expect(termes, containsAll(['coco', 'avocat', 'friture', 'piment', 'poivre', 'maquereau']));
       // « Poissons gras » ne doit pas faire éviter tout le poisson.
       expect(PlanService.ingredientsAEviter(plan, ['poisson', 'riz']), isEmpty);
-      expect(PlanService.ingredientsAEviter(plan, ['banane plantain', 'friture', 'piment']),
-          ['friture', 'piment']);
+      expect(PlanService.ingredientsAEviter(plan, ['banane plantain', 'friture', 'piment']), [
+        'friture',
+        'piment',
+      ]);
     });
 
     test('normalisation : accents, majuscules, pluriels', () {

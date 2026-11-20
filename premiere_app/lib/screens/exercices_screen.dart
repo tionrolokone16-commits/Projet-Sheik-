@@ -35,75 +35,91 @@ class ExercicesScreen extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 800),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-              children: [
-                Text('À ton rythme, quand tu en as envie 💃🏾',
-                    style: theme.textTheme.bodyLarge),
-                const SizedBox(height: 12),
+              children:
+                  [
+                        Text(
+                          'À ton rythme, quand tu en as envie 💃🏾',
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 12),
 
-                // ----- Pour toi aujourd'hui -----
-                Card(
-                  key: const Key('carte_proposition'),
-                  color: theme.colorScheme.primaryContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Pour toi aujourd\'hui',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: theme.colorScheme.onPrimaryContainer,
-                            )),
-                        const SizedBox(height: 8),
-                        if (proposition == null) ...[
-                          Text('Comment est ton énergie ? Je te propose une séance adaptée.',
-                              style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
-                          const SizedBox(height: 8),
-                          SelecteurRessenti(
-                            ressenti: Ressenti.energie,
-                            valeur: null,
-                            onChoisir: (v) =>
-                                habitudes.definirRessenti(aujourdhui, Ressenti.energie, v),
+                        // ----- Pour toi aujourd'hui -----
+                        Card(
+                          key: const Key('carte_proposition'),
+                          color: theme.colorScheme.primaryContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Pour toi aujourd\'hui',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: theme.colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                if (proposition == null) ...[
+                                  Text(
+                                    'Comment est ton énergie ? Je te propose une séance adaptée.',
+                                    style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  SelecteurRessenti(
+                                    ressenti: Ressenti.energie,
+                                    valeur: null,
+                                    onChoisir: (v) =>
+                                        habitudes.definirRessenti(aujourdhui, Ressenti.energie, v),
+                                  ),
+                                ] else ...[
+                                  Text(
+                                    proposition.raison,
+                                    style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _CarteSeance(
+                                    seance: proposition.seance,
+                                    cle: const Key('seance_proposee'),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
-                        ] else ...[
-                          Text(proposition.raison,
-                              style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
-                          const SizedBox(height: 8),
-                          _CarteSeance(seance: proposition.seance, cle: const Key('seance_proposee')),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
+                        ),
+                        const SizedBox(height: 8),
 
-                // ----- Séances guidées -----
-                Text('Séances guidées',
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                const SizedBox(height: 6),
-                for (final s in ExercicesService.seances)
-                  _CarteSeance(seance: s, cle: Key('seance_${s.id}')),
-                const SizedBox(height: 16),
+                        // ----- Séances guidées -----
+                        Text(
+                          'Séances guidées',
+                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 6),
+                        for (final s in ExercicesService.seances)
+                          _CarteSeance(seance: s, cle: Key('seance_${s.id}')),
+                        const SizedBox(height: 16),
 
-                // ----- Exercices -----
-                Text('Exercices',
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                const SizedBox(height: 6),
-                GridView.extent(
-                  maxCrossAxisExtent: 200,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 0.82,
-                  children: [
-                    for (final e in ExercicesService.exercices) _CarteExercice(exercice: e),
-                  ],
-                ),
-              ]
-                  .animate(interval: 50.ms)
-                  .fadeIn(duration: 300.ms)
-                  .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+                        // ----- Exercices -----
+                        Text(
+                          'Exercices',
+                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 6),
+                        GridView.extent(
+                          maxCrossAxisExtent: 200,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                          childAspectRatio: 0.82,
+                          children: [
+                            for (final e in ExercicesService.exercices) _CarteExercice(exercice: e),
+                          ],
+                        ),
+                      ]
+                      .animate(interval: 50.ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideY(begin: 0.05, curve: Curves.easeOutCubic),
             ),
           ),
         ),
@@ -127,12 +143,14 @@ class _CarteSeance extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         leading: Text(seance.emoji, style: const TextStyle(fontSize: 30)),
         title: Text(seance.nom, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text('${seance.dureeMinutes} min · ${seance.niveau.emoji} '
-            '${seance.niveau.libelle} · ${seance.description}'),
-        trailing: const Icon(Icons.play_circle_rounded, size: 32),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => SeanceScreen(seance: seance)),
+        subtitle: Text(
+          '${seance.dureeMinutes} min · ${seance.niveau.emoji} '
+          '${seance.niveau.libelle} · ${seance.description}',
         ),
+        trailing: const Icon(Icons.play_circle_rounded, size: 32),
+        onTap: () =>
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => SeanceScreen(seance: seance))),
       ),
     );
   }
@@ -151,25 +169,29 @@ class _CarteExercice extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         key: Key('exercice_${exercice.id}'),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => ExerciceDetailScreen(exercice: exercice)),
-        ),
+        onTap: () =>
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => ExerciceDetailScreen(exercice: exercice))),
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
               // Immobile dans la liste ; elle s'anime dans la fiche détaillée.
               Expanded(child: FigureExercice(exercice: exercice, anime: false, taille: 120)),
-              Text(exercice.nom,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-              Text('${exercice.niveau.emoji} ${exercice.niveau.libelle} · ${exercice.zone}',
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall),
+              Text(
+                exercice.nom,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              Text(
+                '${exercice.niveau.emoji} ${exercice.niveau.libelle} · ${exercice.zone}',
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall,
+              ),
             ],
           ),
         ),
@@ -206,7 +228,9 @@ class ExerciceDetailScreen extends StatelessWidget {
                         Wrap(
                           spacing: 8,
                           children: [
-                            Chip(label: Text('${exercice.niveau.emoji} ${exercice.niveau.libelle}')),
+                            Chip(
+                              label: Text('${exercice.niveau.emoji} ${exercice.niveau.libelle}'),
+                            ),
                             Chip(label: Text(exercice.zone)),
                           ],
                         ),
@@ -220,9 +244,10 @@ class ExerciceDetailScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Comment faire',
-                            style: theme.textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        Text(
+                          'Comment faire',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        ),
                         for (final (i, etape) in exercice.etapes.indexed)
                           Padding(
                             padding: const EdgeInsets.only(top: 10),
@@ -232,11 +257,13 @@ class ExerciceDetailScreen extends StatelessWidget {
                                 CircleAvatar(
                                   radius: 13,
                                   backgroundColor: theme.colorScheme.primaryContainer,
-                                  child: Text('${i + 1}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        color: theme.colorScheme.onPrimaryContainer,
-                                      )),
+                                  child: Text(
+                                    '${i + 1}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(child: Text(etape, style: theme.textTheme.bodyLarge)),
@@ -251,24 +278,30 @@ class ExerciceDetailScreen extends StatelessWidget {
                   color: theme.colorScheme.tertiaryContainer,
                   child: ListTile(
                     leading: const Text('💡', style: TextStyle(fontSize: 24)),
-                    title: Text(exercice.conseil,
-                        style: TextStyle(color: theme.colorScheme.onTertiaryContainer)),
+                    title: Text(
+                      exercice.conseil,
+                      style: TextStyle(color: theme.colorScheme.onTertiaryContainer),
+                    ),
                   ),
                 ),
                 Card(
                   child: ListTile(
                     leading: const Text('🌱', style: TextStyle(fontSize: 24)),
-                    title: const Text('Version plus douce',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
+                    title: const Text(
+                      'Version plus douce',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     subtitle: Text(exercice.versionDouce),
                   ),
                 ),
                 const SizedBox(height: 8),
                 FilledButton.icon(
                   key: const Key('essayer_exercice'),
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => SeanceScreen(seance: ExercicesService.essai(exercice)),
-                  )),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => SeanceScreen(seance: ExercicesService.essai(exercice)),
+                    ),
+                  ),
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: const Text('Essayer 30 secondes'),
                 ),

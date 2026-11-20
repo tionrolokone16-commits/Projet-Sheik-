@@ -38,8 +38,10 @@ void main() {
     final poids = PoidsProvider(stockage);
     final aujourdhui = DateTime.now();
     for (var i = 0; i < 6; i++) {
-      await poids.ajouter(aujourdhui.subtract(Duration(days: 5 * i)),
-          80 - i * 0.4 + (i.isEven ? 0.3 : 0));
+      await poids.ajouter(
+        aujourdhui.subtract(Duration(days: 5 * i)),
+        80 - i * 0.4 + (i.isEven ? 0.3 : 0),
+      );
     }
 
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));

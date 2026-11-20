@@ -25,7 +25,8 @@ class Assiette extends StatelessWidget {
     final sombre = Theme.of(context).colorScheme.brightness == Brightness.dark;
     String pct(double v) => '${(v * 100).round()} %';
     return Semantics(
-      label: 'Assiette : légumes ${pct(portions.legumes)}, '
+      label:
+          'Assiette : légumes ${pct(portions.legumes)}, '
           'protéines ${pct(portions.proteines)}, féculents ${pct(portions.feculents)}',
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
@@ -55,20 +56,20 @@ class LegendeAssiette extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.bodySmall;
     Widget ligne(Color c, String emoji, String nom, double v) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 6),
-              Flexible(child: Text('$emoji $nom · ${(v * 100).round()} %', style: style)),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(color: c, shape: BoxShape.circle),
           ),
-        );
+          const SizedBox(width: 6),
+          Flexible(child: Text('$emoji $nom · ${(v * 100).round()} %', style: style)),
+        ],
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -120,8 +121,11 @@ class _PeintreAssiette extends CustomPainter {
         ..color = Colors.black.withValues(alpha: 0.12)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
     );
-    canvas.drawCircle(centre, rayon - 2,
-        Paint()..color = sombre ? const Color(0xFF4A2B3B) : Colors.white);
+    canvas.drawCircle(
+      centre,
+      rayon - 2,
+      Paint()..color = sombre ? const Color(0xFF4A2B3B) : Colors.white,
+    );
     canvas.drawCircle(
       centre,
       rayon * 0.82,
@@ -162,7 +166,5 @@ class _PeintreAssiette extends CustomPainter {
 
   @override
   bool shouldRepaint(_PeintreAssiette ancien) =>
-      ancien.portions != portions ||
-      ancien.deploiement != deploiement ||
-      ancien.sombre != sombre;
+      ancien.portions != portions || ancien.deploiement != deploiement || ancien.sombre != sombre;
 }

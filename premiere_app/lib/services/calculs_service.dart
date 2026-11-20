@@ -74,8 +74,7 @@ class CalculsService {
     required double tailleCm,
     required int age,
     required Sexe sexe,
-  }) =>
-      10 * poidsKg + 6.25 * tailleCm - 5 * age + sexe.constanteMifflin;
+  }) => 10 * poidsKg + 6.25 * tailleCm - 5 * age + sexe.constanteMifflin;
 
   /// Calcule l'objectif calorique indicatif à partir du profil et du poids actuel.
   ///

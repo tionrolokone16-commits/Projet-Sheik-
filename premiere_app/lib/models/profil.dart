@@ -19,8 +19,8 @@ enum NiveauActivite {
   final double coefficient;
 
   /// Retrouve un niveau à partir de son nom stocké (valeur par défaut : léger).
-  static NiveauActivite depuisNom(String? nom) => NiveauActivite.values
-      .firstWhere((n) => n.name == nom, orElse: () => NiveauActivite.leger);
+  static NiveauActivite depuisNom(String? nom) =>
+      NiveauActivite.values.firstWhere((n) => n.name == nom, orElse: () => NiveauActivite.leger);
 }
 
 /// Sexe utilisé uniquement par la formule de Mifflin-St Jeor.
@@ -89,15 +89,15 @@ class Profil {
   }
 
   Map<String, dynamic> toJson() => {
-        'prenom': prenom,
-        'age': age,
-        'tailleCm': tailleCm,
-        'poidsDepartKg': poidsDepartKg,
-        'poidsObjectifKg': poidsObjectifKg,
-        'niveauActivite': niveauActivite.name,
-        'sexe': sexe.name,
-        if (photoBase64 != null) 'photo': photoBase64,
-      };
+    'prenom': prenom,
+    'age': age,
+    'tailleCm': tailleCm,
+    'poidsDepartKg': poidsDepartKg,
+    'poidsObjectifKg': poidsObjectifKg,
+    'niveauActivite': niveauActivite.name,
+    'sexe': sexe.name,
+    if (photoBase64 != null) 'photo': photoBase64,
+  };
 
   factory Profil.fromJson(Map<String, dynamic> json) {
     return Profil(

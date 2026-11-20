@@ -19,31 +19,45 @@ void main() {
     addTearDown(tester.view.reset);
     final cle = GlobalKey();
     Exercice arrivee(Exercice e) => Exercice(
-          id: e.id, nom: e.nom, emoji: e.emoji, niveau: e.niveau, zone: e.zone,
-          etapes: e.etapes, conseil: e.conseil, versionDouce: e.versionDouce,
-          poseDepart: e.poseArrivee, poseArrivee: e.poseArrivee, mur: e.mur,
-        );
-    await tester.pumpWidget(MaterialApp(
-      home: RepaintBoundary(
-        key: cle,
-        child: Container(
-          color: Colors.white,
-          child: Wrap(children: [
-            for (final e in ExercicesService.exercices) ...[
-              Container(
-                width: 400,
-                height: 200,
-                padding: const EdgeInsets.all(10),
-                child: Row(children: [
-                  FigureExercice(exercice: e, anime: false, taille: 180),
-                  FigureExercice(exercice: arrivee(e), anime: false, taille: 180),
-                ]),
-              ),
-            ],
-          ]),
+      id: e.id,
+      nom: e.nom,
+      emoji: e.emoji,
+      niveau: e.niveau,
+      zone: e.zone,
+      etapes: e.etapes,
+      conseil: e.conseil,
+      versionDouce: e.versionDouce,
+      poseDepart: e.poseArrivee,
+      poseArrivee: e.poseArrivee,
+      mur: e.mur,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RepaintBoundary(
+          key: cle,
+          child: Container(
+            color: Colors.white,
+            child: Wrap(
+              children: [
+                for (final e in ExercicesService.exercices) ...[
+                  Container(
+                    width: 400,
+                    height: 200,
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: [
+                        FigureExercice(exercice: e, anime: false, taille: 180),
+                        FigureExercice(exercice: arrivee(e), anime: false, taille: 180),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
-    ));
+    );
     final image = await tester.runAsync(() async {
       final boundary = cle.currentContext!.findRenderObject()! as RenderRepaintBoundary;
       final img = await boundary.toImage();

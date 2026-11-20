@@ -57,52 +57,48 @@ class ThemeFormeDouce {
   static const rayon = 24.0;
 
   static ThemeData clair() {
-    final couleurs = ColorScheme.fromSeed(
-      seedColor: Palette.framboise,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: Palette.framboiseBouton,
-      onPrimary: Colors.white,
-      primaryContainer: Palette.roseTendre,
-      onPrimaryContainer: const Color(0xFF5C0A2B),
-      secondary: Palette.framboiseTexte,
-      tertiary: const Color(0xFFB4462F), // corail foncé, lisible
-      tertiaryContainer: const Color(0xFFFFE3DC),
-      onTertiaryContainer: const Color(0xFF5A1A0C),
-      surface: Palette.rosePoudre,
-      onSurface: const Color(0xFF2B1620),
-      onSurfaceVariant: const Color(0xFF6B4D5A),
-      surfaceContainerLowest: Colors.white,
-      surfaceContainerLow: Colors.white,
-      surfaceContainer: Colors.white,
-      surfaceContainerHigh: const Color(0xFFFFF7FA),
-      outlineVariant: const Color(0xFFF3CFDC),
-    );
+    final couleurs =
+        ColorScheme.fromSeed(seedColor: Palette.framboise, brightness: Brightness.light).copyWith(
+          primary: Palette.framboiseBouton,
+          onPrimary: Colors.white,
+          primaryContainer: Palette.roseTendre,
+          onPrimaryContainer: const Color(0xFF5C0A2B),
+          secondary: Palette.framboiseTexte,
+          tertiary: const Color(0xFFB4462F), // corail foncé, lisible
+          tertiaryContainer: const Color(0xFFFFE3DC),
+          onTertiaryContainer: const Color(0xFF5A1A0C),
+          surface: Palette.rosePoudre,
+          onSurface: const Color(0xFF2B1620),
+          onSurfaceVariant: const Color(0xFF6B4D5A),
+          surfaceContainerLowest: Colors.white,
+          surfaceContainerLow: Colors.white,
+          surfaceContainer: Colors.white,
+          surfaceContainerHigh: const Color(0xFFFFF7FA),
+          outlineVariant: const Color(0xFFF3CFDC),
+        );
     return _construire(couleurs, carte: Colors.white);
   }
 
   static ThemeData sombre() {
-    final couleurs = ColorScheme.fromSeed(
-      seedColor: Palette.framboise,
-      brightness: Brightness.dark,
-    ).copyWith(
-      primary: Palette.roseSombre,
-      onPrimary: const Color(0xFF4A0D26),
-      primaryContainer: const Color(0xFF5C1F3C),
-      onPrimaryContainer: const Color(0xFFFFD9E4),
-      secondary: const Color(0xFFF8BBD0),
-      tertiary: Palette.corail,
-      tertiaryContainer: const Color(0xFF4D2A22),
-      onTertiaryContainer: const Color(0xFFFFDAD2),
-      surface: Palette.prune,
-      onSurface: const Color(0xFFFBE9F0),
-      onSurfaceVariant: const Color(0xFFD9BCC8),
-      surfaceContainerLowest: const Color(0xFF1E0D15),
-      surfaceContainerLow: Palette.pruneCarte,
-      surfaceContainer: Palette.pruneCarte,
-      surfaceContainerHigh: const Color(0xFF412233),
-      outlineVariant: const Color(0xFF5A3647),
-    );
+    final couleurs = ColorScheme.fromSeed(seedColor: Palette.framboise, brightness: Brightness.dark)
+        .copyWith(
+          primary: Palette.roseSombre,
+          onPrimary: const Color(0xFF4A0D26),
+          primaryContainer: const Color(0xFF5C1F3C),
+          onPrimaryContainer: const Color(0xFFFFD9E4),
+          secondary: const Color(0xFFF8BBD0),
+          tertiary: Palette.corail,
+          tertiaryContainer: const Color(0xFF4D2A22),
+          onTertiaryContainer: const Color(0xFFFFDAD2),
+          surface: Palette.prune,
+          onSurface: const Color(0xFFFBE9F0),
+          onSurfaceVariant: const Color(0xFFD9BCC8),
+          surfaceContainerLowest: const Color(0xFF1E0D15),
+          surfaceContainerLow: Palette.pruneCarte,
+          surfaceContainer: Palette.pruneCarte,
+          surfaceContainerHigh: const Color(0xFF412233),
+          outlineVariant: const Color(0xFF5A3647),
+        );
     return _construire(couleurs, carte: Palette.pruneCarte);
   }
 
@@ -122,8 +118,7 @@ class ThemeFormeDouce {
       // Transitions en fondu entre les écrans.
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
-          for (final p in TargetPlatform.values)
-            p: const FadeForwardsPageTransitionsBuilder(),
+          for (final p in TargetPlatform.values) p: const FadeForwardsPageTransitionsBuilder(),
         },
       ),
       appBarTheme: AppBarTheme(

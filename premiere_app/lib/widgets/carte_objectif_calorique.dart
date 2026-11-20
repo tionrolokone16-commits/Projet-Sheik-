@@ -7,11 +7,7 @@ import 'format.dart';
 /// Carte affichant le repère calorique indicatif, toujours accompagné
 /// de la mention « Indications générales, pas un avis médical. ».
 class CarteObjectifCalorique extends StatelessWidget {
-  const CarteObjectifCalorique({
-    super.key,
-    required this.profil,
-    this.poidsActuelKg,
-  });
+  const CarteObjectifCalorique({super.key, required this.profil, this.poidsActuelKg});
 
   final Profil profil;
 
@@ -26,15 +22,18 @@ class CarteObjectifCalorique extends StatelessWidget {
     // Phrase d'explication adaptée à la situation.
     final String explication;
     if (r.perteHebdoKg == 0) {
-      explication = 'Tu as atteint ton objectif 🎉 Ce repère t\'aide à '
+      explication =
+          'Tu as atteint ton objectif 🎉 Ce repère t\'aide à '
           'garder ton équilibre.';
     } else if (r.plancherApplique) {
-      explication = 'Nous gardons un minimum de ${CalculsService.kcalMinimum} '
+      explication =
+          'Nous gardons un minimum de ${CalculsService.kcalMinimum} '
           'kcal pour bien te nourrir : la perte sera un peu plus lente '
           '(environ ${formaterDecimal(r.perteHebdoKg)} kg par semaine), '
           'et c\'est très bien ainsi.';
     } else {
-      explication = 'Pour une perte douce d\'environ '
+      explication =
+          'Pour une perte douce d\'environ '
           '${formaterDecimal(r.perteHebdoKg)} kg par semaine.';
     }
 

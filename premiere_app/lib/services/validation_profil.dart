@@ -10,9 +10,7 @@ class ValidationProfil {
   ValidationProfil._();
 
   static String? prenom(String? texte) =>
-      (texte == null || texte.trim().isEmpty)
-          ? 'Comment veux-tu qu\'on t\'appelle ?'
-          : null;
+      (texte == null || texte.trim().isEmpty) ? 'Comment veux-tu qu\'on t\'appelle ?' : null;
 
   static String? age(String? texte) {
     final age = lireDecimal(texte);

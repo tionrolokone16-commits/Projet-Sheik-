@@ -24,18 +24,14 @@ const profilExemple = Profil(
 );
 
 /// Prépare un stockage vide (ou avec un profil déjà rempli).
-Future<StockageService> preparerStockage({
-  bool avecProfil = false,
-  Reglages? reglages,
-}) async {
+Future<StockageService> preparerStockage({bool avecProfil = false, Reglages? reglages}) async {
   ThemeFormeDouce.utiliserGoogleFonts = false; // pas d'internet en test
   CoucheCelebrations.confettisActives = false; // horloge réelle → test infini
   SharedPreferences.setMockInitialValues({
     if (avecProfil) 'forme_douce.profil': jsonEncode(profilExemple.toJson()),
     // Rappels désactivés par défaut : sinon les tests dépendraient de l'heure
     // (la carte de rappel s'afficherait sur l'accueil aux heures de repas).
-    'forme_douce.reglages':
-        jsonEncode((reglages ?? const Reglages(rappelsRepas: false)).toJson()),
+    'forme_douce.reglages': jsonEncode((reglages ?? const Reglages(rappelsRepas: false)).toJson()),
   });
   await initializeDateFormatting('fr_FR');
   return StockageService.initialiser();
@@ -51,10 +47,13 @@ void ecranIpad(WidgetTester tester) {
 /// Fait défiler l'accueil jusqu'à un élément (même s'il n'est pas encore
 /// construit), puis le rend entièrement visible.
 Future<void> defilerAccueilJusqua(WidgetTester tester, Finder cible) async {
-  await tester.scrollUntilVisible(cible, 300,
-      scrollable: find
-          .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
-          .first);
+  await tester.scrollUntilVisible(
+    cible,
+    300,
+    scrollable: find
+        .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
+        .first,
+  );
   await tester.ensureVisible(cible);
   await tester.pumpAndSettle();
 }

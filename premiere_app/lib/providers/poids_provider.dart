@@ -16,8 +16,7 @@ class PoidsProvider extends ChangeNotifier {
   Pesee? get derniere => _pesees.isEmpty ? null : _pesees.last;
 
   /// Pesée juste avant la plus récente (pour calculer la variation).
-  Pesee? get avantDerniere =>
-      _pesees.length < 2 ? null : _pesees[_pesees.length - 2];
+  Pesee? get avantDerniere => _pesees.length < 2 ? null : _pesees[_pesees.length - 2];
 
   /// Ajoute une pesée. Une seule pesée par jour : si une pesée existe déjà
   /// à cette date, elle est remplacée.
@@ -25,11 +24,9 @@ class PoidsProvider extends ChangeNotifier {
     final jour = DateTime(date.year, date.month, date.day);
     _pesees
       ..removeWhere((p) => _memeJour(p.date, jour))
-      ..add(Pesee(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        date: jour,
-        poidsKg: poidsKg,
-      ))
+      ..add(
+        Pesee(id: DateTime.now().microsecondsSinceEpoch.toString(), date: jour, poidsKg: poidsKg),
+      )
       ..sort((a, b) => a.date.compareTo(b.date));
     await _sauver();
   }

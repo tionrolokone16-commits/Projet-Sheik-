@@ -78,293 +78,331 @@ class AccueilScreen extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 700),
             child: ListView(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-              children: [
-                // ----- 1. Salutation et mot du jour -----
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    children: [
-                      AvatarProfil(
-                        key: const Key('avatar_accueil'),
-                        photoBase64: profil?.photoBase64,
-                        prenom: profil?.prenom ?? '',
-                        taille: 60,
-                        onTap: () => onAllerOnglet?.call(3),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              EncouragementsService.salutation(profil?.prenom ?? ''),
-                              key: const Key('salutation'),
-                              style: theme.textTheme.headlineMedium
-                                  ?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                            Text(
-                              toBeginningOfSentenceCase(
-                                  DateFormat('EEEE d MMMM', 'fr_FR').format(maintenant)),
-                              style: theme.textTheme.bodyLarge
-                                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        key: const Key('bouton_reglages_accueil'),
-                        tooltip: 'Réglages',
-                        icon: const Icon(Icons.settings_rounded),
-                        onPressed: () => _ouvrir(context, const ReglagesScreen()),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
-                  child: Text(
-                    '✨ ${EncouragementsService.messageDuJour()}',
-                    key: const Key('mot_du_jour'),
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-
-                // ----- 2. Actions rapides -----
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: _TuileAction(
-                        cle: const Key('accueil_noter_repas'),
-                        emoji: '🍽️',
-                        titre: 'Noter un repas',
-                        principale: true,
-                        onTap: () => _ouvrir(context, AjouterRepasScreen(date: DateTime.now())),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 3,
-                      child: _TuileAction(
-                        cle: const Key('accueil_plus_verre'),
-                        emoji: '💧',
-                        titre: '+1 verre',
-                        sousTitre: '${jour.verres} / ${reglages.objectifVerres} verres',
-                        cleSousTitre: const Key('accueil_verres'),
-                        onTap: () => habitudes.ajouterVerre(DateTime.now()),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 3,
-                      child: _TuileAction(
-                        cle: const Key('bouton_fringale'),
-                        emoji: '🍫',
-                        titre: 'Fringale',
-                        sousTitre: 'Une pause',
-                        onTap: () {
-                          // On note le moment (pour les constats du bilan), sans commentaire.
-                          context.read<RecompensesProvider>().noterFringale();
-                          _ouvrir(context, const RespirationScreen());
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // ----- 3. Aujourd'hui (seulement s'il y a lieu) -----
-                const CarteRappelRepas(),
-                if (plan != null)
-                  CarteMenuDuJour(
-                    key: const Key('accueil_plan_du_jour'),
-                    plan: plan,
-                    onTap: () => _ouvrir(context, const MonPlanScreen()),
-                  ),
-                if (maintenant.weekday == DateTime.sunday ||
-                    maintenant.weekday == DateTime.monday)
-                  Card(
-                    color: theme.colorScheme.primaryContainer,
-                    clipBehavior: Clip.antiAlias,
-                    child: ListTile(
-                      key: const Key('carte_bilan'),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      onTap: () => _ouvrir(context, const BilanScreen()),
-                      leading: const Text('📊', style: TextStyle(fontSize: 30)),
-                      title: Text('Ton bilan de la semaine est prêt',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.onPrimaryContainer,
-                          )),
-                      subtitle: Text('Ce qui s\'est bien passé, et tes idées pour la suite',
-                          style: TextStyle(color: theme.colorScheme.onPrimaryContainer)),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                    ),
-                  ),
-                if (idees.isNotEmpty)
-                  Card(
-                    key: const Key('carte_idees_semaine'),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('✨ Mes idées de la semaine',
-                              style: theme.textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w700)),
-                          for (final nom in idees)
-                            if (IdeeSemaine.depuisNom(nom) case final idee?)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text('${idee.emoji}  ${idee.texte}'),
+              children:
+                  [
+                        // ----- 1. Salutation et mot du jour -----
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            children: [
+                              AvatarProfil(
+                                key: const Key('avatar_accueil'),
+                                photoBase64: profil?.photoBase64,
+                                prenom: profil?.prenom ?? '',
+                                taille: 60,
+                                onTap: () => onAllerOnglet?.call(3),
                               ),
-                        ],
-                      ),
-                    ),
-                  ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      EncouragementsService.salutation(profil?.prenom ?? ''),
+                                      key: const Key('salutation'),
+                                      style: theme.textTheme.headlineMedium?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    Text(
+                                      toBeginningOfSentenceCase(
+                                        DateFormat('EEEE d MMMM', 'fr_FR').format(maintenant),
+                                      ),
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        color: theme.colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                key: const Key('bouton_reglages_accueil'),
+                                tooltip: 'Réglages',
+                                icon: const Icon(Icons.settings_rounded),
+                                onPressed: () => _ouvrir(context, const ReglagesScreen()),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
+                          child: Text(
+                            '✨ ${EncouragementsService.messageDuJour()}',
+                            key: const Key('mot_du_jour'),
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
 
-                // ----- 4. Ma plante -----
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
+                        // ----- 2. Actions rapides -----
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: Text('Ma plante',
-                                  style: theme.textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.w700)),
+                              flex: 4,
+                              child: _TuileAction(
+                                cle: const Key('accueil_noter_repas'),
+                                emoji: '🍽️',
+                                titre: 'Noter un repas',
+                                principale: true,
+                                onTap: () =>
+                                    _ouvrir(context, AjouterRepasScreen(date: DateTime.now())),
+                              ),
                             ),
-                            Chip(
-                              avatar: const Text('💧'),
-                              label: Text('$gouttes ${gouttes > 1 ? 'gouttes' : 'goutte'}'),
-                              visualDensity: VisualDensity.compact,
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 3,
+                              child: _TuileAction(
+                                cle: const Key('accueil_plus_verre'),
+                                emoji: '💧',
+                                titre: '+1 verre',
+                                sousTitre: '${jour.verres} / ${reglages.objectifVerres} verres',
+                                cleSousTitre: const Key('accueil_verres'),
+                                onTap: () => habitudes.ajouterVerre(DateTime.now()),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 3,
+                              child: _TuileAction(
+                                cle: const Key('bouton_fringale'),
+                                emoji: '🍫',
+                                titre: 'Fringale',
+                                sousTitre: 'Une pause',
+                                onTap: () {
+                                  // On note le moment (pour les constats du bilan), sans commentaire.
+                                  context.read<RecompensesProvider>().noterFringale();
+                                  _ouvrir(context, const RespirationScreen());
+                                },
+                              ),
                             ),
                           ],
-                        ),
-                        Plante(
-                          niveau: PlanteService.niveau(gouttes),
-                          fleursBonus: PlanteService.fleursBonus(gouttes),
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          stade.message,
-                          key: const Key('stade_plante'),
-                          textAlign: TextAlign.center,
-                          style:
-                              theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          PlanteService.message(gouttes, habitudesAujourdhui: tenues.length),
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
 
-                // ----- Mon chemin (masquable dans les réglages) -----
-                if (profil != null && !reglages.masquerPoidsAccueil)
-                  Card(
-                    key: const Key('carte_progression'),
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: () => poids.derniere == null
-                          ? onAllerOnglet?.call(1)
-                          : _ouvrir(context, const CheminScreen()),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text('Mon chemin',
-                                      style: theme.textTheme.titleMedium
-                                          ?.copyWith(fontWeight: FontWeight.w700)),
-                                ),
-                                const Icon(Icons.chevron_right_rounded),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            if (poids.derniere == null)
-                              const Text('Quand tu le souhaites, ajoute ta première '
-                                  'pesée pour suivre ton chemin 🌱')
-                            else ...[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: LinearProgressIndicator(
-                                  value: MessagesService.fractionParcourue(
-                                      profil, poids.derniere!.poidsKg),
-                                  minHeight: 12,
+                        // ----- 3. Aujourd'hui (seulement s'il y a lieu) -----
+                        const CarteRappelRepas(),
+                        if (plan != null)
+                          CarteMenuDuJour(
+                            key: const Key('accueil_plan_du_jour'),
+                            plan: plan,
+                            onTap: () => _ouvrir(context, const MonPlanScreen()),
+                          ),
+                        if (maintenant.weekday == DateTime.sunday ||
+                            maintenant.weekday == DateTime.monday)
+                          Card(
+                            color: theme.colorScheme.primaryContainer,
+                            clipBehavior: Clip.antiAlias,
+                            child: ListTile(
+                              key: const Key('carte_bilan'),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
+                              onTap: () => _ouvrir(context, const BilanScreen()),
+                              leading: const Text('📊', style: TextStyle(fontSize: 30)),
+                              title: Text(
+                                'Ton bilan de la semaine est prêt',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.colorScheme.onPrimaryContainer,
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Text(MessagesService.progression(profil, poids.derniere!.poidsKg)),
-                            ],
+                              subtitle: Text(
+                                'Ce qui s\'est bien passé, et tes idées pour la suite',
+                                style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+                              ),
+                              trailing: const Icon(Icons.chevron_right_rounded),
+                            ),
+                          ),
+                        if (idees.isNotEmpty)
+                          Card(
+                            key: const Key('carte_idees_semaine'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '✨ Mes idées de la semaine',
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  for (final nom in idees)
+                                    if (IdeeSemaine.depuisNom(nom) case final idee?)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 8),
+                                        child: Text('${idee.emoji}  ${idee.texte}'),
+                                      ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                        // ----- 4. Ma plante -----
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Ma plante',
+                                        style: theme.textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    Chip(
+                                      avatar: const Text('💧'),
+                                      label: Text('$gouttes ${gouttes > 1 ? 'gouttes' : 'goutte'}'),
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                  ],
+                                ),
+                                Plante(
+                                  niveau: PlanteService.niveau(gouttes),
+                                  fleursBonus: PlanteService.fleursBonus(gouttes),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  stade.message,
+                                  key: const Key('stade_plante'),
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  PlanteService.message(
+                                    gouttes,
+                                    habitudesAujourdhui: tenues.length,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // ----- Mon chemin (masquable dans les réglages) -----
+                        if (profil != null && !reglages.masquerPoidsAccueil)
+                          Card(
+                            key: const Key('carte_progression'),
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              onTap: () => poids.derniere == null
+                                  ? onAllerOnglet?.call(1)
+                                  : _ouvrir(context, const CheminScreen()),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Mon chemin',
+                                            style: theme.textTheme.titleMedium?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                        const Icon(Icons.chevron_right_rounded),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    if (poids.derniere == null)
+                                      const Text(
+                                        'Quand tu le souhaites, ajoute ta première '
+                                        'pesée pour suivre ton chemin 🌱',
+                                      )
+                                    else ...[
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: LinearProgressIndicator(
+                                          value: MessagesService.fractionParcourue(
+                                            profil,
+                                            poids.derniere!.poidsKg,
+                                          ),
+                                          minHeight: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        MessagesService.progression(
+                                          profil,
+                                          poids.derniere!.poidsKg,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+
+                        // ----- 5. Explorer -----
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                          child: Text(
+                            'Explorer',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: _TuileAction(
+                                cle: const Key('carte_exercices'),
+                                emoji: '💃🏾',
+                                titre: 'Bouger',
+                                sousTitre: derniere == null
+                                    ? 'Séances guidées'
+                                    : 'Dernière : ${derniere.type.emoji} '
+                                          '${HabitudesService.formaterMinutes(derniere.dureeMinutes)}',
+                                onTap: () => _ouvrir(context, const ExercicesScreen()),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _TuileAction(
+                                cle: const Key('carte_recompenses'),
+                                emoji: '🏆',
+                                titre: 'Défis',
+                                sousTitre: defis > 0
+                                    ? '$defis ${defis > 1 ? 'défis' : 'défi'} en cours'
+                                    : '$badges ${badges > 1 ? 'badges' : 'badge'}',
+                                onTap: () => _ouvrir(context, const RecompensesScreen()),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _TuileAction(
+                                cle: const Key('carte_recettes'),
+                                emoji: '🍲',
+                                titre: 'Recettes',
+                                sousTitre: 'De chez nous',
+                                onTap: () => _ouvrir(context, const RecettesScreen()),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-
-                // ----- 5. Explorer -----
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-                  child: Text('Explorer',
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: _TuileAction(
-                        cle: const Key('carte_exercices'),
-                        emoji: '💃🏾',
-                        titre: 'Bouger',
-                        sousTitre: derniere == null
-                            ? 'Séances guidées'
-                            : 'Dernière : ${derniere.type.emoji} '
-                                '${HabitudesService.formaterMinutes(derniere.dureeMinutes)}',
-                        onTap: () => _ouvrir(context, const ExercicesScreen()),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _TuileAction(
-                        cle: const Key('carte_recompenses'),
-                        emoji: '🏆',
-                        titre: 'Défis',
-                        sousTitre: defis > 0
-                            ? '$defis ${defis > 1 ? 'défis' : 'défi'} en cours'
-                            : '$badges ${badges > 1 ? 'badges' : 'badge'}',
-                        onTap: () => _ouvrir(context, const RecompensesScreen()),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _TuileAction(
-                        cle: const Key('carte_recettes'),
-                        emoji: '🍲',
-                        titre: 'Recettes',
-                        sousTitre: 'De chez nous',
-                        onTap: () => _ouvrir(context, const RecettesScreen()),
-                      ),
-                    ),
-                  ],
-                ),
-              ]
-                  .animate(interval: 60.ms)
-                  .fadeIn(duration: 400.ms)
-                  .slideY(begin: 0.06, curve: Curves.easeOutCubic),
+                      ]
+                      .animate(interval: 60.ms)
+                      .fadeIn(duration: 400.ms)
+                      .slideY(begin: 0.06, curve: Curves.easeOutCubic),
             ),
           ),
         ),
@@ -439,9 +477,7 @@ class _TuileAction extends StatelessWidget {
                         key: cleSousTitre,
                         maxLines: 1,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: principale
-                              ? couleurs.onPrimary
-                              : couleurs.onSurfaceVariant,
+                          color: principale ? couleurs.onPrimary : couleurs.onSurfaceVariant,
                         ),
                       ),
                     ),

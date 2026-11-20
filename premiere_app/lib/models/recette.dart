@@ -1,11 +1,7 @@
 /// Répartition d'une assiette entre légumes, protéines et féculents.
 /// Les trois parts sont des fractions dont la somme vaut 1.
 class Portions {
-  const Portions({
-    required this.legumes,
-    required this.proteines,
-    required this.feculents,
-  });
+  const Portions({required this.legumes, required this.proteines, required this.feculents});
 
   final double legumes;
   final double proteines;

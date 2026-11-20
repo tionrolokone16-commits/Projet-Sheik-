@@ -10,15 +10,11 @@ class Pesee {
   Pesee copyWith({DateTime? date, double? poidsKg}) =>
       Pesee(id: id, date: date ?? this.date, poidsKg: poidsKg ?? this.poidsKg);
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'date': date.toIso8601String(),
-        'poidsKg': poidsKg,
-      };
+  Map<String, dynamic> toJson() => {'id': id, 'date': date.toIso8601String(), 'poidsKg': poidsKg};
 
   factory Pesee.fromJson(Map<String, dynamic> json) => Pesee(
-        id: json['id'] as String,
-        date: DateTime.parse(json['date'] as String),
-        poidsKg: (json['poidsKg'] as num).toDouble(),
-      );
+    id: json['id'] as String,
+    date: DateTime.parse(json['date'] as String),
+    poidsKg: (json['poidsKg'] as num).toDouble(),
+  );
 }

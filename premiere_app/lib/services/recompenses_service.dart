@@ -11,31 +11,69 @@ import 'stockage_service.dart';
 /// Défis doux de la semaine. Chacun a un badge à collectionner.
 /// Aucun défi ne récompense une restriction (manger moins, sauter un repas…).
 enum Defi {
-  petitsDejeuners('3 petits-déjeuners', '🥐', 3, 'Prendre le temps d\'un petit-déjeuner',
-      'Matin gourmand'),
-  renforcement('1 séance de renforcement', '💪', 1, 'Squats, gainage, pompes contre un mur…',
-      'Force tranquille'),
-  recetteIvoirienne('Une recette ivoirienne revisitée', '🍲', 1,
-      'Cuisiner un plat de chez nous en version équilibrée', 'Toque d\'or',
-      manuel: true),
-  marches('3 marches de 20 min', '🚶', 3, 'Au marché, au bureau, au bord de l\'eau…',
-      'Pas de velours'),
-  hydratation('5 jours bien hydratés', '💧', 5, 'Atteindre ton objectif d\'eau 5 jours',
-      'Source vive'),
-  sommeil('4 nuits de 7 h', '🌙', 4, 'Offrir à ton corps des nuits réparatrices',
-      'Marchand de sable'),
-  legumes('Des légumes à 5 repas', '🥗', 5, 'Ajouter des légumes, même un peu',
-      'Jardin dans l\'assiette',
-      manuel: true),
-  respirations('3 pauses respiration', '🫁', 3, 'Une minute pour soi, 3 fois',
-      'Souffle zen'),
-  journal('5 petits mots', '📝', 5, 'Écrire un petit mot dans ton journal 5 jours',
-      'Plume douce'),
-  danse('Danser 2 fois', '💃', 2, 'Sur ta chanson préférée, dans le salon !',
-      'Pieds légers');
+  petitsDejeuners(
+    '3 petits-déjeuners',
+    '🥐',
+    3,
+    'Prendre le temps d\'un petit-déjeuner',
+    'Matin gourmand',
+  ),
+  renforcement(
+    '1 séance de renforcement',
+    '💪',
+    1,
+    'Squats, gainage, pompes contre un mur…',
+    'Force tranquille',
+  ),
+  recetteIvoirienne(
+    'Une recette ivoirienne revisitée',
+    '🍲',
+    1,
+    'Cuisiner un plat de chez nous en version équilibrée',
+    'Toque d\'or',
+    manuel: true,
+  ),
+  marches(
+    '3 marches de 20 min',
+    '🚶',
+    3,
+    'Au marché, au bureau, au bord de l\'eau…',
+    'Pas de velours',
+  ),
+  hydratation(
+    '5 jours bien hydratés',
+    '💧',
+    5,
+    'Atteindre ton objectif d\'eau 5 jours',
+    'Source vive',
+  ),
+  sommeil(
+    '4 nuits de 7 h',
+    '🌙',
+    4,
+    'Offrir à ton corps des nuits réparatrices',
+    'Marchand de sable',
+  ),
+  legumes(
+    'Des légumes à 5 repas',
+    '🥗',
+    5,
+    'Ajouter des légumes, même un peu',
+    'Jardin dans l\'assiette',
+    manuel: true,
+  ),
+  respirations('3 pauses respiration', '🫁', 3, 'Une minute pour soi, 3 fois', 'Souffle zen'),
+  journal('5 petits mots', '📝', 5, 'Écrire un petit mot dans ton journal 5 jours', 'Plume douce'),
+  danse('Danser 2 fois', '💃', 2, 'Sur ta chanson préférée, dans le salon !', 'Pieds légers');
 
-  const Defi(this.titre, this.emoji, this.cible, this.description, this.nomBadge,
-      {this.manuel = false});
+  const Defi(
+    this.titre,
+    this.emoji,
+    this.cible,
+    this.description,
+    this.nomBadge, {
+    this.manuel = false,
+  });
 
   final String titre;
   final String emoji;
@@ -107,10 +145,18 @@ class RecompensesService {
   static const badgesGeneraux = [
     InfoBadge('premiereGoutte', '💧', 'Première goutte', 'Prendre soin d\'une première habitude'),
     InfoBadge('premiereFleur', '🌸', 'Première fleur', 'Faire fleurir ta plante'),
-    InfoBadge('semaineDouce', '🗓️', 'Semaine douce',
-        'Prendre soin d\'au moins 2 habitudes chaque jour pendant une semaine'),
-    InfoBadge('premiereVictoire', '🏆', 'Victoire hors balance',
-        'Noter ta première victoire hors balance'),
+    InfoBadge(
+      'semaineDouce',
+      '🗓️',
+      'Semaine douce',
+      'Prendre soin d\'au moins 2 habitudes chaque jour pendant une semaine',
+    ),
+    InfoBadge(
+      'premiereVictoire',
+      '🏆',
+      'Victoire hors balance',
+      'Noter ta première victoire hors balance',
+    ),
     InfoBadge('premierePause', '🫁', 'Première pause', 'Terminer une minute de respiration'),
     InfoBadge('premiereSeance', '💃', 'Première séance', 'Terminer une séance guidée'),
   ];
@@ -124,13 +170,12 @@ class RecompensesService {
 
   /// Tous les badges à collectionner pour ce profil.
   static List<InfoBadge> catalogue(Profil? profil) => [
-        ...badgesGeneraux,
-        for (final d in Defi.values) badgeDefi(d),
-        if (profil != null)
-          for (final (i, _) in PaliersService.poidsPaliers(profil).indexed)
-            badgePalier(i + 1,
-                objectif: i == PaliersService.poidsPaliers(profil).length - 1),
-      ];
+    ...badgesGeneraux,
+    for (final d in Defi.values) badgeDefi(d),
+    if (profil != null)
+      for (final (i, _) in PaliersService.poidsPaliers(profil).indexed)
+        badgePalier(i + 1, objectif: i == PaliersService.poidsPaliers(profil).length - 1),
+  ];
 
   static InfoBadge? infoBadge(String id, Profil? profil) {
     for (final b in catalogue(profil)) {
@@ -158,20 +203,17 @@ class RecompensesService {
         jours.where((d) => jour(d).repas.contains(Repas.petitDejeuner)).length,
       Defi.renforcement =>
         activitesSemaine.where((a) => a.type == TypeActivite.renforcement).length,
-      Defi.marches => activitesSemaine
-          .where((a) => a.type == TypeActivite.marche && a.dureeMinutes >= 20)
-          .length,
+      Defi.marches =>
+        activitesSemaine.where((a) => a.type == TypeActivite.marche && a.dureeMinutes >= 20).length,
       Defi.hydratation => jours.where((d) => jour(d).verres >= objectifVerres).length,
-      Defi.sommeil => jours
-          .where((d) =>
-              (jour(d).sommeilHeures ?? 0) >= HabitudesService.sommeilReparateurHeures)
-          .length,
-      Defi.respirations =>
-        progres.respirations.where((r) => cles.contains(cleDuJour(r))).length,
+      Defi.sommeil =>
+        jours
+            .where((d) => (jour(d).sommeilHeures ?? 0) >= HabitudesService.sommeilReparateurHeures)
+            .length,
+      Defi.respirations => progres.respirations.where((r) => cles.contains(cleDuJour(r))).length,
       Defi.journal => jours.where((d) => (jour(d).note ?? '').trim().isNotEmpty).length,
       Defi.danse => activitesSemaine.where((a) => a.type == TypeActivite.danse).length,
-      Defi.recetteIvoirienne || Defi.legumes =>
-        progres.defis[cleDuJour(lundi)]?[defi.name] ?? 0,
+      Defi.recetteIvoirienne || Defi.legumes => progres.defis[cleDuJour(lundi)]?[defi.name] ?? 0,
     };
   }
 
@@ -192,44 +234,55 @@ class RecompensesService {
 
     // ----- Plante -----
     final gouttes = PlanteService.gouttes(
-        journal: journal, activites: activites, objectifVerres: objectifVerres);
+      journal: journal,
+      activites: activites,
+      objectifVerres: objectifVerres,
+    );
     if (gouttes >= 1) {
-      resultat.add(const Evenement(
-        cle: 'premiereGoutte',
-        emoji: '💧',
-        titre: 'Première goutte !',
-        message: 'Ta plante a reçu sa première goutte. Le voyage commence 🌱',
-        idBadge: 'premiereGoutte',
-      ));
+      resultat.add(
+        const Evenement(
+          cle: 'premiereGoutte',
+          emoji: '💧',
+          titre: 'Première goutte !',
+          message: 'Ta plante a reçu sa première goutte. Le voyage commence 🌱',
+          idBadge: 'premiereGoutte',
+        ),
+      );
     }
     if (PlanteService.stade(gouttes).index >= StadePlante.fleur.index) {
-      resultat.add(const Evenement(
-        cle: 'premiereFleur',
-        emoji: '🌸',
-        titre: 'Ta plante a fleuri !',
-        message: 'Toutes ces petites habitudes ont fait éclore une fleur.',
-        idBadge: 'premiereFleur',
-      ));
+      resultat.add(
+        const Evenement(
+          cle: 'premiereFleur',
+          emoji: '🌸',
+          titre: 'Ta plante a fleuri !',
+          message: 'Toutes ces petites habitudes ont fait éclore une fleur.',
+          idBadge: 'premiereFleur',
+        ),
+      );
     }
 
     // ----- Pauses et victoires -----
     if (progres.respirations.isNotEmpty) {
-      resultat.add(const Evenement(
-        cle: 'premierePause',
-        emoji: '🫁',
-        titre: 'Première pause respiration',
-        message: 'Une minute rien que pour toi. Bravo !',
-        idBadge: 'premierePause',
-      ));
+      resultat.add(
+        const Evenement(
+          cle: 'premierePause',
+          emoji: '🫁',
+          titre: 'Première pause respiration',
+          message: 'Une minute rien que pour toi. Bravo !',
+          idBadge: 'premierePause',
+        ),
+      );
     }
     if (progres.victoires.isNotEmpty) {
-      resultat.add(const Evenement(
-        cle: 'premiereVictoire',
-        emoji: '🏆',
-        titre: 'Première victoire hors balance',
-        message: 'Ces victoires-là comptent autant que les autres.',
-        idBadge: 'premiereVictoire',
-      ));
+      resultat.add(
+        const Evenement(
+          cle: 'premiereVictoire',
+          emoji: '🏆',
+          titre: 'Première victoire hors balance',
+          message: 'Ces victoires-là comptent autant que les autres.',
+          idBadge: 'premiereVictoire',
+        ),
+      );
     }
 
     // ----- Semaines douces (8 dernières semaines) -----
@@ -243,20 +296,21 @@ class RecompensesService {
         final d = DateTime(lundi.year, lundi.month, lundi.day + i);
         return HabitudesService.tenues(
               journal[cleDuJour(d)] ?? const JourHabitudes(),
-              activitesDuJour:
-                  activites.where((a) => cleDuJour(a.date) == cleDuJour(d)).toList(),
+              activitesDuJour: activites.where((a) => cleDuJour(a.date) == cleDuJour(d)).toList(),
               objectifVerres: objectifVerres,
             ).length >=
             2;
       }).every((ok) => ok);
       if (complete) {
-        resultat.add(Evenement(
-          cle: 'semaine:${cleDuJour(lundi)}',
-          emoji: '🗓️',
-          titre: 'Une semaine d\'habitudes tenues !',
-          message: '7 jours à prendre soin de toi. Quelle belle régularité ✨',
-          idBadge: 'semaineDouce',
-        ));
+        resultat.add(
+          Evenement(
+            cle: 'semaine:${cleDuJour(lundi)}',
+            emoji: '🗓️',
+            titre: 'Une semaine d\'habitudes tenues !',
+            message: '7 jours à prendre soin de toi. Quelle belle régularité ✨',
+            idBadge: 'semaineDouce',
+          ),
+        );
       }
     }
 
@@ -268,20 +322,24 @@ class RecompensesService {
       for (final id in (progres.defis[cleDuJour(lundi)] ?? const {}).keys) {
         final defi = Defi.depuisNom(id);
         if (defi == null) continue;
-        final p = progresDefi(defi,
-            lundi: lundi,
-            journal: journal,
-            activites: activites,
-            progres: progres,
-            objectifVerres: objectifVerres);
+        final p = progresDefi(
+          defi,
+          lundi: lundi,
+          journal: journal,
+          activites: activites,
+          progres: progres,
+          objectifVerres: objectifVerres,
+        );
         if (p >= defi.cible) {
-          resultat.add(Evenement(
-            cle: 'defi:${cleDuJour(lundi)}:${defi.name}',
-            emoji: defi.emoji,
-            titre: 'Défi réussi : ${defi.titre}',
-            message: 'Tu l\'as fait ! Prends un instant pour te féliciter 💗',
-            idBadge: defi.idBadge,
-          ));
+          resultat.add(
+            Evenement(
+              cle: 'defi:${cleDuJour(lundi)}:${defi.name}',
+              emoji: defi.emoji,
+              titre: 'Défi réussi : ${defi.titre}',
+              message: 'Tu l\'as fait ! Prends un instant pour te féliciter 💗',
+              idBadge: defi.idBadge,
+            ),
+          );
         }
       }
     }
@@ -290,17 +348,19 @@ class RecompensesService {
     if (profil != null && pesees.isNotEmpty) {
       final chemin = PaliersService.calculer(profil, pesees, maintenant: n);
       for (final p in chemin.paliers.where((p) => p.atteint)) {
-        resultat.add(Evenement(
-          cle: 'palier:${p.numero}',
-          emoji: p.estObjectif ? '🎯' : '⛰️',
-          titre: p.estObjectif ? 'Objectif atteint !' : 'Palier ${p.numero} atteint !',
-          message: p.estObjectif
-              ? 'Te voilà au bout du chemin… et le plus beau, ce sont toutes '
-                  'les habitudes que tu as construites 🌸'
-              : 'Place à 2 semaines de stabilisation : garde tes habitudes, '
-                  'ton corps s\'installe dans son nouvel équilibre 🌿',
-          idBadge: badgePalier(p.numero, objectif: p.estObjectif).id,
-        ));
+        resultat.add(
+          Evenement(
+            cle: 'palier:${p.numero}',
+            emoji: p.estObjectif ? '🎯' : '⛰️',
+            titre: p.estObjectif ? 'Objectif atteint !' : 'Palier ${p.numero} atteint !',
+            message: p.estObjectif
+                ? 'Te voilà au bout du chemin… et le plus beau, ce sont toutes '
+                      'les habitudes que tu as construites 🌸'
+                : 'Place à 2 semaines de stabilisation : garde tes habitudes, '
+                      'ton corps s\'installe dans son nouvel équilibre 🌿',
+            idBadge: badgePalier(p.numero, objectif: p.estObjectif).id,
+          ),
+        );
       }
     }
     return resultat;

@@ -40,9 +40,12 @@ void main() {
         '2026-11-18': JourHabitudes(verres: 8, repas: Repas.principaux),
       };
       final marche = Activite(
-          id: '1', date: DateTime(2026, 11, 18, 9), type: TypeActivite.marche, dureeMinutes: 30);
-      final g = PlanteService.gouttes(
-          journal: journal, activites: [marche], objectifVerres: 8);
+        id: '1',
+        date: DateTime(2026, 11, 18, 9),
+        type: TypeActivite.marche,
+        dureeMinutes: 30,
+      );
+      final g = PlanteService.gouttes(journal: journal, activites: [marche], objectifVerres: 8);
       expect(g, 5); // 2 le 17 + 3 le 18
       expect(PlanteService.stade(g), StadePlante.pousse);
     });
@@ -87,12 +90,17 @@ void main() {
     ecranIpad(tester);
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.byKey(const Key('carte_progression')), 300,
-        scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('carte_progression')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.byKey(const Key('carte_progression')), findsOneWidget);
 
     stockage = await preparerStockage(
-        avecProfil: true, reglages: const Reglages(masquerPoidsAccueil: true));
+      avecProfil: true,
+      reglages: const Reglages(masquerPoidsAccueil: true),
+    );
     await tester.pumpWidget(FormeDouceApp(key: UniqueKey(), stockage: stockage));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('carte_progression')), findsNothing);

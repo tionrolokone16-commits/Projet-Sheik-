@@ -27,8 +27,10 @@ class _MonPlanScreenState extends State<MonPlanScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Retirer ce plan ?'),
-        content: const Text('Il sera effacé de cet appareil. Tu pourras le recoller '
-            'à tout moment.'),
+        content: const Text(
+          'Il sera effacé de cet appareil. Tu pourras le recoller '
+          'à tout moment.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -118,9 +120,11 @@ class _ImportState extends State<_Import> {
       await context.read<PlanProvider>().importer(_texte.text);
       if (!mounted) return;
       widget.onImporte();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Ton plan est en place 📋 Il reste uniquement sur cet appareil.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ton plan est en place 📋 Il reste uniquement sur cet appareil.'),
+        ),
+      );
     } on ErreurPlan catch (e) {
       setState(() => _erreur = e.message);
     }
@@ -139,11 +143,13 @@ class _ImportState extends State<_Import> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('📋 Le plan de ta diététicienne',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    )),
+                Text(
+                  '📋 Le plan de ta diététicienne',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   'Colle ci-dessous le texte de ton plan, préparé pour toi. '
@@ -209,48 +215,57 @@ class _VuePlan extends StatelessWidget {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-      children: [
-        // En-tête.
-        Card(
-          color: theme.colorScheme.primaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(plan.titre,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    )),
-                if (plan.sousTitre != null) ...[
-                  const SizedBox(height: 4),
-                  Text(plan.sousTitre!,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.onPrimaryContainer)),
-                ],
-                const SizedBox(height: 8),
-                Text('🔒 Uniquement sur cet appareil',
-                    style: theme.textTheme.labelMedium
-                        ?.copyWith(color: theme.colorScheme.onPrimaryContainer)),
-              ],
-            ),
-          ),
-        ),
+      children:
+          [
+                // En-tête.
+                Card(
+                  color: theme.colorScheme.primaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          plan.titre,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: theme.colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                        if (plan.sousTitre != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            plan.sousTitre!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                        Text(
+                          '🔒 Uniquement sur cet appareil',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-        // Aujourd'hui.
-        if (aujourdhui != null || plan.petitDejeuner != null)
-          CarteMenuDuJour(plan: plan, cle: const Key('plan_aujourdhui')),
+                // Aujourd'hui.
+                if (aujourdhui != null || plan.petitDejeuner != null)
+                  CarteMenuDuJour(plan: plan, cle: const Key('plan_aujourdhui')),
 
-        for (final section in plan.sections)
-          if (section.type == TypeSection.menu)
-            _CarteMenuSemaine(menu: section.menu, titre: section.titre)
-          else if (section != plan.petitDejeuner)
-            _CarteSection(section: section),
-      ]
-          .animate(interval: 50.ms)
-          .fadeIn(duration: 300.ms)
-          .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+                for (final section in plan.sections)
+                  if (section.type == TypeSection.menu)
+                    _CarteMenuSemaine(menu: section.menu, titre: section.titre)
+                  else if (section != plan.petitDejeuner)
+                    _CarteSection(section: section),
+              ]
+              .animate(interval: 50.ms)
+              .fadeIn(duration: 300.ms)
+              .slideY(begin: 0.05, curve: Curves.easeOutCubic),
     );
   }
 }
@@ -269,21 +284,28 @@ class CarteMenuDuJour extends StatelessWidget {
     final jour = plan.menuDu(DateTime.now());
     final petitDej = plan.petitDejeuner;
     Widget ligne(String emoji, String moment, String contenu) => Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text.rich(TextSpan(children: [
-                  TextSpan(text: '$moment : ', style: const TextStyle(fontWeight: FontWeight.w700)),
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$moment : ',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   TextSpan(text: contenu),
-                ])),
+                ],
               ),
-            ],
+            ),
           ),
-        );
+        ],
+      ),
+    );
 
     return Card(
       key: cle,
@@ -307,11 +329,12 @@ class CarteMenuDuJour extends StatelessWidget {
                 ],
               ),
               if (petitDej != null)
-                ligne('🥐', 'Petit-déjeuner', petitDej.groupes.expand((g) => g.elements).join(' · ')),
-              if (jour != null) ...[
-                ligne('☀️', 'Midi', jour.midi),
-                ligne('🌙', 'Soir', jour.soir),
-              ],
+                ligne(
+                  '🥐',
+                  'Petit-déjeuner',
+                  petitDej.groupes.expand((g) => g.elements).join(' · '),
+                ),
+              if (jour != null) ...[ligne('☀️', 'Midi', jour.midi), ligne('🌙', 'Soir', jour.soir)],
             ],
           ),
         ),
@@ -385,11 +408,13 @@ class _CarteSection extends StatelessWidget {
             if (g.titre != null)
               Padding(
                 padding: const EdgeInsets.only(top: 10, bottom: 2),
-                child: Text(g.titre!,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: theme.colorScheme.secondary,
-                    )),
+                child: Text(
+                  g.titre!,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.secondary,
+                  ),
+                ),
               ),
             for (final e in g.elements)
               Padding(

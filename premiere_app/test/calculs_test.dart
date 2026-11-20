@@ -27,8 +27,7 @@ void main() {
   test('Mifflin-St Jeor', () {
     // 10×80 + 6,25×165 − 5×35 − 161 = 1495,25
     expect(
-      CalculsService.metabolismeBase(
-          poidsKg: 80, tailleCm: 165, age: 35, sexe: Sexe.femme),
+      CalculsService.metabolismeBase(poidsKg: 80, tailleCm: 165, age: 35, sexe: Sexe.femme),
       closeTo(1495.25, 0.01),
     );
   });

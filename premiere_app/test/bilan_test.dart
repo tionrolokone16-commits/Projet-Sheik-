@@ -22,16 +22,21 @@ void main() {
   final lundi = DateTime(2026, 11, 16);
   DateTime jour(int i, [int h = 12]) => DateTime(2026, 11, 16 + i, h);
 
-  RepasPhoto repas(int i, Repas moment, {int h = 13, Map<RessentiRepas, int> r = const {},
-          Portions portions = Portions.equilibre, String nom = 'Attiéké poisson braisé'}) =>
-      RepasPhoto(
-        id: '$i-$h-${moment.name}',
-        date: jour(i, h),
-        repas: moment,
-        portions: portions,
-        nomPlat: nom,
-        ressentis: r,
-      );
+  RepasPhoto repas(
+    int i,
+    Repas moment, {
+    int h = 13,
+    Map<RessentiRepas, int> r = const {},
+    Portions portions = Portions.equilibre,
+    String nom = 'Attiéké poisson braisé',
+  }) => RepasPhoto(
+    id: '$i-$h-${moment.name}',
+    date: jour(i, h),
+    repas: moment,
+    portions: portions,
+    nomPlat: nom,
+    ressentis: r,
+  );
 
   test('semaine par défaut : celle en cours le dimanche, sinon la précédente', () {
     expect(BilanService.semaineParDefaut(DateTime(2026, 11, 22)), lundi); // dimanche
@@ -91,8 +96,11 @@ void main() {
     expect(constats, contains('Les fringales sont surtout arrivées les jours de stress.'));
     expect(constats, contains('Le petit-déjeuner a été pris 0 jour sur 7.'));
     // Les idées liées aux constats sont proposées en premier.
-    expect(bilan.ideesSuggerees,
-        {IdeeSemaine.dinerPlusTot, IdeeSemaine.respiration, IdeeSemaine.prepPetitDej});
+    expect(bilan.ideesSuggerees, {
+      IdeeSemaine.dinerPlusTot,
+      IdeeSemaine.respiration,
+      IdeeSemaine.prepPetitDej,
+    });
     expect(bilan.ideesProposees.take(3).toSet(), bilan.ideesSuggerees);
   });
 
@@ -118,10 +126,13 @@ void main() {
       activites: const [],
       repasPhotos: [
         for (var i = 0; i < 4; i++)
-          repas(i, Repas.diner,
-              h: 22,
-              r: {RessentiRepas.faim: 5},
-              portions: Portions.normalisees(0, 1, 3)),
+          repas(
+            i,
+            Repas.diner,
+            h: 22,
+            r: {RessentiRepas.faim: 5},
+            portions: Portions.normalisees(0, 1, 3),
+          ),
       ],
       progres: Progres(fringales: [jour(0, 16), jour(1, 17)]),
       objectifVerres: 8,
@@ -133,8 +144,18 @@ void main() {
       BilanService.texteAPartager(bilan: bilan, prenom: 'Kira', ideesChoisies: IdeeSemaine.values),
     ].join(' ').toLowerCase();
     for (final mot in [
-      'rembours', 'compens', 'échec', 'rattrap', 'restriction', 'interdit', 'calorie', 'kcal',
-      'brûler', 'éliminer', 'trop mangé', 'écart',
+      'rembours',
+      'compens',
+      'échec',
+      'rattrap',
+      'restriction',
+      'interdit',
+      'calorie',
+      'kcal',
+      'brûler',
+      'éliminer',
+      'trop mangé',
+      'écart',
     ]) {
       expect(tout, isNot(contains(mot)), reason: mot);
     }
@@ -158,12 +179,15 @@ void main() {
     expect(sans, isNot(contains('PESÉES')));
 
     final avec = BilanService.texteAPartager(
-        bilan: bilan, prenom: 'Kira', ideesChoisies: const [], pesees: [pesee]);
+      bilan: bilan,
+      prenom: 'Kira',
+      ideesChoisies: const [],
+      pesees: [pesee],
+    );
     expect(avec, contains('99,4 kg'));
   });
 
-  testWidgets('écran du bilan : choisir 2 idées au plus, pour la semaine suivante',
-      (tester) async {
+  testWidgets('écran du bilan : choisir 2 idées au plus, pour la semaine suivante', (tester) async {
     ecranIpad(tester);
     final stockage = await preparerStockage(avecProfil: true);
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));

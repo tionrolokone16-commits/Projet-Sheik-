@@ -7,8 +7,8 @@ enum ThemeChoisi {
   const ThemeChoisi(this.libelle);
   final String libelle;
 
-  static ThemeChoisi depuisNom(String? nom) => ThemeChoisi.values
-      .firstWhere((t) => t.name == nom, orElse: () => ThemeChoisi.systeme);
+  static ThemeChoisi depuisNom(String? nom) =>
+      ThemeChoisi.values.firstWhere((t) => t.name == nom, orElse: () => ThemeChoisi.systeme);
 }
 
 /// Réglages de l'application.
@@ -47,34 +47,33 @@ class Reglages {
     int? heurePetitDejeuner,
     int? heureDejeuner,
     int? heureDiner,
-  }) =>
-      Reglages(
-        masquerPoidsAccueil: masquerPoidsAccueil ?? this.masquerPoidsAccueil,
-        objectifVerres: objectifVerres ?? this.objectifVerres,
-        theme: theme ?? this.theme,
-        rappelsRepas: rappelsRepas ?? this.rappelsRepas,
-        heurePetitDejeuner: heurePetitDejeuner ?? this.heurePetitDejeuner,
-        heureDejeuner: heureDejeuner ?? this.heureDejeuner,
-        heureDiner: heureDiner ?? this.heureDiner,
-      );
+  }) => Reglages(
+    masquerPoidsAccueil: masquerPoidsAccueil ?? this.masquerPoidsAccueil,
+    objectifVerres: objectifVerres ?? this.objectifVerres,
+    theme: theme ?? this.theme,
+    rappelsRepas: rappelsRepas ?? this.rappelsRepas,
+    heurePetitDejeuner: heurePetitDejeuner ?? this.heurePetitDejeuner,
+    heureDejeuner: heureDejeuner ?? this.heureDejeuner,
+    heureDiner: heureDiner ?? this.heureDiner,
+  );
 
   Map<String, dynamic> toJson() => {
-        'masquerPoidsAccueil': masquerPoidsAccueil,
-        'objectifVerres': objectifVerres,
-        'theme': theme.name,
-        'rappelsRepas': rappelsRepas,
-        'heurePetitDejeuner': heurePetitDejeuner,
-        'heureDejeuner': heureDejeuner,
-        'heureDiner': heureDiner,
-      };
+    'masquerPoidsAccueil': masquerPoidsAccueil,
+    'objectifVerres': objectifVerres,
+    'theme': theme.name,
+    'rappelsRepas': rappelsRepas,
+    'heurePetitDejeuner': heurePetitDejeuner,
+    'heureDejeuner': heureDejeuner,
+    'heureDiner': heureDiner,
+  };
 
   factory Reglages.fromJson(Map<String, dynamic> json) => Reglages(
-        masquerPoidsAccueil: json['masquerPoidsAccueil'] as bool? ?? false,
-        objectifVerres: (json['objectifVerres'] as num?)?.toInt() ?? 8,
-        theme: ThemeChoisi.depuisNom(json['theme'] as String?),
-        rappelsRepas: json['rappelsRepas'] as bool? ?? true,
-        heurePetitDejeuner: (json['heurePetitDejeuner'] as num?)?.toInt() ?? 8 * 60,
-        heureDejeuner: (json['heureDejeuner'] as num?)?.toInt() ?? 13 * 60,
-        heureDiner: (json['heureDiner'] as num?)?.toInt() ?? 20 * 60,
-      );
+    masquerPoidsAccueil: json['masquerPoidsAccueil'] as bool? ?? false,
+    objectifVerres: (json['objectifVerres'] as num?)?.toInt() ?? 8,
+    theme: ThemeChoisi.depuisNom(json['theme'] as String?),
+    rappelsRepas: json['rappelsRepas'] as bool? ?? true,
+    heurePetitDejeuner: (json['heurePetitDejeuner'] as num?)?.toInt() ?? 8 * 60,
+    heureDejeuner: (json['heureDejeuner'] as num?)?.toInt() ?? 13 * 60,
+    heureDiner: (json['heureDiner'] as num?)?.toInt() ?? 20 * 60,
+  );
 }

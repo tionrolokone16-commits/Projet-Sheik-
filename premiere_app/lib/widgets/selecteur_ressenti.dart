@@ -27,8 +27,10 @@ class SelecteurRessenti extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(ressenti.libelle,
-                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+            Text(
+              ressenti.libelle,
+              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+            ),
             const Spacer(),
             // Description du niveau choisi, en fondu.
             AnimatedSwitcher(
@@ -94,10 +96,7 @@ class _Emoji extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: choisi ? couleurs.primaryContainer : Colors.transparent,
-            border: Border.all(
-              color: choisi ? couleurs.primary : Colors.transparent,
-              width: 2,
-            ),
+            border: Border.all(color: choisi ? couleurs.primary : Colors.transparent, width: 2),
           ),
           child: AnimatedScale(
             scale: choisi ? 1.25 : 1,

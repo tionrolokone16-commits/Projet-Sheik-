@@ -38,11 +38,11 @@ class HabitudesService {
   /// Phrase encourageante selon le nombre d'habitudes tenues.
   /// Jamais de reproche : une journée sans rien noté est « toute neuve ».
   static String message(int nombre) => switch (nombre) {
-        0 => 'Une journée toute neuve 🌱 Chaque petit geste compte.',
-        1 => '1 habitude prise en soin aujourd\'hui 🌸',
-        4 => 'Les 4 habitudes du jour, quelle belle journée ✨',
-        _ => '$nombre habitudes prises en soin aujourd\'hui 🌸',
-      };
+    0 => 'Une journée toute neuve 🌱 Chaque petit geste compte.',
+    1 => '1 habitude prise en soin aujourd\'hui 🌸',
+    4 => 'Les 4 habitudes du jour, quelle belle journée ✨',
+    _ => '$nombre habitudes prises en soin aujourd\'hui 🌸',
+  };
 
   /// Message doux sur le sommeil, sans jugement.
   static String messageSommeil(double? heures) {

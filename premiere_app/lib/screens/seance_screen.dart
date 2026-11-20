@@ -102,8 +102,9 @@ class _SeanceScreenState extends State<SeanceScreen> with SingleTickerProviderSt
     setState(() => _terminee = true);
     final minutes = (_secondesEffort / 60).round().clamp(1, 999);
     // La séance compte comme moment de mouvement (et pour la plante).
-    final etirements = widget.seance.etapes.every((e) =>
-        e.exercice == ExercicesService.brasCiel || e.exercice == ExercicesService.cerclesBras);
+    final etirements = widget.seance.etapes.every(
+      (e) => e.exercice == ExercicesService.brasCiel || e.exercice == ExercicesService.cerclesBras,
+    );
     final habitudes = context.read<HabitudesProvider>();
     final recompenses = context.read<RecompensesProvider>();
     await habitudes.ajouterActivite(
@@ -208,10 +209,11 @@ class _SeanceScreenState extends State<SeanceScreen> with SingleTickerProviderSt
                         color: effort ? theme.colorScheme.primary : theme.colorScheme.tertiary,
                       ),
                     ),
-                    Text('$restant',
-                        key: const Key('secondes_restantes'),
-                        style: theme.textTheme.headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      '$restant',
+                      key: const Key('secondes_restantes'),
+                      style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
+                    ),
                   ],
                 ),
               );
@@ -256,13 +258,17 @@ class _SeanceScreenState extends State<SeanceScreen> with SingleTickerProviderSt
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('🎉', style: TextStyle(fontSize: 72))
-                .animate()
-                .scale(begin: const Offset(0.4, 0.4), duration: 700.ms, curve: Curves.elasticOut),
+            const Text('🎉', style: TextStyle(fontSize: 72)).animate().scale(
+              begin: const Offset(0.4, 0.4),
+              duration: 700.ms,
+              curve: Curves.elasticOut,
+            ),
             const SizedBox(height: 16),
-            Text('Bravo ✨',
-                key: const Key('fin_seance'),
-                style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              'Bravo ✨',
+              key: const Key('fin_seance'),
+              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 8),
             Text(
               '$minutes ${minutes > 1 ? 'minutes' : 'minute'} rien que pour toi. '

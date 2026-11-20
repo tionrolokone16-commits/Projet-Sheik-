@@ -68,10 +68,12 @@ class CarteRappelRepas extends StatelessWidget {
                         const SizedBox(width: 4),
                         FilledButton.tonal(
                           key: const Key('rappel_noter'),
-                          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                AjouterRepasScreen(date: DateTime.now(), moment: repas),
-                          )),
+                          onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AjouterRepasScreen(date: DateTime.now(), moment: repas),
+                            ),
+                          ),
                           child: const Text('Noter'),
                         ),
                       ],

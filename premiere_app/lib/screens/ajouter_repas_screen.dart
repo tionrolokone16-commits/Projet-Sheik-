@@ -77,8 +77,7 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
       builder: (_) => const _DialoguePlatPerso(),
     );
     if (resultat == null) return;
-    await habitudes.ajouterPlatPerso(
-        nom: resultat.$1, emoji: resultat.$2, categorie: resultat.$3);
+    await habitudes.ajouterPlatPerso(nom: resultat.$1, emoji: resultat.$2, categorie: resultat.$3);
     setState(() {
       _pays = PaysPlat.mesPlats;
       _categorie = null;
@@ -92,8 +91,14 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
         title: Text('Retirer « ${plat.nom} » ?'),
         content: const Text('Il disparaîtra de « Mes plats ». Les repas déjà notés restent.'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Garder')),
-          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Retirer')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Garder'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Retirer'),
+          ),
         ],
       ),
     );
@@ -199,8 +204,8 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
                         key: const Key('bouton_repas_photo'),
                         onPressed: () async {
                           final note = await Navigator.of(context).push<bool>(
-                              MaterialPageRoute(
-                                  builder: (_) => RepasPhotoScreen(date: widget.date)));
+                            MaterialPageRoute(builder: (_) => RepasPhotoScreen(date: widget.date)),
+                          );
                           // On ne ferme que si un repas a vraiment été noté.
                           if (note == true && context.mounted) Navigator.of(context).pop();
                         },
@@ -412,7 +417,21 @@ class _DialoguePlatPerso extends StatefulWidget {
 
 class _DialoguePlatPersoState extends State<_DialoguePlatPerso> {
   static const _emojis = [
-    '🍲', '🍛', '🍚', '🥘', '🐟', '🍗', '🥗', '🍝', '🥣', '🍌', '🥖', '🍰', '🥤', '☕', '🍊',
+    '🍲',
+    '🍛',
+    '🍚',
+    '🥘',
+    '🐟',
+    '🍗',
+    '🥗',
+    '🍝',
+    '🥣',
+    '🍌',
+    '🥖',
+    '🍰',
+    '🥤',
+    '☕',
+    '🍊',
   ];
 
   final _nom = TextEditingController();

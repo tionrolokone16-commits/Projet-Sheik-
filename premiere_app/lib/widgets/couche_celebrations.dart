@@ -31,14 +31,13 @@ class _CoucheCelebrationsState extends State<CoucheCelebrations>
   final _confettis = ConfettiController(duration: const Duration(milliseconds: 900));
 
   /// Durée d'affichage de la bannière (apparition, pause, disparition).
-  late final AnimationController _banniere = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 4200),
-  )..addStatusListener((statut) {
-      if (statut == AnimationStatus.completed) {
-        setState(() => _actuelle = null);
-      }
-    });
+  late final AnimationController _banniere =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 4200))
+        ..addStatusListener((statut) {
+          if (statut == AnimationStatus.completed) {
+            setState(() => _actuelle = null);
+          }
+        });
 
   Celebration? _actuelle;
   bool _verificationPrevue = false;
@@ -76,14 +75,16 @@ class _CoucheCelebrationsState extends State<CoucheCelebrations>
 
     // Pas de célébration pendant l'onboarding.
     if (profilProvider.estComplet) {
-      final nouveaux = recompenses.nouveaux(RecompensesService.evenements(
-        journal: habitudes.journal,
-        activites: habitudes.activites,
-        objectifVerres: objectifVerres,
-        progres: recompenses.progres,
-        profil: profilProvider.profil,
-        pesees: poids.pesees,
-      ));
+      final nouveaux = recompenses.nouveaux(
+        RecompensesService.evenements(
+          journal: habitudes.journal,
+          activites: habitudes.activites,
+          objectifVerres: objectifVerres,
+          progres: recompenses.progres,
+          profil: profilProvider.profil,
+          pesees: poids.pesees,
+        ),
+      );
       if (nouveaux.isNotEmpty || (_actuelle == null && recompenses.aDesCelebrations)) {
         _planifier(recompenses, nouveaux, profilProvider.profil?.prenom);
       }
@@ -126,9 +127,13 @@ class _Banniere extends StatelessWidget {
     final theme = Theme.of(context);
     // Entrée sur les 12 premiers %, sortie sur les 12 derniers.
     final entree = CurvedAnimation(
-        parent: animation, curve: const Interval(0, 0.12, curve: Curves.easeOutBack));
+      parent: animation,
+      curve: const Interval(0, 0.12, curve: Curves.easeOutBack),
+    );
     final sortie = CurvedAnimation(
-        parent: animation, curve: const Interval(0.88, 1, curve: Curves.easeIn));
+      parent: animation,
+      curve: const Interval(0.88, 1, curve: Curves.easeIn),
+    );
 
     return Positioned(
       top: 0,
@@ -141,10 +146,7 @@ class _Banniere extends StatelessWidget {
             final visible = entree.value - sortie.value;
             return Opacity(
               opacity: visible.clamp(0.0, 1.0),
-              child: Transform.translate(
-                offset: Offset(0, -80 * (1 - visible)),
-                child: enfant,
-              ),
+              child: Transform.translate(offset: Offset(0, -80 * (1 - visible)), child: enfant),
             );
           },
           child: Center(
@@ -176,8 +178,7 @@ class _Banniere extends StatelessWidget {
                               color: theme.colorScheme.primaryContainer,
                               shape: BoxShape.circle,
                             ),
-                            child: Text(celebration.emoji,
-                                style: const TextStyle(fontSize: 30)),
+                            child: Text(celebration.emoji, style: const TextStyle(fontSize: 30)),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -187,12 +188,12 @@ class _Banniere extends StatelessWidget {
                               children: [
                                 Text(
                                   celebration.titre,
-                                  style: theme.textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                                 const SizedBox(height: 2),
-                                Text(celebration.message,
-                                    style: theme.textTheme.bodyMedium),
+                                Text(celebration.message, style: theme.textTheme.bodyMedium),
                               ],
                             ),
                           ),

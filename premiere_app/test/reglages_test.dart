@@ -100,7 +100,9 @@ void main() {
 
   testWidgets('tour complet en mode sombre sur petit téléphone', (tester) async {
     final stockage = await preparerStockage(
-        avecProfil: true, reglages: const Reglages(theme: ThemeChoisi.sombre));
+      avecProfil: true,
+      reglages: const Reglages(theme: ThemeChoisi.sombre),
+    );
     await PoidsProvider(stockage).ajouter(DateTime.now(), 78);
     tester.view.physicalSize = const Size(375, 740);
     tester.view.devicePixelRatio = 1;

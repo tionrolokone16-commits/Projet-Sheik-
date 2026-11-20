@@ -24,8 +24,7 @@ class BouteilleEau extends StatefulWidget {
   State<BouteilleEau> createState() => _BouteilleEauState();
 }
 
-class _BouteilleEauState extends State<BouteilleEau>
-    with SingleTickerProviderStateMixin {
+class _BouteilleEauState extends State<BouteilleEau> with SingleTickerProviderStateMixin {
   /// Animation de la vague (0 → 1), relancée à chaque nouveau verre.
   late final AnimationController _vague = AnimationController(
     vsync: this,
@@ -49,12 +48,12 @@ class _BouteilleEauState extends State<BouteilleEau>
   Widget build(BuildContext context) {
     final couleurs = Theme.of(context).colorScheme;
     final sombre = couleurs.brightness == Brightness.dark;
-    final remplissage =
-        widget.objectif <= 0 ? 0.0 : math.min(widget.verres / widget.objectif, 1.0);
+    final remplissage = widget.objectif <= 0 ? 0.0 : math.min(widget.verres / widget.objectif, 1.0);
 
     return Semantics(
       button: true,
-      label: 'Bouteille d\'eau : ${widget.verres} verres sur ${widget.objectif}. '
+      label:
+          'Bouteille d\'eau : ${widget.verres} verres sur ${widget.objectif}. '
           'Toucher pour ajouter un verre.',
       child: GestureDetector(
         key: const Key('bouteille_eau'),
@@ -84,9 +83,7 @@ class _BouteilleEauState extends State<BouteilleEau>
                       vague: t,
                       graduations: widget.objectif,
                       contour: couleurs.primary,
-                      verre: sombre
-                          ? Colors.white.withValues(alpha: 0.06)
-                          : Colors.white,
+                      verre: sombre ? Colors.white.withValues(alpha: 0.06) : Colors.white,
                       eau: const Color(0xFF6EC6E8),
                       eauClaire: const Color(0xFFA8DDF2),
                     ),
@@ -131,8 +128,13 @@ class _PeintreBouteille extends CustomPainter {
 
     // Forme de la bouteille : un corps arrondi + un goulot.
     final corps = RRect.fromLTRBR(0, hautCorps, w, h, Radius.circular(w * 0.28));
-    final goulot = RRect.fromLTRBR(w * 0.30, h * 0.07, w * 0.70, hautCorps + 12,
-        const Radius.circular(8));
+    final goulot = RRect.fromLTRBR(
+      w * 0.30,
+      h * 0.07,
+      w * 0.70,
+      hautCorps + 12,
+      const Radius.circular(8),
+    );
     final forme = Path.combine(
       PathOperation.union,
       Path()..addRRect(corps),
@@ -155,10 +157,7 @@ class _PeintreBouteille extends CustomPainter {
         _vague(w, h, surface, amplitude, phase + math.pi),
         Paint()..color = eauClaire,
       );
-      canvas.drawPath(
-        _vague(w, h, surface + 4, amplitude * 0.8, phase),
-        Paint()..color = eau,
-      );
+      canvas.drawPath(_vague(w, h, surface + 4, amplitude * 0.8, phase), Paint()..color = eau);
       canvas.restore();
     }
 
@@ -187,8 +186,7 @@ class _PeintreBouteille extends CustomPainter {
 
     // Reflet de lumière.
     canvas.drawRRect(
-      RRect.fromLTRBR(w * 0.76, hautCorps + 24, w * 0.84, h * 0.6,
-          const Radius.circular(6)),
+      RRect.fromLTRBR(w * 0.76, hautCorps + 24, w * 0.84, h * 0.6, const Radius.circular(6)),
       Paint()..color = Colors.white.withValues(alpha: 0.45),
     );
   }

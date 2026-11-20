@@ -37,9 +37,8 @@ class VueJourHabitudes extends StatelessWidget {
 
   /// Date à enregistrer pour une activité : maintenant si c'est aujourd'hui,
   /// sinon midi du jour affiché.
-  DateTime get _dateActivite => _estAujourdhui
-      ? DateTime.now()
-      : DateTime(date.year, date.month, date.day, 12);
+  DateTime get _dateActivite =>
+      _estAujourdhui ? DateTime.now() : DateTime(date.year, date.month, date.day, 12);
 
   Future<void> _noterActivite(BuildContext context) async {
     final habitudes = context.read<HabitudesProvider>();
@@ -52,22 +51,24 @@ class VueJourHabitudes extends StatelessWidget {
       note: saisie.note,
     );
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('${saisie.type.emoji} Bravo, ton corps te remercie !'),
-    ));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('${saisie.type.emoji} Bravo, ton corps te remercie !')));
   }
 
   Future<void> _supprimerActivite(BuildContext context, Activite activite) async {
     final habitudes = context.read<HabitudesProvider>();
     final supprimee = await habitudes.supprimerActivite(activite.id);
     if (supprimee == null || !context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: const Text('Activité supprimée'),
-      action: SnackBarAction(
-        label: 'Annuler',
-        onPressed: () => habitudes.restaurerActivite(supprimee),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Activité supprimée'),
+        action: SnackBarAction(
+          label: 'Annuler',
+          onPressed: () => habitudes.restaurerActivite(supprimee),
+        ),
       ),
-    ));
+    );
   }
 
   @override
@@ -84,92 +85,93 @@ class VueJourHabitudes extends StatelessWidget {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-      children: [
-        _CarteResume(tenues: tenues),
-        _CarteEau(
-          verres: jour.verres,
-          objectif: objectifVerres,
-          onAjouter: () => habitudes.ajouterVerre(date),
-          onRetirer: () => habitudes.retirerVerre(date),
-        ),
-        _Carte(
-          emoji: '💭',
-          titre: 'Comment te sens-tu ?',
-          enfant: Column(
-            children: [
-              for (final r in Ressenti.values) ...[
-                SelecteurRessenti(
-                  ressenti: r,
-                  valeur: jour.ressentis[r],
-                  onChoisir: (v) => habitudes.definirRessenti(date, r, v),
+      children:
+          [
+                _CarteResume(tenues: tenues),
+                _CarteEau(
+                  verres: jour.verres,
+                  objectif: objectifVerres,
+                  onAjouter: () => habitudes.ajouterVerre(date),
+                  onRetirer: () => habitudes.retirerVerre(date),
                 ),
-                if (r != Ressenti.values.last) const SizedBox(height: 14),
-              ],
-            ],
-          ),
-        ),
-        _CarteSommeil(
-          heures: jour.sommeilHeures,
-          onChanger: (h) => habitudes.definirSommeil(date, h),
-        ),
-        _Carte(
-          emoji: '🍽️',
-          titre: 'Mes repas',
-          enfant: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final r in Repas.values)
-                    FilterChip(
-                      avatar: Text(r.emoji),
-                      label: Text(r.libelle),
-                      selected: jour.repas.contains(r),
-                      showCheckmark: false,
-                      onSelected: (_) => habitudes.basculerRepas(date, r),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Prendre des repas réguliers aide ton corps à trouver son équilibre.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              // Repas notés avec leur assiette ce jour-là.
-              for (final r in habitudes.repasPhotosDu(date))
-                _LigneRepasPhoto(
-                  repas: r,
-                  onSupprimer: () => habitudes.supprimerRepasPhoto(r.id),
+                _Carte(
+                  emoji: '💭',
+                  titre: 'Comment te sens-tu ?',
+                  enfant: Column(
+                    children: [
+                      for (final r in Ressenti.values) ...[
+                        SelecteurRessenti(
+                          ressenti: r,
+                          valeur: jour.ressentis[r],
+                          onChoisir: (v) => habitudes.definirRessenti(date, r, v),
+                        ),
+                        if (r != Ressenti.values.last) const SizedBox(height: 14),
+                      ],
+                    ],
+                  ),
                 ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                key: const Key('bouton_noter_repas'),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => AjouterRepasScreen(date: date)),
+                _CarteSommeil(
+                  heures: jour.sommeilHeures,
+                  onChanger: (h) => habitudes.definirSommeil(date, h),
                 ),
-                icon: const Icon(Icons.restaurant_rounded),
-                label: const Text('Noter un repas'),
-              ),
-            ],
-          ),
-        ),
-        _CarteActivite(
-          activitesDuJour: activitesDuJour,
-          derniere: habitudes.derniereActivite,
-          onAjouter: () => _noterActivite(context),
-          onSupprimer: (a) => _supprimerActivite(context, a),
-        ),
-        _CarteNote(
-          key: ValueKey('note-${cleDuJour(date)}'),
-          note: jour.note ?? '',
-          onChanger: (texte) => habitudes.definirNote(date, texte),
-        ),
-      ]
-          .animate(interval: 60.ms)
-          .fadeIn(duration: 350.ms)
-          .slideY(begin: 0.06, curve: Curves.easeOutCubic),
+                _Carte(
+                  emoji: '🍽️',
+                  titre: 'Mes repas',
+                  enfant: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final r in Repas.values)
+                            FilterChip(
+                              avatar: Text(r.emoji),
+                              label: Text(r.libelle),
+                              selected: jour.repas.contains(r),
+                              showCheckmark: false,
+                              onSelected: (_) => habitudes.basculerRepas(date, r),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Prendre des repas réguliers aide ton corps à trouver son équilibre.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      // Repas notés avec leur assiette ce jour-là.
+                      for (final r in habitudes.repasPhotosDu(date))
+                        _LigneRepasPhoto(
+                          repas: r,
+                          onSupprimer: () => habitudes.supprimerRepasPhoto(r.id),
+                        ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        key: const Key('bouton_noter_repas'),
+                        onPressed: () => Navigator.of(
+                          context,
+                        ).push(MaterialPageRoute(builder: (_) => AjouterRepasScreen(date: date))),
+                        icon: const Icon(Icons.restaurant_rounded),
+                        label: const Text('Noter un repas'),
+                      ),
+                    ],
+                  ),
+                ),
+                _CarteActivite(
+                  activitesDuJour: activitesDuJour,
+                  derniere: habitudes.derniereActivite,
+                  onAjouter: () => _noterActivite(context),
+                  onSupprimer: (a) => _supprimerActivite(context, a),
+                ),
+                _CarteNote(
+                  key: ValueKey('note-${cleDuJour(date)}'),
+                  note: jour.note ?? '',
+                  onChanger: (texte) => habitudes.definirNote(date, texte),
+                ),
+              ]
+              .animate(interval: 60.ms)
+              .fadeIn(duration: 350.ms)
+              .slideY(begin: 0.06, curve: Curves.easeOutCubic),
     );
   }
 }
@@ -197,11 +199,11 @@ class _Carte extends StatelessWidget {
                 Text(emoji, style: const TextStyle(fontSize: 22)),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(titre,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700)),
+                  child: Text(
+                    titre,
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ),
@@ -291,12 +293,12 @@ class _PastilleHabitude extends StatelessWidget {
           // Petit « pop » quand une habitude s'allume.
           tenue
               ? pastille
-                  .animate(key: ValueKey('${habitude.name}-tenue'))
-                  .scale(
-                    begin: const Offset(0.8, 0.8),
-                    duration: 500.ms,
-                    curve: Curves.elasticOut,
-                  )
+                    .animate(key: ValueKey('${habitude.name}-tenue'))
+                    .scale(
+                      begin: const Offset(0.8, 0.8),
+                      duration: 500.ms,
+                      curve: Curves.elasticOut,
+                    )
               : pastille,
           const SizedBox(height: 6),
           // Le texte rétrécit un peu si la place manque.
@@ -305,9 +307,8 @@ class _PastilleHabitude extends StatelessWidget {
             child: Text(
               habitude.libelle,
               maxLines: 1,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: couleurs.onPrimaryContainer,
-                  ),
+              style: Theme.of(context).textTheme.labelSmall
+                  ?.copyWith(color: couleurs.onPrimaryContainer),
             ),
           ),
         ],
@@ -416,10 +417,7 @@ class _CarteSommeilState extends State<_CarteSommeil> {
               ),
               const Spacer(),
               if (widget.heures != null)
-                TextButton(
-                  onPressed: () => widget.onChanger(null),
-                  child: const Text('Effacer'),
-                ),
+                TextButton(onPressed: () => widget.onChanger(null), child: const Text('Effacer')),
             ],
           ),
           Slider(
@@ -434,8 +432,7 @@ class _CarteSommeilState extends State<_CarteSommeil> {
               widget.onChanger(v);
             },
           ),
-          Text(HabitudesService.messageSommeil(widget.heures),
-              style: theme.textTheme.bodySmall),
+          Text(HabitudesService.messageSommeil(widget.heures), style: theme.textTheme.bodySmall),
         ],
       ),
     );
@@ -470,25 +467,29 @@ class _CarteActivite extends StatelessWidget {
             Text(
               derniere == null
                   ? 'Une marche, quelques étirements, une danse dans le salon… '
-                      'tout compte !'
+                        'tout compte !'
                   : 'Dernière activité : ${derniere!.type.emoji} '
-                      '${derniere!.type.libelle} · '
-                      '${HabitudesService.formaterMinutes(derniere!.dureeMinutes)} · '
-                      '${DateFormat('EEEE d MMMM', 'fr_FR').format(derniere!.date)}',
+                        '${derniere!.type.libelle} · '
+                        '${HabitudesService.formaterMinutes(derniere!.dureeMinutes)} · '
+                        '${DateFormat('EEEE d MMMM', 'fr_FR').format(derniere!.date)}',
               style: theme.textTheme.bodyMedium,
             )
           else ...[
-            Text('${HabitudesService.formaterMinutes(total)} de mouvement 💪',
-                style: theme.textTheme.titleSmall),
+            Text(
+              '${HabitudesService.formaterMinutes(total)} de mouvement 💪',
+              style: theme.textTheme.titleSmall,
+            ),
             for (final a in activitesDuJour)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Text(a.type.emoji, style: const TextStyle(fontSize: 26)),
                 title: Text(a.type.libelle),
-                subtitle: Text([
-                  HabitudesService.formaterMinutes(a.dureeMinutes),
-                  if (a.note != null) a.note!,
-                ].join(' · ')),
+                subtitle: Text(
+                  [
+                    HabitudesService.formaterMinutes(a.dureeMinutes),
+                    if (a.note != null) a.note!,
+                  ].join(' · '),
+                ),
                 trailing: IconButton(
                   tooltip: 'Supprimer',
                   icon: const Icon(Icons.delete_outline_rounded),
@@ -506,9 +507,9 @@ class _CarteActivite extends StatelessWidget {
           const SizedBox(height: 8),
           FilledButton.tonalIcon(
             key: const Key('bouton_seances'),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ExercicesScreen()),
-            ),
+            onPressed: () =>
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => const ExercicesScreen())),
             icon: const Icon(Icons.play_circle_rounded),
             label: const Text('Séances guidées'),
           ),
@@ -564,7 +565,8 @@ class _CarteNoteState extends State<_CarteNote> {
         maxLines: 8,
         textCapitalization: TextCapitalization.sentences,
         decoration: const InputDecoration(
-          hintText: 'Une victoire, un moment doux, une pensée… '
+          hintText:
+              'Une victoire, un moment doux, une pensée… '
               'Écris ce qui te fait du bien.',
         ),
       ),
@@ -589,18 +591,28 @@ class _LigneRepasPhoto extends StatelessWidget {
       leading: photo != null
           ? ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.memory(base64Decode(photo),
-                  width: 48, height: 48, fit: BoxFit.cover, gaplessPlayback: true),
+              child: Image.memory(
+                base64Decode(photo),
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+              ),
             )
           : Assiette(portions: repas.portions, taille: 48),
-      title: Text('${repas.emojiPlat ?? '📸'} ${repas.titre}',
-          maxLines: 2, overflow: TextOverflow.ellipsis),
-      subtitle: Text([
-        '${repas.repas.emoji} ${repas.repas.libelle}',
-        'Portion ${repas.taille.libelle.toLowerCase()}',
-        // Ressentis notés, en emojis.
-        for (final e in repas.ressentis.entries) e.key.emojis[e.value - 1],
-      ].join(' · ')),
+      title: Text(
+        '${repas.emojiPlat ?? '📸'} ${repas.titre}',
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        [
+          '${repas.repas.emoji} ${repas.repas.libelle}',
+          'Portion ${repas.taille.libelle.toLowerCase()}',
+          // Ressentis notés, en emojis.
+          for (final e in repas.ressentis.entries) e.key.emojis[e.value - 1],
+        ].join(' · '),
+      ),
       trailing: IconButton(
         tooltip: 'Supprimer',
         icon: const Icon(Icons.delete_outline_rounded),

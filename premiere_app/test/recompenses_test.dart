@@ -27,8 +27,11 @@ void main() {
 
     test('atteint par la tendance, puis 2 semaines de stabilisation', () {
       final pesees = [pesee(1, 80), pesee(8, 77), pesee(15, 75.8), pesee(16, 75.6)];
-      final etat = PaliersService.calculer(profilExemple, pesees,
-          maintenant: DateTime(2026, 10, 20));
+      final etat = PaliersService.calculer(
+        profilExemple,
+        pesees,
+        maintenant: DateTime(2026, 10, 20),
+      );
       expect(etat.dernierAtteint, 0);
       // Le 15, la fenêtre de 7 jours (9 → 15 oct.) ne contient que 75,8 kg.
       expect(etat.paliers.first.atteintLe, DateTime(2026, 10, 15));
@@ -38,15 +41,21 @@ void main() {
 
     test('une pesée isolée sous le palier ne suffit pas', () {
       final pesees = [pesee(1, 77), pesee(2, 75.9)]; // moyenne 76,45
-      final etat = PaliersService.calculer(profilExemple, pesees,
-          maintenant: DateTime(2026, 10, 3));
+      final etat = PaliersService.calculer(
+        profilExemple,
+        pesees,
+        maintenant: DateTime(2026, 10, 3),
+      );
       expect(etat.dernierAtteint, -1);
     });
 
     test('une remontée ne retire jamais un palier atteint', () {
       final pesees = [pesee(1, 75.5), pesee(20, 79), pesee(21, 79.5)];
-      final etat = PaliersService.calculer(profilExemple, pesees,
-          maintenant: DateTime(2026, 11, 30));
+      final etat = PaliersService.calculer(
+        profilExemple,
+        pesees,
+        maintenant: DateTime(2026, 11, 30),
+      );
       expect(etat.dernierAtteint, 0);
       expect(etat.enStabilisation, isFalse); // les 14 jours sont passés
     });
@@ -62,15 +71,27 @@ void main() {
         '2026-11-25': const JourHabitudes(repas: {Repas.petitDejeuner}), // autre semaine
       };
       final activites = [
-        Activite(id: '1', date: DateTime(2026, 11, 18), type: TypeActivite.marche, dureeMinutes: 25),
-        Activite(id: '2', date: DateTime(2026, 11, 19), type: TypeActivite.marche, dureeMinutes: 10),
+        Activite(
+          id: '1',
+          date: DateTime(2026, 11, 18),
+          type: TypeActivite.marche,
+          dureeMinutes: 25,
+        ),
+        Activite(
+          id: '2',
+          date: DateTime(2026, 11, 19),
+          type: TypeActivite.marche,
+          dureeMinutes: 10,
+        ),
       ];
-      int p(Defi d) => RecompensesService.progresDefi(d,
-          lundi: lundi,
-          journal: journal,
-          activites: activites,
-          progres: Progres(),
-          objectifVerres: 8);
+      int p(Defi d) => RecompensesService.progresDefi(
+        d,
+        lundi: lundi,
+        journal: journal,
+        activites: activites,
+        progres: Progres(),
+        objectifVerres: 8,
+      );
       expect(p(Defi.petitsDejeuners), 2);
       expect(p(Defi.marches), 1); // la marche de 10 min ne compte pas pour ce défi
     });
@@ -102,18 +123,17 @@ void main() {
     test('semaine douce : seulement une fois la semaine terminée', () {
       final journal = {
         for (var i = 0; i < 7; i++)
-          cleDuJour(DateTime(2026, 11, 16 + i)):
-              const JourHabitudes(verres: 8, sommeilHeures: 8),
+          cleDuJour(DateTime(2026, 11, 16 + i)): const JourHabitudes(verres: 8, sommeilHeures: 8),
       };
       List<String> cles(DateTime n) => RecompensesService.evenements(
-            journal: journal,
-            activites: const [],
-            objectifVerres: 8,
-            progres: Progres(),
-            profil: profilExemple,
-            pesees: const [],
-            maintenant: n,
-          ).map((e) => e.cle).toList();
+        journal: journal,
+        activites: const [],
+        objectifVerres: 8,
+        progres: Progres(),
+        profil: profilExemple,
+        pesees: const [],
+        maintenant: n,
+      ).map((e) => e.cle).toList();
       expect(cles(DateTime(2026, 11, 21)), isNot(contains('semaine:2026-11-16')));
       expect(cles(DateTime(2026, 11, 22)), contains('semaine:2026-11-16'));
     });
@@ -134,7 +154,12 @@ void main() {
       final stockage = await preparerStockage();
       final r = RecompensesProvider(stockage);
       const e = Evenement(
-          cle: 'premiereGoutte', emoji: '💧', titre: 'T', message: 'M', idBadge: 'premiereGoutte');
+        cle: 'premiereGoutte',
+        emoji: '💧',
+        titre: 'T',
+        message: 'M',
+        idBadge: 'premiereGoutte',
+      );
       await r.celebrer([e]);
       await r.celebrer([e]);
       expect(r.prendreCelebration(), isNotNull);
@@ -203,8 +228,10 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('plus_recetteIvoirienne')));
       await tester.pumpAndSettle();
-      expect(find.text('Défi réussi : Une recette ivoirienne revisitée\n🏅 Nouveau badge !'),
-          findsNothing); // la bannière est déjà repartie…
+      expect(
+        find.text('Défi réussi : Une recette ivoirienne revisitée\n🏅 Nouveau badge !'),
+        findsNothing,
+      ); // la bannière est déjà repartie…
       expect(RecompensesProvider(stockage).progres.badges, contains('defi_recetteIvoirienne'));
     });
 

@@ -14,8 +14,8 @@ enum TypeActivite {
   final String libelle;
   final String emoji;
 
-  static TypeActivite depuisNom(String? nom) => TypeActivite.values
-      .firstWhere((t) => t.name == nom, orElse: () => TypeActivite.autre);
+  static TypeActivite depuisNom(String? nom) =>
+      TypeActivite.values.firstWhere((t) => t.name == nom, orElse: () => TypeActivite.autre);
 }
 
 /// Une activité physique enregistrée (marche, séance de sport…).
@@ -37,18 +37,18 @@ class Activite {
   final String? note;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'date': date.toIso8601String(),
-        'type': type.name,
-        'dureeMinutes': dureeMinutes,
-        if (note != null) 'note': note,
-      };
+    'id': id,
+    'date': date.toIso8601String(),
+    'type': type.name,
+    'dureeMinutes': dureeMinutes,
+    if (note != null) 'note': note,
+  };
 
   factory Activite.fromJson(Map<String, dynamic> json) => Activite(
-        id: json['id'] as String,
-        date: DateTime.parse(json['date'] as String),
-        type: TypeActivite.depuisNom(json['type'] as String?),
-        dureeMinutes: (json['dureeMinutes'] as num).toInt(),
-        note: json['note'] as String?,
-      );
+    id: json['id'] as String,
+    date: DateTime.parse(json['date'] as String),
+    type: TypeActivite.depuisNom(json['type'] as String?),
+    dureeMinutes: (json['dureeMinutes'] as num).toInt(),
+    note: json['note'] as String?,
+  );
 }

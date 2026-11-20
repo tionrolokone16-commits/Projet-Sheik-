@@ -46,10 +46,10 @@ class _ProfilScreenState extends State<ProfilScreen> {
     _prenom = TextEditingController(text: p?.prenom ?? '');
     _age = TextEditingController(text: p == null ? '' : '${p.age}');
     _taille = TextEditingController(text: p == null ? '' : formaterDecimal(p.tailleCm));
-    _poidsDepart =
-        TextEditingController(text: p == null ? '' : formaterDecimal(p.poidsDepartKg));
-    _poidsObjectif =
-        TextEditingController(text: p == null ? '' : formaterDecimal(p.poidsObjectifKg));
+    _poidsDepart = TextEditingController(text: p == null ? '' : formaterDecimal(p.poidsDepartKg));
+    _poidsObjectif = TextEditingController(
+      text: p == null ? '' : formaterDecimal(p.poidsObjectifKg),
+    );
     _niveau = p?.niveauActivite ?? NiveauActivite.leger;
     _sexe = p?.sexe ?? Sexe.nonPrecise;
   }
@@ -134,9 +134,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
     );
     await context.read<ProfilProvider>().enregistrer(profil);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('C\'est noté, ${profil.prenom} 🌸')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('C\'est noté, ${profil.prenom} 🌸')));
   }
 
   @override
@@ -155,9 +154,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
             key: const Key('bouton_reglages_profil'),
             tooltip: 'Réglages',
             icon: const Icon(Icons.settings_rounded),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ReglagesScreen()),
-            ),
+            onPressed: () =>
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => const ReglagesScreen())),
           ),
           const SizedBox(width: 8),
         ],
@@ -171,199 +170,225 @@ class _ProfilScreenState extends State<ProfilScreen> {
               key: _formulaire,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                children: [
-                  // En-tête : photo de profil (touchable pour la changer).
-                  if (profil != null)
-                    Row(
-                      children: [
-                        AvatarProfil(
-                          key: const Key('avatar_profil'),
-                          photoBase64: profil.photoBase64,
-                          prenom: profil.prenom,
-                          taille: 88,
-                          badgeAppareilPhoto: true,
-                          onTap: _changerPhoto,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Bonjour ${profil.prenom} 🌸',
-                                style: theme.textTheme.titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              Text(
-                                profil.photoBase64 == null
-                                    ? 'Touche le rond pour ajouter ta photo'
-                                    : 'Touche ta photo pour la changer',
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  const SizedBox(height: 20),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          TextFormField(
-                            key: const Key('champ_prenom'),
-                            controller: _prenom,
-                            decoration: const InputDecoration(labelText: 'Prénom'),
-                            textCapitalization: TextCapitalization.words,
-                            validator: ValidationProfil.prenom,
-                          ),
-                          espace,
-                          TextFormField(
-                            key: const Key('champ_age'),
-                            controller: _age,
-                            decoration: const InputDecoration(
-                                labelText: 'Âge', suffixText: 'ans'),
-                            keyboardType: TextInputType.number,
-                            validator: ValidationProfil.age,
-                          ),
-                          espace,
-                          DropdownButtonFormField<Sexe>(
-                            initialValue: _sexe,
-                            isExpanded: true,
-                            decoration: const InputDecoration(
-                              labelText: 'Sexe',
-                              helperText: 'Utilisé uniquement pour le calcul du métabolisme',
-                            ),
-                            items: [
-                              for (final s in Sexe.values)
-                                DropdownMenuItem(value: s, child: Text(s.libelle)),
-                            ],
-                            onChanged: (s) => setState(() => _sexe = s ?? _sexe),
-                          ),
-                          espace,
-                          TextFormField(
-                            key: const Key('champ_taille'),
-                            controller: _taille,
-                            decoration: const InputDecoration(
-                                labelText: 'Taille', suffixText: 'cm'),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(decimal: true),
-                            validator: ValidationProfil.taille,
-                            onChanged: (_) => _verifierObjectif(),
-                          ),
-                          espace,
-                          TextFormField(
-                            key: const Key('champ_poids_depart'),
-                            controller: _poidsDepart,
-                            decoration: const InputDecoration(
-                                labelText: 'Poids de départ', suffixText: 'kg'),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(decimal: true),
-                            validator: ValidationProfil.poids,
-                          ),
-                          espace,
-                          TextFormField(
-                            key: const Key('champ_poids_objectif'),
-                            controller: _poidsObjectif,
-                            decoration: const InputDecoration(
-                                labelText: 'Poids objectif', suffixText: 'kg'),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(decimal: true),
-                            onChanged: (_) => _verifierObjectif(),
-                            validator: (t) =>
-                                ValidationProfil.objectif(t, _poidsDepart.text),
-                          ),
-                          if (_objectifTropBas) ...[
-                            const SizedBox(height: 12),
-                            CarteImcTropBas(tailleCm: lireDecimal(_taille.text)!)
-                                .animate()
-                                .fadeIn(),
-                          ],
-                          espace,
-                          DropdownButtonFormField<NiveauActivite>(
-                            initialValue: _niveau,
-                            isExpanded: true,
-                            decoration:
-                                const InputDecoration(labelText: 'Niveau d\'activité'),
-                            // Dans le champ fermé, on n'affiche que le libellé.
-                            selectedItemBuilder: (context) => [
-                              for (final n in NiveauActivite.values) Text(n.libelle),
-                            ],
-                            items: [
-                              for (final n in NiveauActivite.values)
-                                DropdownMenuItem(
-                                  value: n,
-                                  child: Text('${n.libelle} · ${n.description}'),
+                children:
+                    [
+                          // En-tête : photo de profil (touchable pour la changer).
+                          if (profil != null)
+                            Row(
+                              children: [
+                                AvatarProfil(
+                                  key: const Key('avatar_profil'),
+                                  photoBase64: profil.photoBase64,
+                                  prenom: profil.prenom,
+                                  taille: 88,
+                                  badgeAppareilPhoto: true,
+                                  onTap: _changerPhoto,
                                 ),
-                            ],
-                            onChanged: (n) => setState(() => _niveau = n ?? _niveau),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Bonjour ${profil.prenom} 🌸',
+                                        style: theme.textTheme.titleLarge?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      Text(
+                                        profil.photoBase64 == null
+                                            ? 'Touche le rond pour ajouter ta photo'
+                                            : 'Touche ta photo pour la changer',
+                                        style: theme.textTheme.bodySmall,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 20),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  TextFormField(
+                                    key: const Key('champ_prenom'),
+                                    controller: _prenom,
+                                    decoration: const InputDecoration(labelText: 'Prénom'),
+                                    textCapitalization: TextCapitalization.words,
+                                    validator: ValidationProfil.prenom,
+                                  ),
+                                  espace,
+                                  TextFormField(
+                                    key: const Key('champ_age'),
+                                    controller: _age,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Âge',
+                                      suffixText: 'ans',
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    validator: ValidationProfil.age,
+                                  ),
+                                  espace,
+                                  DropdownButtonFormField<Sexe>(
+                                    initialValue: _sexe,
+                                    isExpanded: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Sexe',
+                                      helperText:
+                                          'Utilisé uniquement pour le calcul du métabolisme',
+                                    ),
+                                    items: [
+                                      for (final s in Sexe.values)
+                                        DropdownMenuItem(value: s, child: Text(s.libelle)),
+                                    ],
+                                    onChanged: (s) => setState(() => _sexe = s ?? _sexe),
+                                  ),
+                                  espace,
+                                  TextFormField(
+                                    key: const Key('champ_taille'),
+                                    controller: _taille,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Taille',
+                                      suffixText: 'cm',
+                                    ),
+                                    keyboardType: const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                    validator: ValidationProfil.taille,
+                                    onChanged: (_) => _verifierObjectif(),
+                                  ),
+                                  espace,
+                                  TextFormField(
+                                    key: const Key('champ_poids_depart'),
+                                    controller: _poidsDepart,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Poids de départ',
+                                      suffixText: 'kg',
+                                    ),
+                                    keyboardType: const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                    validator: ValidationProfil.poids,
+                                  ),
+                                  espace,
+                                  TextFormField(
+                                    key: const Key('champ_poids_objectif'),
+                                    controller: _poidsObjectif,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Poids objectif',
+                                      suffixText: 'kg',
+                                    ),
+                                    keyboardType: const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                    onChanged: (_) => _verifierObjectif(),
+                                    validator: (t) =>
+                                        ValidationProfil.objectif(t, _poidsDepart.text),
+                                  ),
+                                  if (_objectifTropBas) ...[
+                                    const SizedBox(height: 12),
+                                    CarteImcTropBas(tailleCm: lireDecimal(_taille.text)!)
+                                        .animate()
+                                        .fadeIn(),
+                                  ],
+                                  espace,
+                                  DropdownButtonFormField<NiveauActivite>(
+                                    initialValue: _niveau,
+                                    isExpanded: true,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Niveau d\'activité',
+                                    ),
+                                    // Dans le champ fermé, on n'affiche que le libellé.
+                                    selectedItemBuilder: (context) => [
+                                      for (final n in NiveauActivite.values) Text(n.libelle),
+                                    ],
+                                    items: [
+                                      for (final n in NiveauActivite.values)
+                                        DropdownMenuItem(
+                                          value: n,
+                                          child: Text('${n.libelle} · ${n.description}'),
+                                        ),
+                                    ],
+                                    onChanged: (n) => setState(() => _niveau = n ?? _niveau),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  FilledButton.icon(
+                                    key: const Key('bouton_enregistrer_profil'),
+                                    onPressed: _enregistrer,
+                                    icon: const Icon(Icons.check_rounded),
+                                    label: const Text('Enregistrer'),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 24),
-                          FilledButton.icon(
-                            key: const Key('bouton_enregistrer_profil'),
-                            onPressed: _enregistrer,
-                            icon: const Icon(Icons.check_rounded),
-                            label: const Text('Enregistrer'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (profil != null) ...[
-                    const SizedBox(height: 12),
-                    // Bilans de la semaine.
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: ListTile(
-                        key: const Key('acces_bilans'),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        leading: const Text('📊', style: TextStyle(fontSize: 28)),
-                        title: const Text('Mes bilans de la semaine',
-                            style: TextStyle(fontWeight: FontWeight.w700)),
-                        subtitle: const Text('Et le résumé pour ton nutritionniste'),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const BilanScreen()),
-                        ),
-                      ),
-                    ),
-                    // Accès au plan de la diététicienne.
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: ListTile(
-                        key: const Key('acces_mon_plan'),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        leading: const Text('📋', style: TextStyle(fontSize: 28)),
-                        title: const Text('Mon plan nutritionnel',
-                            style: TextStyle(fontWeight: FontWeight.w700)),
-                        subtitle: Text(aUnPlan
-                            ? 'Le plan de ta diététicienne'
-                            : 'Importer le plan de ta diététicienne'),
-                        trailing: const Icon(Icons.chevron_right_rounded),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const MonPlanScreen()),
-                        ),
-                      ),
-                    ),
-                    // Avec un plan professionnel, c'est lui le repère : pas de calcul.
-                    if (aUnPlan)
-                      const CarteDouce(
-                        icone: Icons.verified_outlined,
-                        titre: 'Ton repère : ton plan',
-                        message: 'Tu es accompagnée par une diététicienne : son plan passe '
-                            'avant tout calcul. Les repères caloriques de l\'appli sont '
-                            'donc masqués.',
-                      )
-                    else
-                      // Repère calorique basé sur la dernière pesée, si elle existe.
-                      CarteObjectifCalorique(profil: profil, poidsActuelKg: dernierPoids),
-                  ],
-                ]
-                    .animate(interval: 60.ms)
-                    .fadeIn(duration: 350.ms)
-                    .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+                          if (profil != null) ...[
+                            const SizedBox(height: 12),
+                            // Bilans de la semaine.
+                            Card(
+                              clipBehavior: Clip.antiAlias,
+                              child: ListTile(
+                                key: const Key('acces_bilans'),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                                leading: const Text('📊', style: TextStyle(fontSize: 28)),
+                                title: const Text(
+                                  'Mes bilans de la semaine',
+                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                ),
+                                subtitle: const Text('Et le résumé pour ton nutritionniste'),
+                                trailing: const Icon(Icons.chevron_right_rounded),
+                                onTap: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: (_) => const BilanScreen())),
+                              ),
+                            ),
+                            // Accès au plan de la diététicienne.
+                            Card(
+                              clipBehavior: Clip.antiAlias,
+                              child: ListTile(
+                                key: const Key('acces_mon_plan'),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                                leading: const Text('📋', style: TextStyle(fontSize: 28)),
+                                title: const Text(
+                                  'Mon plan nutritionnel',
+                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                ),
+                                subtitle: Text(
+                                  aUnPlan
+                                      ? 'Le plan de ta diététicienne'
+                                      : 'Importer le plan de ta diététicienne',
+                                ),
+                                trailing: const Icon(Icons.chevron_right_rounded),
+                                onTap: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: (_) => const MonPlanScreen())),
+                              ),
+                            ),
+                            // Avec un plan professionnel, c'est lui le repère : pas de calcul.
+                            if (aUnPlan)
+                              const CarteDouce(
+                                icone: Icons.verified_outlined,
+                                titre: 'Ton repère : ton plan',
+                                message:
+                                    'Tu es accompagnée par une diététicienne : son plan passe '
+                                    'avant tout calcul. Les repères caloriques de l\'appli sont '
+                                    'donc masqués.',
+                              )
+                            else
+                              // Repère calorique basé sur la dernière pesée, si elle existe.
+                              CarteObjectifCalorique(profil: profil, poidsActuelKg: dernierPoids),
+                          ],
+                        ]
+                        .animate(interval: 60.ms)
+                        .fadeIn(duration: 350.ms)
+                        .slideY(begin: 0.05, curve: Curves.easeOutCubic),
               ),
             ),
           ),

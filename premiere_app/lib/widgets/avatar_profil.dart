@@ -19,9 +19,11 @@ Future<String?> choisirPhotoProfil(BuildContext context) async {
     return base64Encode(await fichier.readAsBytes());
   } catch (_) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('La photo n\'a pas pu être ouverte. Réessaie avec une autre 🌸'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La photo n\'a pas pu être ouverte. Réessaie avec une autre 🌸'),
+        ),
+      );
     }
     return null;
   }
@@ -99,24 +101,18 @@ class _AvatarProfilState extends State<AvatarProfil> {
         clipBehavior: Clip.antiAlias,
         alignment: Alignment.center,
         child: _octets != null
-            ? Image.memory(
-                _octets!,
-                width: t,
-                height: t,
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              )
+            ? Image.memory(_octets!, width: t, height: t, fit: BoxFit.cover, gaplessPlayback: true)
             : prenom.isEmpty
-                // Pas encore de prénom : une silhouette.
-                ? Icon(Icons.person_rounded, size: t * 0.5, color: couleurs.onPrimaryContainer)
-                : Text(
-                    prenom.characters.first.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: t * 0.4,
-                      fontWeight: FontWeight.w800,
-                      color: couleurs.onPrimaryContainer,
-                    ),
-                  ),
+            // Pas encore de prénom : une silhouette.
+            ? Icon(Icons.person_rounded, size: t * 0.5, color: couleurs.onPrimaryContainer)
+            : Text(
+                prenom.characters.first.toUpperCase(),
+                style: TextStyle(
+                  fontSize: t * 0.4,
+                  fontWeight: FontWeight.w800,
+                  color: couleurs.onPrimaryContainer,
+                ),
+              ),
       ),
     );
 
@@ -141,8 +137,11 @@ class _AvatarProfilState extends State<AvatarProfil> {
                     shape: BoxShape.circle,
                     border: Border.all(color: couleurs.surface, width: 2),
                   ),
-                  child: Icon(Icons.photo_camera_rounded,
-                      size: t * 0.17, color: couleurs.onPrimary),
+                  child: Icon(
+                    Icons.photo_camera_rounded,
+                    size: t * 0.17,
+                    color: couleurs.onPrimary,
+                  ),
                 ),
               ),
           ],

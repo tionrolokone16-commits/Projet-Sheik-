@@ -43,8 +43,7 @@ class GraphiquePoids extends StatelessWidget {
     final limite = periode.jours == null
         ? null
         : DateTime.now().subtract(Duration(days: periode.jours!));
-    final visibles =
-        pesees.where((p) => limite == null || p.date.isAfter(limite)).toList();
+    final visibles = pesees.where((p) => limite == null || p.date.isAfter(limite)).toList();
 
     if (visibles.length < 2) {
       return SizedBox(
@@ -64,15 +63,10 @@ class GraphiquePoids extends StatelessWidget {
     final debut = visibles.first.date;
     double enJours(DateTime d) => d.difference(debut).inHours / 24;
 
-    final points = [
-      for (final p in visibles) FlSpot(enJours(p.date), p.poidsKg),
-    ];
+    final points = [for (final p in visibles) FlSpot(enJours(p.date), p.poidsKg)];
 
     // Tendance : moyenne des pesées des 7 derniers jours pour chaque point.
-    final tendance = [
-      for (final p in visibles)
-        FlSpot(enJours(p.date), _moyenne7Jours(p.date)),
-    ];
+    final tendance = [for (final p in visibles) FlSpot(enJours(p.date), _moyenne7Jours(p.date))];
 
     final minPoids = visibles.map((p) => p.poidsKg).reduce(math.min);
     final maxPoids = visibles.map((p) => p.poidsKg).reduce(math.max);
@@ -80,9 +74,8 @@ class GraphiquePoids extends StatelessWidget {
     final maxY = (maxPoids + 1).ceilToDouble();
     final maxX = math.max(points.last.x, 1.0);
 
-    final objectifVisible = poidsObjectifKg != null &&
-        poidsObjectifKg! >= minY &&
-        poidsObjectifKg! <= maxY;
+    final objectifVisible =
+        poidsObjectifKg != null && poidsObjectifKg! >= minY && poidsObjectifKg! <= maxY;
 
     return AspectRatio(
       aspectRatio: 1.6,
@@ -97,10 +90,8 @@ class GraphiquePoids extends StatelessWidget {
             borderData: FlBorderData(show: false),
             gridData: FlGridData(
               drawVerticalLine: false,
-              getDrawingHorizontalLine: (_) => FlLine(
-                color: couleurs.outlineVariant.withValues(alpha: 0.5),
-                strokeWidth: 1,
-              ),
+              getDrawingHorizontalLine: (_) =>
+                  FlLine(color: couleurs.outlineVariant.withValues(alpha: 0.5), strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
               topTitles: const AxisTitles(),
@@ -124,8 +115,10 @@ class GraphiquePoids extends StatelessWidget {
                   getTitlesWidget: (valeur, meta) => SideTitleWidget(
                     meta: meta,
                     child: Text(
-                      DateFormat('d MMM', 'fr_FR')
-                          .format(debut.add(Duration(hours: (valeur * 24).round()))),
+                      DateFormat(
+                        'd MMM',
+                        'fr_FR',
+                      ).format(debut.add(Duration(hours: (valeur * 24).round()))),
                       style: styleAxe,
                     ),
                   ),

@@ -42,8 +42,11 @@ void main() {
 
     test('chaque pays a plusieurs plats', () {
       for (final pays in PaysPlat.values.where((p) => p != PaysPlat.mesPlats)) {
-        expect(PlatsService.catalogue.where((p) => p.pays == pays).length,
-            greaterThanOrEqualTo(3), reason: pays.libelle);
+        expect(
+          PlatsService.catalogue.where((p) => p.pays == pays).length,
+          greaterThanOrEqualTo(3),
+          reason: pays.libelle,
+        );
       }
     });
 
@@ -88,10 +91,13 @@ void main() {
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();
     final bouton = find.byKey(const Key('accueil_noter_repas'));
-    await tester.scrollUntilVisible(bouton, 300,
-        scrollable: find
-            .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
-            .first);
+    await tester.scrollUntilVisible(
+      bouton,
+      300,
+      scrollable: find
+          .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
+          .first,
+    );
     await tester.ensureVisible(bouton);
     await tester.pumpAndSettle();
     await tester.tap(bouton);
@@ -99,9 +105,8 @@ void main() {
     expect(find.byType(AjouterRepasScreen), findsOneWidget);
   }
 
-  HabitudesProvider habitudes(WidgetTester tester) => Provider.of<HabitudesProvider>(
-      tester.element(find.byType(Scaffold).first),
-      listen: false);
+  HabitudesProvider habitudes(WidgetTester tester) =>
+      Provider.of<HabitudesProvider>(tester.element(find.byType(Scaffold).first), listen: false);
 
   testWidgets('2 touches : le bouton, puis le plat — détails facultatifs', (tester) async {
     ecranIpad(tester);

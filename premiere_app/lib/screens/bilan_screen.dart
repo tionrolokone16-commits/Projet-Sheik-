@@ -36,10 +36,7 @@ class _BilanScreenState extends State<BilanScreen> {
 
   void _changerSemaine(int delta) {
     if (delta > 0 && _estSemaineActuelle) return;
-    setState(
-      () =>
-          _lundi = DateTime(_lundi.year, _lundi.month, _lundi.day + 7 * delta),
-    );
+    setState(() => _lundi = DateTime(_lundi.year, _lundi.month, _lundi.day + 7 * delta));
   }
 
   @override
@@ -47,10 +44,7 @@ class _BilanScreenState extends State<BilanScreen> {
     final theme = Theme.of(context);
     final habitudes = context.watch<HabitudesProvider>();
     final recompenses = context.watch<RecompensesProvider>();
-    final objectifVerres = context
-        .watch<ReglagesProvider>()
-        .reglages
-        .objectifVerres;
+    final objectifVerres = context.watch<ReglagesProvider>().reglages.objectifVerres;
     final prenom = context.watch<ProfilProvider>().profil?.prenom ?? '';
     final pesees = context.watch<PoidsProvider>().pesees;
 
@@ -65,8 +59,7 @@ class _BilanScreenState extends State<BilanScreen> {
     // Les idées choisies valent pour la semaine suivante.
     final lundiSuivant = DateTime(_lundi.year, _lundi.month, _lundi.day + 7);
     final ideesChoisies = [
-      for (final nom in recompenses.ideesDe(lundiSuivant))
-        ?IdeeSemaine.depuisNom(nom),
+      for (final nom in recompenses.ideesDe(lundiSuivant)) ?IdeeSemaine.depuisNom(nom),
     ];
     final texte = BilanService.texteAPartager(
       bilan: bilan,
@@ -107,9 +100,7 @@ class _BilanScreenState extends State<BilanScreen> {
                             IconButton(
                               tooltip: 'Semaine suivante',
                               icon: const Icon(Icons.chevron_right_rounded),
-                              onPressed: _estSemaineActuelle
-                                  ? null
-                                  : () => _changerSemaine(1),
+                              onPressed: _estSemaineActuelle ? null : () => _changerSemaine(1),
                             ),
                           ],
                         ),
@@ -123,9 +114,7 @@ class _BilanScreenState extends State<BilanScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  prenom.isEmpty
-                                      ? 'Ta semaine 🌸'
-                                      : 'Ta semaine, $prenom 🌸',
+                                  prenom.isEmpty ? 'Ta semaine 🌸' : 'Ta semaine, $prenom 🌸',
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.w800,
                                     color: theme.colorScheme.onPrimaryContainer,
@@ -138,9 +127,7 @@ class _BilanScreenState extends State<BilanScreen> {
                                             'page blanche 🌱'
                                       : 'Merci d\'avoir pris soin de toi cette semaine. Voici ce '
                                             'que tes notes racontent 💗',
-                                  style: TextStyle(
-                                    color: theme.colorScheme.onPrimaryContainer,
-                                  ),
+                                  style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
                                 ),
                               ],
                             ),
@@ -193,23 +180,16 @@ class _BilanScreenState extends State<BilanScreen> {
                                     value: ideesChoisies.contains(idee),
                                     onChanged:
                                         !ideesChoisies.contains(idee) &&
-                                            ideesChoisies.length >=
-                                                RecompensesProvider.ideesMax
+                                            ideesChoisies.length >= RecompensesProvider.ideesMax
                                         ? null
-                                        : (_) => recompenses.basculerIdee(
-                                            lundiSuivant,
-                                            idee.name,
-                                          ),
+                                        : (_) => recompenses.basculerIdee(lundiSuivant, idee.name),
                                     secondary: Text(
                                       idee.emoji,
                                       style: const TextStyle(fontSize: 24),
                                     ),
                                     title: Text(idee.texte),
-                                    subtitle:
-                                        bilan.ideesSuggerees.contains(idee)
-                                        ? const Text(
-                                            '✨ En lien avec ta semaine',
-                                          )
+                                    subtitle: bilan.ideesSuggerees.contains(idee)
+                                        ? const Text('✨ En lien avec ta semaine')
                                         : null,
                                   ),
                               ],
@@ -240,16 +220,12 @@ class _BilanScreenState extends State<BilanScreen> {
                                   contentPadding: EdgeInsets.zero,
                                   title: const Text('Inclure mes pesées'),
                                   value: _inclurePesees,
-                                  onChanged: (v) =>
-                                      setState(() => _inclurePesees = v),
+                                  onChanged: (v) => setState(() => _inclurePesees = v),
                                 ),
                                 FilledButton.icon(
                                   key: const Key('bouton_partager_bilan'),
                                   onPressed: () => SharePlus.instance.share(
-                                    ShareParams(
-                                      text: texte,
-                                      subject: 'Mon bilan de la semaine',
-                                    ),
+                                    ShareParams(text: texte, subject: 'Mon bilan de la semaine'),
                                   ),
                                   icon: const Icon(Icons.ios_share_rounded),
                                   label: const Text('Partager'),
@@ -258,9 +234,7 @@ class _BilanScreenState extends State<BilanScreen> {
                                 OutlinedButton.icon(
                                   key: const Key('bouton_copier_bilan'),
                                   onPressed: () async {
-                                    await Clipboard.setData(
-                                      ClipboardData(text: texte),
-                                    );
+                                    await Clipboard.setData(ClipboardData(text: texte));
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -303,12 +277,7 @@ class _BilanScreenState extends State<BilanScreen> {
 
 /// Carte avec un titre et une liste « emoji + phrase ».
 class _CarteLignes extends StatelessWidget {
-  const _CarteLignes({
-    required this.cle,
-    required this.titre,
-    required this.lignes,
-    this.intro,
-  });
+  const _CarteLignes({required this.cle, required this.titre, required this.lignes, this.intro});
 
   final Key cle;
   final String titre;
@@ -325,12 +294,7 @@ class _CarteLignes extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              titre,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            Text(titre, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
             if (intro != null) ...[
               const SizedBox(height: 4),
               Text(intro!, style: theme.textTheme.bodySmall),
@@ -343,9 +307,7 @@ class _CarteLignes extends StatelessWidget {
                   children: [
                     Text(l.emoji, style: const TextStyle(fontSize: 22)),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(l.texte, style: theme.textTheme.bodyLarge),
-                    ),
+                    Expanded(child: Text(l.texte, style: theme.textTheme.bodyLarge)),
                   ],
                 ),
               ),

@@ -44,8 +44,8 @@ class CheminScreen extends StatelessWidget {
     for (final (i, p) in etat.paliers.indexed) {
       etapes.add(_Etape(_TypeEtape.palier, palier: p, faite: p.atteint));
       if (!p.estObjectif) {
-        final stabilisee = i < etat.dernierAtteint ||
-            (i == etat.dernierAtteint && !etat.enStabilisation);
+        final stabilisee =
+            i < etat.dernierAtteint || (i == etat.dernierAtteint && !etat.enStabilisation);
         etapes.add(_Etape(_TypeEtape.stabilisation, palier: p, faite: stabilisee));
       }
     }
@@ -70,15 +70,18 @@ class CheminScreen extends StatelessWidget {
     if (pesees.isEmpty) {
       message = 'Ajoute une pesée pour te situer sur le chemin 🌱';
     } else if (etat.objectifAtteint) {
-      message = 'Objectif atteint 🎉 Place à l\'équilibre : garde les habitudes '
+      message =
+          'Objectif atteint 🎉 Place à l\'équilibre : garde les habitudes '
           'qui te font du bien.';
     } else if (etat.enStabilisation) {
       final jours = etat.joursStabilisationRestants(maintenant);
-      message = 'Phase de stabilisation : encore $jours ${jours > 1 ? 'jours' : 'jour'}. '
+      message =
+          'Phase de stabilisation : encore $jours ${jours > 1 ? 'jours' : 'jour'}. '
           'Garde tes habitudes, pas besoin de viser plus 🌿';
     } else {
       final prochain = etat.paliers[d + 1];
-      message = 'Prochain palier : ${formaterDecimal(prochain.poidsKg)} kg. '
+      message =
+          'Prochain palier : ${formaterDecimal(prochain.poidsKg)} kg. '
           'Chaque petit pas compte 💗';
     }
 
@@ -168,16 +171,15 @@ class _Sentier extends StatelessWidget {
   final double position;
   final double profilDepartKg;
   final bool afficherRepere;
+
   /// Index du palier dont la stabilisation est en cours (-1 si aucune).
   final int stabilisationEnCours;
 
   static const _tailleNoeud = 56.0;
 
   /// Centre de chaque étape : le sentier ondule de gauche à droite.
-  Offset _point(int i) => Offset(
-        largeur / 2 + largeur * 0.22 * math.sin(i * math.pi / 2),
-        50 + i * espacement,
-      );
+  Offset _point(int i) =>
+      Offset(largeur / 2 + largeur * 0.22 * math.sin(i * math.pi / 2), 50 + i * espacement);
 
   @override
   Widget build(BuildContext context) {
@@ -209,11 +211,7 @@ class _Sentier extends StatelessWidget {
               ),
               for (var i = 0; i < etapes.length; i++) ..._noeud(context, i, points[i]),
               if (afficherRepere)
-                Positioned(
-                  left: repere.dx - 52,
-                  top: repere.dy - 54,
-                  child: const _Repere(),
-                ),
+                Positioned(left: repere.dx - 52, top: repere.dy - 54, child: const _Repere()),
             ],
           ),
         );
@@ -225,9 +223,7 @@ class _Sentier extends StatelessWidget {
   Offset _positionSur(List<Offset> points, double pos) {
     final i = pos.floor().clamp(0, points.length - 1);
     if (i >= points.length - 1) return points.last;
-    final metrique = _PeintreSentier.segment(points[i], points[i + 1])
-        .computeMetrics()
-        .first;
+    final metrique = _PeintreSentier.segment(points[i], points[i + 1]).computeMetrics().first;
     return metrique.getTangentForOffset(metrique.length * (pos - i))!.position;
   }
 
@@ -241,23 +237,23 @@ class _Sentier extends StatelessWidget {
     final (String emoji, String titre, String sousTitre) = switch (etape.type) {
       _TypeEtape.depart => ('🌱', 'Départ', '${formaterDecimal(profilDepartKg)} kg'),
       _TypeEtape.palier => (
-          etape.palier!.estObjectif ? '🎯' : (etape.faite ? '🌸' : '${etape.palier!.numero}'),
-          etape.palier!.estObjectif ? 'Objectif' : 'Palier ${etape.palier!.numero}',
-          [
-            '${formaterDecimal(etape.palier!.poidsKg)} kg',
-            if (etape.palier!.atteintLe != null)
-              'atteint le ${DateFormat('d MMM', 'fr_FR').format(etape.palier!.atteintLe!)}',
-          ].join('\n'),
-        ),
+        etape.palier!.estObjectif ? '🎯' : (etape.faite ? '🌸' : '${etape.palier!.numero}'),
+        etape.palier!.estObjectif ? 'Objectif' : 'Palier ${etape.palier!.numero}',
+        [
+          '${formaterDecimal(etape.palier!.poidsKg)} kg',
+          if (etape.palier!.atteintLe != null)
+            'atteint le ${DateFormat('d MMM', 'fr_FR').format(etape.palier!.atteintLe!)}',
+        ].join('\n'),
+      ),
       _TypeEtape.stabilisation => (
-          '🌿',
-          'Stabilisation',
-          etape.faite
-              ? '2 semaines, c\'est fait'
-              : etape.palier!.numero - 1 == stabilisationEnCours
-                  ? 'en cours'
-                  : '2 semaines de pause',
-        ),
+        '🌿',
+        'Stabilisation',
+        etape.faite
+            ? '2 semaines, c\'est fait'
+            : etape.palier!.numero - 1 == stabilisationEnCours
+            ? 'en cours'
+            : '2 semaines de pause',
+      ),
     };
 
     final petit = etape.type == _TypeEtape.stabilisation;
@@ -298,8 +294,7 @@ class _Sentier extends StatelessWidget {
         child: Column(
           crossAxisAlignment: aGauche ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            Text(titre,
-                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+            Text(titre, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
             Text(
               sousTitre,
               textAlign: aGauche ? TextAlign.end : TextAlign.start,

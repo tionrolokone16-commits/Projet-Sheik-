@@ -46,13 +46,13 @@ Future<(StockageService, StockageLimite)> stockageLimite(int limite) async {
 }
 
 RepasPhoto repas(int jour, {bool photo = true}) => RepasPhoto(
-      id: 'r$jour',
-      date: DateTime(2026, 11, jour, 13),
-      repas: Repas.dejeuner,
-      portions: Portions.equilibre,
-      nomPlat: 'Repas $jour',
-      photoBase64: photo ? 'A' * 1000 : null,
-    );
+  id: 'r$jour',
+  date: DateTime(2026, 11, jour, 13),
+  repas: Repas.dejeuner,
+  portions: Portions.equilibre,
+  nomPlat: 'Repas $jour',
+  photoBase64: photo ? 'A' * 1000 : null,
+);
 
 void main() {
   test('photos trop lourdes : les plus anciennes sont retirées, les repas restent', () async {
@@ -72,27 +72,21 @@ void main() {
     expect(stockage.chargerRepasPhotos().length, 10);
   });
 
-  test('pour enregistrer autre chose, on libère de la place avec les vieilles photos',
-      () async {
+  test('pour enregistrer autre chose, on libère de la place avec les vieilles photos', () async {
     final (stockage, navigateur) = await stockageLimite(100000);
     await stockage.enregistrerRepasPhotos([for (var j = 6; j >= 1; j--) repas(j)]);
     navigateur.limite = 6000; // la place vient à manquer
 
-    await stockage.enregistrerJournal({
-      '2026-11-18': JourHabitudes(verres: 5, note: 'x' * 500),
-    });
+    await stockage.enregistrerJournal({'2026-11-18': JourHabitudes(verres: 5, note: 'x' * 500)});
 
     expect(stockage.chargerJournal()['2026-11-18']?.verres, 5); // bien enregistré
     expect(stockage.alerte.value?.type, TypeAlerteStockage.photosRetirees);
-    expect(stockage.chargerRepasPhotos().where((r) => r.photoBase64 != null).length,
-        lessThan(6));
+    expect(stockage.chargerRepasPhotos().where((r) => r.photoBase64 != null).length, lessThan(6));
   });
 
   test('si rien ne suffit : une alerte plutôt qu\'une perte silencieuse', () async {
     final (stockage, _) = await stockageLimite(300);
-    await stockage.enregistrerJournal({
-      '2026-11-18': JourHabitudes(note: 'x' * 1000),
-    });
+    await stockage.enregistrerJournal({'2026-11-18': JourHabitudes(note: 'x' * 1000)});
     expect(stockage.alerte.value?.type, TypeAlerteStockage.echec);
     expect(stockage.alerte.value!.message, contains('Réglages → Mes données'));
   });

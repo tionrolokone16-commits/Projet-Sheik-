@@ -20,8 +20,7 @@ class RespirationScreen extends StatefulWidget {
   State<RespirationScreen> createState() => _RespirationScreenState();
 }
 
-class _RespirationScreenState extends State<RespirationScreen>
-    with TickerProviderStateMixin {
+class _RespirationScreenState extends State<RespirationScreen> with TickerProviderStateMixin {
   /// Un cycle de 10 s : 4 s pour inspirer, 6 s pour expirer.
   late final AnimationController _cycle = AnimationController(
     vsync: this,
@@ -29,18 +28,16 @@ class _RespirationScreenState extends State<RespirationScreen>
   )..repeat();
 
   /// Avancement de la minute complète.
-  late final AnimationController _minute = AnimationController(
-    vsync: this,
-    duration: RespirationScreen.duree,
-  )
-    ..addStatusListener((statut) {
-      if (statut == AnimationStatus.completed) {
-        // Minute complète : on la compte (badge et défi « pauses respiration »).
-        context.read<RecompensesProvider>().noterRespiration();
-        _terminer();
-      }
-    })
-    ..forward();
+  late final AnimationController _minute =
+      AnimationController(vsync: this, duration: RespirationScreen.duree)
+        ..addStatusListener((statut) {
+          if (statut == AnimationStatus.completed) {
+            // Minute complète : on la compte (badge et défi « pauses respiration »).
+            context.read<RecompensesProvider>().noterRespiration();
+            _terminer();
+          }
+        })
+        ..forward();
 
   bool _termine = false;
 
@@ -101,8 +98,7 @@ class _RespirationScreenState extends State<RespirationScreen>
                 final g = _gonflement(_cycle.value);
                 final inspire = _cycle.value < _partInspiration;
                 final taille = 130 + 130 * g;
-                final restant =
-                    (RespirationScreen.duree.inSeconds * (1 - _minute.value)).ceil();
+                final restant = (RespirationScreen.duree.inSeconds * (1 - _minute.value)).ceil();
                 return Column(
                   children: [
                     SizedBox(
@@ -115,10 +111,12 @@ class _RespirationScreenState extends State<RespirationScreen>
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: RadialGradient(colors: [
-                              couleurs.primaryContainer,
-                              couleurs.primary.withValues(alpha: 0.55 + 0.25 * g),
-                            ]),
+                            gradient: RadialGradient(
+                              colors: [
+                                couleurs.primaryContainer,
+                                couleurs.primary.withValues(alpha: 0.55 + 0.25 * g),
+                              ],
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: couleurs.primary.withValues(alpha: 0.25),
@@ -150,8 +148,7 @@ class _RespirationScreenState extends State<RespirationScreen>
                             strokeWidth: 4,
                             backgroundColor: couleurs.outlineVariant,
                           ),
-                          Text('${math.max(restant, 0)}',
-                              style: theme.textTheme.titleMedium),
+                          Text('${math.max(restant, 0)}', style: theme.textTheme.titleMedium),
                         ],
                       ),
                     ),
@@ -199,34 +196,37 @@ class _Suggestions extends StatelessWidget {
     return ListView(
       key: const ValueKey('suggestions'),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      children: [
-        Text('Bravo pour cette pause 🌸',
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 8),
-        const Text(
-          'Si tu as vraiment faim, mange : c\'est ton corps qui parle, et c\'est '
-          'très bien. Prends le temps de t\'asseoir et de savourer 💗\n\n'
-          'Si c\'était plutôt une envie, voici quelques idées :',
-        ),
-        const SizedBox(height: 12),
-        for (final (emoji, titre, texte) in _idees)
-          Card(
-            child: ListTile(
-              leading: Text(emoji, style: const TextStyle(fontSize: 28)),
-              title: Text(titre, style: const TextStyle(fontWeight: FontWeight.w700)),
-              subtitle: Text(texte),
-            ),
-          ),
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.home_rounded),
-          label: const Text('Retour à l\'accueil'),
-        ),
-      ]
-          .animate(interval: 60.ms)
-          .fadeIn(duration: 350.ms)
-          .slideY(begin: 0.08, curve: Curves.easeOutCubic),
+      children:
+          [
+                Text(
+                  'Bravo pour cette pause 🌸',
+                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Si tu as vraiment faim, mange : c\'est ton corps qui parle, et c\'est '
+                  'très bien. Prends le temps de t\'asseoir et de savourer 💗\n\n'
+                  'Si c\'était plutôt une envie, voici quelques idées :',
+                ),
+                const SizedBox(height: 12),
+                for (final (emoji, titre, texte) in _idees)
+                  Card(
+                    child: ListTile(
+                      leading: Text(emoji, style: const TextStyle(fontSize: 28)),
+                      title: Text(titre, style: const TextStyle(fontWeight: FontWeight.w700)),
+                      subtitle: Text(texte),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.home_rounded),
+                  label: const Text('Retour à l\'accueil'),
+                ),
+              ]
+              .animate(interval: 60.ms)
+              .fadeIn(duration: 350.ms)
+              .slideY(begin: 0.08, curve: Curves.easeOutCubic),
     );
   }
 }

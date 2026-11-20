@@ -38,8 +38,9 @@ class PlanService {
         .toList();
     if (lignes.isEmpty || !_memeMarqueur(lignes.first)) {
       throw const ErreurPlan(
-          'Ce texte ne ressemble pas à un plan Kira\'s FAT : la première ligne '
-          'doit être « [[Kira\'s FAT · plan]] ». Vérifie que tout a bien été copié.');
+        'Ce texte ne ressemble pas à un plan Kira\'s FAT : la première ligne '
+        'doit être « [[Kira\'s FAT · plan]] ». Vérifie que tout a bien été copié.',
+      );
     }
 
     String titre = 'Mon plan nutritionnel';
@@ -62,12 +63,14 @@ class PlanService {
     void fermerSection() {
       fermerGroupe();
       if (titreSection != null && (groupes.isNotEmpty || menu.isNotEmpty)) {
-        sections.add(SectionPlan(
-          titre: titreSection,
-          type: menu.isNotEmpty ? TypeSection.menu : _typeDe(titreSection),
-          groupes: List.of(groupes),
-          menu: List.of(menu),
-        ));
+        sections.add(
+          SectionPlan(
+            titre: titreSection,
+            type: menu.isNotEmpty ? TypeSection.menu : _typeDe(titreSection),
+            groupes: List.of(groupes),
+            menu: List.of(menu),
+          ),
+        );
       }
       groupes.clear();
       menu.clear();
@@ -139,18 +142,35 @@ class PlanService {
   /// « Fritures » → « friture », « Œuf dur » → « oeuf dur ».
   static String normaliser(String texte) {
     const accents = {
-      'à': 'a', 'â': 'a', 'ä': 'a', 'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-      'î': 'i', 'ï': 'i', 'ô': 'o', 'ö': 'o', 'ù': 'u', 'û': 'u', 'ü': 'u',
-      'ç': 'c', 'œ': 'oe', 'æ': 'ae', '’': "'",
+      'à': 'a',
+      'â': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ê': 'e',
+      'ë': 'e',
+      'î': 'i',
+      'ï': 'i',
+      'ô': 'o',
+      'ö': 'o',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
+      'ç': 'c',
+      'œ': 'oe',
+      'æ': 'ae',
+      '’': "'",
     };
     var t = texte.toLowerCase();
     accents.forEach((a, b) => t = t.replaceAll(a, b));
     return t
         .split(RegExp(r'\s+'))
         .where((m) => m.isNotEmpty)
-        .map((m) => m.length > 3 && (m.endsWith('s') || m.endsWith('x'))
-            ? m.substring(0, m.length - 1)
-            : m)
+        .map(
+          (m) => m.length > 3 && (m.endsWith('s') || m.endsWith('x'))
+              ? m.substring(0, m.length - 1)
+              : m,
+        )
         .join(' ');
   }
 

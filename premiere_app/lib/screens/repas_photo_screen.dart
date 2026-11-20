@@ -42,8 +42,8 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
   int _proteines = 1;
   int _feculents = 1;
 
-  Portions get _portions => Portions.normalisees(
-      _legumes.toDouble(), _proteines.toDouble(), _feculents.toDouble());
+  Portions get _portions =>
+      Portions.normalisees(_legumes.toDouble(), _proteines.toDouble(), _feculents.toDouble());
 
   Future<void> _choisirPhoto() async {
     try {
@@ -61,9 +61,11 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('La photo n\'a pas pu être ouverte. Tu peux continuer sans 🌸'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La photo n\'a pas pu être ouverte. Tu peux continuer sans 🌸'),
+        ),
+      );
     }
   }
 
@@ -89,9 +91,8 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
       await recompenses.ajusterDefi(widget.date, Defi.legumes, 1);
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${_repas.emoji} Repas noté, bon appétit !')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('${_repas.emoji} Repas noté, bon appétit !')));
     Navigator.of(context).pop(true); // true : un repas a été enregistré
   }
 
@@ -107,15 +108,15 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
               duration: const Duration(milliseconds: 400),
               child: switch (_etape) {
                 _Etape.photo => _ChoixPhoto(
-                    key: const ValueKey('photo'),
-                    onPhoto: _choisirPhoto,
-                    onSansPhoto: _sansPhoto,
-                  ),
+                  key: const ValueKey('photo'),
+                  onPhoto: _choisirPhoto,
+                  onSansPhoto: _sansPhoto,
+                ),
                 _Etape.preparation => _Preparation(
-                    key: const ValueKey('preparation'),
-                    photo: _photo!,
-                    onTerminee: () => setState(() => _etape = _Etape.portions),
-                  ),
+                  key: const ValueKey('preparation'),
+                  photo: _photo!,
+                  onTerminee: () => setState(() => _etape = _Etape.portions),
+                ),
                 _Etape.portions => _portionsVue(context),
               },
             ),
@@ -130,7 +131,13 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
     final portions = _portions;
     final idee = AssietteService.idee(portions);
 
-    Widget curseur(String emoji, String nom, Color couleur, int valeur, ValueChanged<int> onChange) {
+    Widget curseur(
+      String emoji,
+      String nom,
+      Color couleur,
+      int valeur,
+      ValueChanged<int> onChange,
+    ) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -164,104 +171,131 @@ class _RepasPhotoScreenState extends State<RepasPhotoScreen> {
     return ListView(
       key: const ValueKey('portions'),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-      children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                // Photo (si prise) et assiette côte à côte.
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    if (_photo != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.memory(_photo!, width: 130, height: 130, fit: BoxFit.cover),
-                      ),
-                    Assiette(portions: portions, taille: 160),
-                  ],
+      children:
+          [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        // Photo (si prise) et assiette côte à côte.
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            if (_photo != null)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.memory(
+                                  _photo!,
+                                  width: 130,
+                                  height: 130,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            Assiette(portions: portions, taille: 160),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        LegendeAssiette(portions: portions),
+                        const SizedBox(height: 12),
+                        Text(
+                          AssietteService.message(portions),
+                          key: const Key('message_assiette'),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        if (idee != null) ...[
+                          const SizedBox(height: 6),
+                          Text(idee, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                LegendeAssiette(portions: portions),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Qu\'y a-t-il dans ton assiette ?',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Indique simplement les quantités, à vue d\'œil.',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        curseur(
+                          '🥦',
+                          'Légumes',
+                          CouleursAssiette.legumes,
+                          _legumes,
+                          (v) => _legumes = v,
+                        ),
+                        curseur(
+                          '🍗',
+                          'Protéines',
+                          CouleursAssiette.proteines,
+                          _proteines,
+                          (v) => _proteines = v,
+                        ),
+                        curseur(
+                          '🍚',
+                          'Féculents',
+                          CouleursAssiette.feculents,
+                          _feculents,
+                          (v) => _feculents = v,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Quel repas ?', style: theme.textTheme.titleMedium),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final r in Repas.values)
+                              ChoiceChip(
+                                avatar: Text(r.emoji),
+                                label: Text(r.libelle),
+                                selected: _repas == r,
+                                onSelected: (_) => setState(() => _repas = r),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FilledButton.icon(
+                  key: const Key('bouton_enregistrer_repas'),
+                  onPressed: portions.total > 0 ? _enregistrer : null,
+                  icon: const Icon(Icons.check_rounded),
+                  label: const Text('Enregistrer ce repas'),
+                ),
                 const SizedBox(height: 12),
                 Text(
-                  AssietteService.message(portions),
-                  key: const Key('message_assiette'),
+                  'Repère : ½ légumes · ¼ protéines · ¼ féculents. C\'est un repère, '
+                  'pas une règle : chaque repas compte, et l\'équilibre se fait sur la semaine.',
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.bodySmall,
                 ),
-                if (idee != null) ...[
-                  const SizedBox(height: 6),
-                  Text(idee, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
-                ],
-              ],
-            ),
-          ),
-        ),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Qu\'y a-t-il dans ton assiette ?', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 4),
-                Text('Indique simplement les quantités, à vue d\'œil.',
-                    style: theme.textTheme.bodySmall),
-                const SizedBox(height: 12),
-                curseur('🥦', 'Légumes', CouleursAssiette.legumes, _legumes, (v) => _legumes = v),
-                curseur('🍗', 'Protéines', CouleursAssiette.proteines, _proteines,
-                    (v) => _proteines = v),
-                curseur('🍚', 'Féculents', CouleursAssiette.feculents, _feculents,
-                    (v) => _feculents = v),
-              ],
-            ),
-          ),
-        ),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Quel repas ?', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final r in Repas.values)
-                      ChoiceChip(
-                        avatar: Text(r.emoji),
-                        label: Text(r.libelle),
-                        selected: _repas == r,
-                        onSelected: (_) => setState(() => _repas = r),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        FilledButton.icon(
-          key: const Key('bouton_enregistrer_repas'),
-          onPressed: portions.total > 0 ? _enregistrer : null,
-          icon: const Icon(Icons.check_rounded),
-          label: const Text('Enregistrer ce repas'),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          'Repère : ½ légumes · ¼ protéines · ¼ féculents. C\'est un repère, '
-          'pas une règle : chaque repas compte, et l\'équilibre se fait sur la semaine.',
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodySmall,
-        ),
-      ]
-          .animate(interval: 60.ms)
-          .fadeIn(duration: 350.ms)
-          .slideY(begin: 0.06, curve: Curves.easeOutCubic),
+              ]
+              .animate(interval: 60.ms)
+              .fadeIn(duration: 350.ms)
+              .slideY(begin: 0.06, curve: Curves.easeOutCubic),
     );
   }
 }
@@ -281,23 +315,28 @@ class _ChoixPhoto extends StatelessWidget {
       children: [
         const SizedBox(height: 24),
         Center(
-          child: Container(
-            width: 140,
-            height: 140,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: const Text('📸', style: TextStyle(fontSize: 64)),
-          )
-              .animate()
-              .scale(begin: const Offset(0.6, 0.6), duration: 700.ms, curve: Curves.elasticOut),
+          child:
+              Container(
+                width: 140,
+                height: 140,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: const Text('📸', style: TextStyle(fontSize: 64)),
+              ).animate().scale(
+                begin: const Offset(0.6, 0.6),
+                duration: 700.ms,
+                curve: Curves.elasticOut,
+              ),
         ),
         const SizedBox(height: 24),
-        Text('Ton assiette en photo',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+        Text(
+          'Ton assiette en photo',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
         const SizedBox(height: 8),
         Text(
           'Prends ton repas en photo, puis indique toi-même ce qu\'il contient. '
@@ -339,9 +378,9 @@ class _Preparation extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(28),
-            child: Image.memory(photo, width: 240, height: 240, fit: BoxFit.cover),
-          )
+                borderRadius: BorderRadius.circular(28),
+                child: Image.memory(photo, width: 240, height: 240, fit: BoxFit.cover),
+              )
               .animate(onComplete: (_) => onTerminee())
               .scale(begin: const Offset(0.9, 0.9), duration: 400.ms, curve: Curves.easeOut)
               .then()
@@ -350,9 +389,10 @@ class _Preparation extends StatelessWidget {
               .then()
               .shimmer(duration: 700.ms, color: Colors.white.withValues(alpha: 0.7)),
           const SizedBox(height: 20),
-          Text('Je prépare ton assiette…', style: theme.textTheme.titleMedium)
-              .animate()
-              .fadeIn(duration: 400.ms),
+          Text(
+            'Je prépare ton assiette…',
+            style: theme.textTheme.titleMedium,
+          ).animate().fadeIn(duration: 400.ms),
         ],
       ),
     );

@@ -13,17 +13,21 @@ void main() {
   test('le ton vient uniquement des ressentis (stress inversé)', () {
     expect(JournalService.ton(const JourHabitudes(verres: 8)), isNull);
     expect(
-      JournalService.ton(const JourHabitudes(
-          ressentis: {Ressenti.energie: 5, Ressenti.stress: 1, Ressenti.sommeil: 5})),
+      JournalService.ton(
+        const JourHabitudes(
+          ressentis: {Ressenti.energie: 5, Ressenti.stress: 1, Ressenti.sommeil: 5},
+        ),
+      ),
       TonJour.lumineuse,
     );
     expect(
-      JournalService.ton(const JourHabitudes(
-          ressentis: {Ressenti.energie: 1, Ressenti.stress: 5})),
+      JournalService.ton(const JourHabitudes(ressentis: {Ressenti.energie: 1, Ressenti.stress: 5})),
       TonJour.cocooning,
     );
-    expect(JournalService.ton(const JourHabitudes(ressentis: {Ressenti.energie: 3})),
-        TonJour.tranquille);
+    expect(
+      JournalService.ton(const JourHabitudes(ressentis: {Ressenti.energie: 3})),
+      TonJour.tranquille,
+    );
   });
 
   test('aujourd\'hui / hier', () {
@@ -64,14 +68,16 @@ void main() {
     await ouvrirHabitudes(tester);
 
     final champ = find.byKey(const Key('champ_note_journal'));
-    await tester.scrollUntilVisible(champ, 300,
-        scrollable: find
-            .descendant(of: find.byType(PageView), matching: find.byType(Scrollable))
-            .last);
+    await tester.scrollUntilVisible(
+      champ,
+      300,
+      scrollable: find
+          .descendant(of: find.byType(PageView), matching: find.byType(Scrollable))
+          .last,
+    );
     await tester.enterText(champ, 'Belle balade avec ma sœur');
     await tester.pump(const Duration(seconds: 1)); // délai d'enregistrement
-    expect(HabitudesProvider(stockage).jour(DateTime.now()).note,
-        'Belle balade avec ma sœur');
+    expect(HabitudesProvider(stockage).jour(DateTime.now()).note, 'Belle balade avec ma sœur');
   });
 
   testWidgets('choisir un jour dans le calendrier', (tester) async {
@@ -87,13 +93,16 @@ void main() {
     expect(find.text('Comment lire ton calendrier'), findsOneWidget);
 
     // On choisit le 1er du mois (aujourd'hui si on est le 1er).
-    await tester.tap(find.descendant(
-        of: find.byType(CalendrierScreen), matching: find.text('1')).first);
+    await tester.tap(
+      find.descendant(of: find.byType(CalendrierScreen), matching: find.text('1')).first,
+    );
     await tester.pumpAndSettle();
     expect(find.byType(CalendrierScreen), findsNothing);
     final premier = DateTime.now().day == 1;
-    expect(find.text(premier ? 'Aujourd\'hui' : 'Hier'),
-        DateTime.now().day == 2 || premier ? findsOneWidget : findsNothing);
+    expect(
+      find.text(premier ? 'Aujourd\'hui' : 'Hier'),
+      DateTime.now().day == 2 || premier ? findsOneWidget : findsNothing,
+    );
   });
 
   testWidgets('calendrier sans débordement sur petit téléphone', (tester) async {

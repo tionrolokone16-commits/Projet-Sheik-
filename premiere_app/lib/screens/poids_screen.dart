@@ -27,8 +27,7 @@ class _PoidsScreenState extends State<PoidsScreen> {
     final poids = context.read<PoidsProvider>();
     final saisie = await afficherDialoguePesee(
       context,
-      poidsPropose: poids.derniere?.poidsKg ??
-          context.read<ProfilProvider>().profil?.poidsDepartKg,
+      poidsPropose: poids.derniere?.poidsKg ?? context.read<ProfilProvider>().profil?.poidsDepartKg,
     );
     if (saisie == null) return;
     await poids.ajouter(saisie.date, saisie.poidsKg);
@@ -45,10 +44,7 @@ class _PoidsScreenState extends State<PoidsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Pesée supprimée'),
-        action: SnackBarAction(
-          label: 'Annuler',
-          onPressed: () => poids.restaurer(supprimee),
-        ),
+        action: SnackBarAction(label: 'Annuler', onPressed: () => poids.restaurer(supprimee)),
       ),
     );
   }
@@ -78,144 +74,149 @@ class _PoidsScreenState extends State<PoidsScreen> {
             child: ListView(
               // Marge en bas pour ne pas cacher la liste sous le bouton.
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-              children: [
-                // ----- Résumé -----
-                if (derniere == null)
-                  const Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text(
-                        'Aucune pesée pour l\'instant. Quand tu le souhaites, '
-                        'ajoute ta première pesée avec le bouton en bas 🌱\n\n'
-                        'Astuce : se peser le matin, au réveil, donne des '
-                        'mesures plus faciles à comparer.',
-                      ),
-                    ),
-                  )
-                else
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Dernière pesée', style: theme.textTheme.titleMedium),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${formaterDecimal(derniere.poidsKg)} kg',
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            DateFormat('EEEE d MMMM', 'fr_FR').format(derniere.date),
-                            style: theme.textTheme.bodySmall,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(MessagesService.variation(
-                            poids.avantDerniere == null
-                                ? null
-                                : derniere.poidsKg - poids.avantDerniere!.poidsKg,
-                          )),
-                          if (profil != null) ...[
-                            const SizedBox(height: 16),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: LinearProgressIndicator(
-                                value: MessagesService.fractionParcourue(
-                                    profil, derniere.poidsKg),
-                                minHeight: 10,
+              children:
+                  [
+                        // ----- Résumé -----
+                        if (derniere == null)
+                          const Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text(
+                                'Aucune pesée pour l\'instant. Quand tu le souhaites, '
+                                'ajoute ta première pesée avec le bouton en bas 🌱\n\n'
+                                'Astuce : se peser le matin, au réveil, donne des '
+                                'mesures plus faciles à comparer.',
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              MessagesService.progression(profil, derniere.poidsKg),
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            OutlinedButton.icon(
-                              key: const Key('bouton_chemin_poids'),
-                              onPressed: () => Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const CheminScreen()),
+                          )
+                        else
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Dernière pesée', style: theme.textTheme.titleMedium),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${formaterDecimal(derniere.poidsKg)} kg',
+                                    style: theme.textTheme.headlineMedium?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('EEEE d MMMM', 'fr_FR').format(derniere.date),
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    MessagesService.variation(
+                                      poids.avantDerniere == null
+                                          ? null
+                                          : derniere.poidsKg - poids.avantDerniere!.poidsKg,
+                                    ),
+                                  ),
+                                  if (profil != null) ...[
+                                    const SizedBox(height: 16),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: LinearProgressIndicator(
+                                        value: MessagesService.fractionParcourue(
+                                          profil,
+                                          derniere.poidsKg,
+                                        ),
+                                        minHeight: 10,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      MessagesService.progression(profil, derniere.poidsKg),
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    OutlinedButton.icon(
+                                      key: const Key('bouton_chemin_poids'),
+                                      onPressed: () => Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (_) => const CheminScreen()),
+                                      ),
+                                      icon: const Icon(Icons.route_rounded),
+                                      label: const Text('Voir mon chemin des paliers'),
+                                    ),
+                                  ],
+                                ],
                               ),
-                              icon: const Icon(Icons.route_rounded),
-                              label: const Text('Voir mon chemin des paliers'),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 12),
-
-                // ----- Graphique -----
-                if (poids.pesees.isNotEmpty)
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Évolution', style: theme.textTheme.titleMedium),
-                          const SizedBox(height: 12),
-                          SegmentedButton<PeriodeGraphique>(
-                            segments: [
-                              for (final p in PeriodeGraphique.values)
-                                ButtonSegment(value: p, label: Text(p.libelle)),
-                            ],
-                            selected: {_periode},
-                            showSelectedIcon: false,
-                            onSelectionChanged: (s) =>
-                                setState(() => _periode = s.first),
-                          ),
-                          const SizedBox(height: 16),
-                          GraphiquePoids(
-                            pesees: poids.pesees,
-                            periode: _periode,
-                            poidsObjectifKg: profil?.poidsObjectifKg,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Trait plein : tes pesées · pointillés : ta tendance '
-                            'sur 7 jours, plus fidèle que les variations du quotidien.',
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 12),
-
-                // ----- Historique -----
-                if (historique.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                    child: Text('Historique', style: theme.textTheme.titleMedium),
-                  ),
-                  Card(
-                    child: Column(
-                      children: [
-                        for (final p in historique)
-                          ListTile(
-                            leading: const Icon(Icons.monitor_weight_outlined),
-                            title: Text('${formaterDecimal(p.poidsKg)} kg'),
-                            subtitle: Text(
-                                DateFormat('EEEE d MMMM y', 'fr_FR').format(p.date)),
-                            trailing: IconButton(
-                              tooltip: 'Supprimer',
-                              icon: const Icon(Icons.delete_outline),
-                              onPressed: () => _supprimer(p),
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-                ],
-              ]
-                  .animate(interval: 60.ms)
-                  .fadeIn(duration: 350.ms)
-                  .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+                        const SizedBox(height: 12),
+
+                        // ----- Graphique -----
+                        if (poids.pesees.isNotEmpty)
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Évolution', style: theme.textTheme.titleMedium),
+                                  const SizedBox(height: 12),
+                                  SegmentedButton<PeriodeGraphique>(
+                                    segments: [
+                                      for (final p in PeriodeGraphique.values)
+                                        ButtonSegment(value: p, label: Text(p.libelle)),
+                                    ],
+                                    selected: {_periode},
+                                    showSelectedIcon: false,
+                                    onSelectionChanged: (s) => setState(() => _periode = s.first),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  GraphiquePoids(
+                                    pesees: poids.pesees,
+                                    periode: _periode,
+                                    poidsObjectifKg: profil?.poidsObjectifKg,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Trait plein : tes pesées · pointillés : ta tendance '
+                                    'sur 7 jours, plus fidèle que les variations du quotidien.',
+                                    style: theme.textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 12),
+
+                        // ----- Historique -----
+                        if (historique.isNotEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                            child: Text('Historique', style: theme.textTheme.titleMedium),
+                          ),
+                          Card(
+                            child: Column(
+                              children: [
+                                for (final p in historique)
+                                  ListTile(
+                                    leading: const Icon(Icons.monitor_weight_outlined),
+                                    title: Text('${formaterDecimal(p.poidsKg)} kg'),
+                                    subtitle: Text(
+                                      DateFormat('EEEE d MMMM y', 'fr_FR').format(p.date),
+                                    ),
+                                    trailing: IconButton(
+                                      tooltip: 'Supprimer',
+                                      icon: const Icon(Icons.delete_outline),
+                                      onPressed: () => _supprimer(p),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ]
+                      .animate(interval: 60.ms)
+                      .fadeIn(duration: 350.ms)
+                      .slideY(begin: 0.05, curve: Curves.easeOutCubic),
             ),
           ),
         ),

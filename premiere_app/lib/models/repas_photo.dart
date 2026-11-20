@@ -48,35 +48,33 @@ class RepasPhoto {
     TaillePortion? taille,
     Map<RessentiRepas, int>? ressentis,
     bool retirerPhoto = false,
-  }) =>
-      RepasPhoto(
-        id: id,
-        date: date,
-        repas: repas ?? this.repas,
-        portions: portions,
-        photoBase64: retirerPhoto ? null : photoBase64,
-        nomPlat: nomPlat,
-        emojiPlat: emojiPlat,
-        taille: taille ?? this.taille,
-        ressentis: ressentis ?? this.ressentis,
-      );
+  }) => RepasPhoto(
+    id: id,
+    date: date,
+    repas: repas ?? this.repas,
+    portions: portions,
+    photoBase64: retirerPhoto ? null : photoBase64,
+    nomPlat: nomPlat,
+    emojiPlat: emojiPlat,
+    taille: taille ?? this.taille,
+    ressentis: ressentis ?? this.ressentis,
+  );
 
   RepasPhoto sansPhoto() => copyWith(retirerPhoto: true);
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'date': date.toIso8601String(),
-        'repas': repas.name,
-        'legumes': portions.legumes,
-        'proteines': portions.proteines,
-        'feculents': portions.feculents,
-        if (photoBase64 != null) 'photo': photoBase64,
-        if (nomPlat != null) 'plat': nomPlat,
-        if (emojiPlat != null) 'emoji': emojiPlat,
-        'taille': taille.name,
-        if (ressentis.isNotEmpty)
-          'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
-      };
+    'id': id,
+    'date': date.toIso8601String(),
+    'repas': repas.name,
+    'legumes': portions.legumes,
+    'proteines': portions.proteines,
+    'feculents': portions.feculents,
+    if (photoBase64 != null) 'photo': photoBase64,
+    if (nomPlat != null) 'plat': nomPlat,
+    if (emojiPlat != null) 'emoji': emojiPlat,
+    'taille': taille.name,
+    if (ressentis.isNotEmpty) 'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
+  };
 
   factory RepasPhoto.fromJson(Map<String, dynamic> json) {
     final ressentis = <RessentiRepas, int>{};
@@ -88,8 +86,7 @@ class RepasPhoto {
     return RepasPhoto(
       id: json['id'] as String,
       date: DateTime.parse(json['date'] as String),
-      repas: Repas.values.firstWhere((r) => r.name == json['repas'],
-          orElse: () => Repas.dejeuner),
+      repas: Repas.values.firstWhere((r) => r.name == json['repas'], orElse: () => Repas.dejeuner),
       portions: Portions(
         legumes: (json['legumes'] as num).toDouble(),
         proteines: (json['proteines'] as num).toDouble(),

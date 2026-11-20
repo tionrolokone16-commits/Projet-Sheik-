@@ -52,15 +52,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   /// Profil construit à partir des réponses (utilisé sur la page récapitulatif).
   Profil get _profil => Profil(
-        prenom: _prenom.text.trim(),
-        age: lireDecimal(_age.text)!.round(),
-        tailleCm: lireDecimal(_taille.text)!,
-        poidsDepartKg: lireDecimal(_poidsDepart.text)!,
-        poidsObjectifKg: lireDecimal(_poidsObjectif.text)!,
-        niveauActivite: _niveau,
-        sexe: _sexe,
-        photoBase64: _photo,
-      );
+    prenom: _prenom.text.trim(),
+    age: lireDecimal(_age.text)!.round(),
+    tailleCm: lireDecimal(_taille.text)!,
+    poidsDepartKg: lireDecimal(_poidsDepart.text)!,
+    poidsObjectifKg: lireDecimal(_poidsObjectif.text)!,
+    niveauActivite: _niveau,
+    sexe: _sexe,
+    photoBase64: _photo,
+  );
 
   void _verifierObjectif() {
     final tropBas = ValidationProfil.objectifTropBas(_taille.text, _poidsObjectif.text);
@@ -145,14 +145,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       FilledButton.icon(
                         key: const Key('bouton_suivant'),
                         onPressed: _suivant,
-                        icon: Icon(derniere
-                            ? Icons.favorite_rounded
-                            : Icons.arrow_forward_rounded),
-                        label: Text(_page == 0
-                            ? 'Commencer'
-                            : derniere
-                                ? 'C\'est parti !'
-                                : 'Suivant'),
+                        icon: Icon(derniere ? Icons.favorite_rounded : Icons.arrow_forward_rounded),
+                        label: Text(
+                          _page == 0
+                              ? 'Commencer'
+                              : derniere
+                              ? 'C\'est parti !'
+                              : 'Suivant',
+                        ),
                       ),
                     ],
                   ),
@@ -197,7 +197,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           },
         ),
         titre: 'Faisons connaissance',
-        texte: 'Touche le rond pour ajouter ta photo (facultatif). '
+        texte:
+            'Touche le rond pour ajouter ta photo (facultatif). '
             'Tes réponses restent sur ton appareil.',
         enfants: [
           TextFormField(
@@ -235,8 +236,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         titre: 'Un peu sur toi',
         texte: 'Pour calculer des repères adaptés à ton corps.',
         enfants: [
-          Text('Sexe (utilisé seulement pour le calcul)',
-              style: theme.textTheme.labelLarge),
+          Text('Sexe (utilisé seulement pour le calcul)', style: theme.textTheme.labelLarge),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -273,7 +273,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: _PageOnboarding(
         emoji: '🎯',
         titre: 'Ton objectif',
-        texte: 'Pas d\'urgence : perdre 0,25 à 0,5 kg par semaine, '
+        texte:
+            'Pas d\'urgence : perdre 0,25 à 0,5 kg par semaine, '
             'c\'est idéal pour durer.',
         enfants: [
           TextFormField(
@@ -338,7 +339,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return _PageOnboarding(
       emoji: '🎉',
       titre: 'Tout est prêt, ${profil.prenom} !',
-      texte: 'Voici ton premier repère. Tu pourras tout modifier '
+      texte:
+          'Voici ton premier repère. Tu pourras tout modifier '
           'dans l\'onglet Profil.',
       enfants: [CarteObjectifCalorique(profil: profil)],
     );
@@ -373,42 +375,40 @@ class _PageOnboarding extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       children: [
         Center(
-          child: (illustration ?? Container(
-            width: 120,
-            height: 120,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: Text(emoji, style: const TextStyle(fontSize: 56)),
-          ))
-              .animate()
-              .scale(
-                begin: const Offset(0.5, 0.5),
-                duration: 800.ms,
-                curve: Curves.elasticOut,
-              )
-              .fadeIn(duration: 300.ms),
+          child:
+              (illustration ??
+                      Container(
+                        width: 120,
+                        height: 120,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(emoji, style: const TextStyle(fontSize: 56)),
+                      ))
+                  .animate()
+                  .scale(begin: const Offset(0.5, 0.5), duration: 800.ms, curve: Curves.elasticOut)
+                  .fadeIn(duration: 300.ms),
         ),
         const SizedBox(height: 24),
         ...[
-          Text(
-            titre,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            texte,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 28),
-          ...enfants,
-        ]
+              Text(
+                titre,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                texte,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 28),
+              ...enfants,
+            ]
             .animate(interval: 70.ms, delay: 150.ms)
             .fadeIn(duration: 400.ms)
             .slideY(begin: 0.15, curve: Curves.easeOutCubic),
@@ -460,10 +460,7 @@ class _CarteChoix extends StatelessWidget {
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: BorderSide(
-            color: choisi ? couleurs.primary : Colors.transparent,
-            width: 2,
-          ),
+          side: BorderSide(color: choisi ? couleurs.primary : Colors.transparent, width: 2),
         ),
         clipBehavior: Clip.antiAlias,
         child: ListTile(
@@ -474,8 +471,11 @@ class _CarteChoix extends StatelessWidget {
           trailing: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
             child: choisi
-                ? Icon(Icons.check_circle_rounded,
-                    key: const ValueKey(true), color: couleurs.primary)
+                ? Icon(
+                    Icons.check_circle_rounded,
+                    key: const ValueKey(true),
+                    color: couleurs.primary,
+                  )
                 : const SizedBox(key: ValueKey(false), width: 24),
           ),
         ),
