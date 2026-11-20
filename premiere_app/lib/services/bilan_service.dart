@@ -48,6 +48,7 @@ class BilanSemaine {
     required this.ideesProposees,
     required this.ideesSuggerees,
     required this.repas,
+    this.habitudesParJour = const [0, 0, 0, 0, 0, 0, 0],
   });
 
   final DateTime lundi;
@@ -67,6 +68,9 @@ class BilanSemaine {
 
   /// Repas notés pendant la semaine (pour le partage).
   final List<RepasPhoto> repas;
+
+  /// Nombre d'habitudes prises en soin (0 à 4), du lundi au dimanche.
+  final List<int> habitudesParJour;
 
   bool get estVide => reussites.isEmpty;
 }
@@ -196,7 +200,29 @@ class BilanService {
       suggerees.add(IdeeSemaine.prepPetitDej);
     }
 
-    if (fringales.length >= 2) {
+    // Fringales selon le petit-déjeuner (seulement parmi les jours notés).
+    final joursAvecPetitDej = [
+      for (final d in jours)
+        if (jour(d).repas.contains(Repas.petitDejeuner)) cleDuJour(d),
+    ];
+    final joursSansPetitDej = [
+      for (final d in jours)
+        if (!jour(d).estVide && !jour(d).repas.contains(Repas.petitDejeuner)) cleDuJour(d),
+    ];
+    double parJour(List<String> cles) =>
+        fringales.where((f) => cles.contains(cleDuJour(f))).length / cles.length;
+    final fringalesSansPetitDej =
+        fringales.length >= 2 &&
+        joursAvecPetitDej.length >= 2 &&
+        joursSansPetitDej.length >= 2 &&
+        parJour(joursSansPetitDej) - parJour(joursAvecPetitDej) >= 0.5;
+    if (fringalesSansPetitDej) {
+      constats.add((
+        emoji: '🥐',
+        texte: 'Les fringales sont arrivées plus souvent les jours sans petit-déjeuner.',
+      ));
+      suggerees.add(IdeeSemaine.prepPetitDej);
+    } else if (fringales.length >= 2) {
       final avecStress = [for (final f in fringales) ?jour(f).ressentis[Ressenti.stress]];
       final stresses = avecStress.where((s) => s >= 4).length;
       final tardives = fringales.where((f) => f.hour >= 15).length;
@@ -265,6 +291,17 @@ class BilanService {
       ideesProposees: proposees,
       ideesSuggerees: suggerees.toSet(),
       repas: repas,
+      habitudesParJour: [
+        for (final d in jours)
+          HabitudesService.tenues(
+            jour(d),
+            activitesDuJour: [
+              for (final a in activitesSemaine)
+                if (cleDuJour(a.date) == cleDuJour(d)) a,
+            ],
+            objectifVerres: objectifVerres,
+          ).length,
+      ],
     );
   }
 
@@ -290,6 +327,14 @@ class BilanService {
     for (final l in bilan.reussites) {
       b.writeln('- ${l.texte}');
     }
+    // Habitudes jour par jour : « lun. 3 · mar. 2 · … ».
+    final jourSemaine = DateFormat('EEE', 'fr_FR');
+    final parJour = [
+      for (var i = 0; i < 7; i++)
+        '${jourSemaine.format(bilan.lundi.add(Duration(days: i, hours: 12)))} '
+            '${bilan.habitudesParJour[i]}',
+    ];
+    b.writeln('- Habitudes prises en soin (sur 4) : ${parJour.join(' · ')}');
     if (bilan.constats.isNotEmpty) {
       b
         ..writeln()

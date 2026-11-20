@@ -11,19 +11,45 @@ import '../providers/profil_provider.dart';
 import '../providers/recompenses_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/bilan_service.dart';
+import '../widgets/graphique_semaine.dart';
 
-/// Bilan de la semaine : ce qui s'est bien passé, quelques constats sans
-/// jugement, 1 ou 2 idées à choisir, et un résumé à partager avec sa ou
-/// son nutritionniste.
-class BilanScreen extends StatefulWidget {
+/// Écran « Mon bilan » (depuis l'accueil ou le profil).
+class BilanScreen extends StatelessWidget {
   const BilanScreen({super.key});
 
   @override
-  State<BilanScreen> createState() => _BilanScreenState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mon bilan')),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 700),
+            child: VueSemaine(lundiInitial: BilanService.semaineParDefaut(DateTime.now())),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _BilanScreenState extends State<BilanScreen> {
-  late DateTime _lundi = BilanService.semaineParDefaut(DateTime.now());
+/// Vue d'une semaine : graphique des habitudes, ce qui s'est bien passé,
+/// quelques constats sans jugement, 1 ou 2 idées à choisir, et un résumé
+/// à partager avec sa ou son nutritionniste.
+///
+/// Utilisée par « Mon bilan » et par la vue Semaine du calendrier.
+class VueSemaine extends StatefulWidget {
+  const VueSemaine({super.key, required this.lundiInitial});
+
+  /// Lundi de la semaine affichée au départ.
+  final DateTime lundiInitial;
+
+  @override
+  State<VueSemaine> createState() => _VueSemaineState();
+}
+
+class _VueSemaineState extends State<VueSemaine> {
+  late DateTime _lundi = widget.lundiInitial;
 
   /// Le partage n'inclut les pesées que si on le demande.
   bool _inclurePesees = false;
@@ -69,208 +95,211 @@ class _BilanScreenState extends State<BilanScreen> {
     );
     final format = DateFormat('d MMMM', 'fr_FR');
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mon bilan')),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-              children:
-                  [
-                        // ----- Choix de la semaine -----
-                        Row(
-                          children: [
-                            IconButton(
-                              tooltip: 'Semaine précédente',
-                              icon: const Icon(Icons.chevron_left_rounded),
-                              onPressed: () => _changerSemaine(-1),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+      children:
+          [
+                // ----- Choix de la semaine -----
+                Row(
+                  children: [
+                    IconButton(
+                      tooltip: 'Semaine précédente',
+                      icon: const Icon(Icons.chevron_left_rounded),
+                      onPressed: () => _changerSemaine(-1),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'Du ${format.format(bilan.lundi)} au ${format.format(bilan.dimanche)}',
+                        key: const Key('semaine_bilan'),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Semaine suivante',
+                      icon: const Icon(Icons.chevron_right_rounded),
+                      onPressed: _estSemaineActuelle ? null : () => _changerSemaine(1),
+                    ),
+                  ],
+                ),
+
+                // ----- Mot d'accueil -----
+                Card(
+                  color: theme.colorScheme.primaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          prenom.isEmpty ? 'Ta semaine 🌸' : 'Ta semaine, $prenom 🌸',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: theme.colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          bilan.estVide
+                              ? 'Une semaine toute douce. Chaque nouvelle semaine est une '
+                                    'page blanche 🌱'
+                              : 'Merci d\'avoir pris soin de toi cette semaine. Voici ce '
+                                    'que tes notes racontent 💗',
+                          style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ----- Graphique des habitudes -----
+                Card(
+                  key: const Key('graphique_semaine'),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 20, 20, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Text(
+                            'Mes habitudes jour par jour',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
                             ),
-                            Expanded(
-                              child: Text(
-                                'Du ${format.format(bilan.lundi)} au ${format.format(bilan.dimanche)}',
-                                key: const Key('semaine_bilan'),
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        GraphiqueSemaine(habitudesParJour: bilan.habitudesParJour),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ----- Ce qui s'est bien passé -----
+                if (!bilan.estVide)
+                  _CarteLignes(
+                    cle: const Key('bilan_reussites'),
+                    titre: 'Ce qui s\'est bien passé',
+                    lignes: bilan.reussites,
+                  ),
+
+                // ----- Constats -----
+                _CarteLignes(
+                  cle: const Key('bilan_constats'),
+                  titre: 'Ce que j\'observe',
+                  intro: bilan.constats.isEmpty
+                      ? 'Pas assez de notes pour observer des tendances cette semaine, '
+                            'et c\'est très bien comme ça.'
+                      : 'De simples constats, sans jugement :',
+                  lignes: bilan.constats,
+                ),
+
+                // ----- Idées pour la semaine suivante -----
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Mes idées pour la semaine prochaine',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Choisis-en 1 ou 2, si tu en as envie. Elles s\'afficheront '
+                          'sur ton accueil la semaine prochaine.',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        for (final idee in bilan.ideesProposees.take(6))
+                          CheckboxListTile(
+                            key: Key('idee_${idee.name}'),
+                            contentPadding: EdgeInsets.zero,
+                            value: ideesChoisies.contains(idee),
+                            onChanged:
+                                !ideesChoisies.contains(idee) &&
+                                    ideesChoisies.length >= RecompensesProvider.ideesMax
+                                ? null
+                                : (_) => recompenses.basculerIdee(lundiSuivant, idee.name),
+                            secondary: Text(idee.emoji, style: const TextStyle(fontSize: 24)),
+                            title: Text(idee.texte),
+                            subtitle: bilan.ideesSuggerees.contains(idee)
+                                ? const Text('✨ En lien avec ta semaine')
+                                : null,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ----- Partage -----
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Partager avec mon nutritionniste',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Un résumé de la semaine : habitudes, constats et journal des repas.',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        SwitchListTile(
+                          key: const Key('inclure_pesees'),
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Inclure mes pesées'),
+                          value: _inclurePesees,
+                          onChanged: (v) => setState(() => _inclurePesees = v),
+                        ),
+                        FilledButton.icon(
+                          key: const Key('bouton_partager_bilan'),
+                          onPressed: () => SharePlus.instance.share(
+                            ShareParams(text: texte, subject: 'Mon bilan de la semaine'),
+                          ),
+                          icon: const Icon(Icons.ios_share_rounded),
+                          label: const Text('Partager'),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton.icon(
+                          key: const Key('bouton_copier_bilan'),
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: texte));
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Résumé copié 📋 Tu peux le coller dans un message.'),
                               ),
-                            ),
-                            IconButton(
-                              tooltip: 'Semaine suivante',
-                              icon: const Icon(Icons.chevron_right_rounded),
-                              onPressed: _estSemaineActuelle ? null : () => _changerSemaine(1),
+                            );
+                          },
+                          icon: const Icon(Icons.copy_rounded),
+                          label: const Text('Copier le texte'),
+                        ),
+                        ExpansionTile(
+                          tilePadding: EdgeInsets.zero,
+                          title: const Text('Voir le résumé'),
+                          shape: const Border(),
+                          children: [
+                            SelectableText(
+                              texte,
+                              key: const Key('texte_bilan'),
+                              style: theme.textTheme.bodySmall,
                             ),
                           ],
                         ),
-
-                        // ----- Mot d'accueil -----
-                        Card(
-                          color: theme.colorScheme.primaryContainer,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  prenom.isEmpty ? 'Ta semaine 🌸' : 'Ta semaine, $prenom 🌸',
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: theme.colorScheme.onPrimaryContainer,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  bilan.estVide
-                                      ? 'Une semaine toute douce. Chaque nouvelle semaine est une '
-                                            'page blanche 🌱'
-                                      : 'Merci d\'avoir pris soin de toi cette semaine. Voici ce '
-                                            'que tes notes racontent 💗',
-                                  style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // ----- Ce qui s'est bien passé -----
-                        if (!bilan.estVide)
-                          _CarteLignes(
-                            cle: const Key('bilan_reussites'),
-                            titre: 'Ce qui s\'est bien passé',
-                            lignes: bilan.reussites,
-                          ),
-
-                        // ----- Constats -----
-                        _CarteLignes(
-                          cle: const Key('bilan_constats'),
-                          titre: 'Ce que j\'observe',
-                          intro: bilan.constats.isEmpty
-                              ? 'Pas assez de notes pour observer des tendances cette semaine, '
-                                    'et c\'est très bien comme ça.'
-                              : 'De simples constats, sans jugement :',
-                          lignes: bilan.constats,
-                        ),
-
-                        // ----- Idées pour la semaine suivante -----
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Mes idées pour la semaine prochaine',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Choisis-en 1 ou 2, si tu en as envie. Elles s\'afficheront '
-                                  'sur ton accueil la semaine prochaine.',
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: 8),
-                                for (final idee in bilan.ideesProposees.take(6))
-                                  CheckboxListTile(
-                                    key: Key('idee_${idee.name}'),
-                                    contentPadding: EdgeInsets.zero,
-                                    value: ideesChoisies.contains(idee),
-                                    onChanged:
-                                        !ideesChoisies.contains(idee) &&
-                                            ideesChoisies.length >= RecompensesProvider.ideesMax
-                                        ? null
-                                        : (_) => recompenses.basculerIdee(lundiSuivant, idee.name),
-                                    secondary: Text(
-                                      idee.emoji,
-                                      style: const TextStyle(fontSize: 24),
-                                    ),
-                                    title: Text(idee.texte),
-                                    subtitle: bilan.ideesSuggerees.contains(idee)
-                                        ? const Text('✨ En lien avec ta semaine')
-                                        : null,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        // ----- Partage -----
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  'Partager avec mon nutritionniste',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Un résumé de la semaine : habitudes, constats et journal des repas.',
-                                  style: theme.textTheme.bodySmall,
-                                ),
-                                SwitchListTile(
-                                  key: const Key('inclure_pesees'),
-                                  contentPadding: EdgeInsets.zero,
-                                  title: const Text('Inclure mes pesées'),
-                                  value: _inclurePesees,
-                                  onChanged: (v) => setState(() => _inclurePesees = v),
-                                ),
-                                FilledButton.icon(
-                                  key: const Key('bouton_partager_bilan'),
-                                  onPressed: () => SharePlus.instance.share(
-                                    ShareParams(text: texte, subject: 'Mon bilan de la semaine'),
-                                  ),
-                                  icon: const Icon(Icons.ios_share_rounded),
-                                  label: const Text('Partager'),
-                                ),
-                                const SizedBox(height: 8),
-                                OutlinedButton.icon(
-                                  key: const Key('bouton_copier_bilan'),
-                                  onPressed: () async {
-                                    await Clipboard.setData(ClipboardData(text: texte));
-                                    if (!context.mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Résumé copié 📋 Tu peux le coller dans un message.',
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.copy_rounded),
-                                  label: const Text('Copier le texte'),
-                                ),
-                                ExpansionTile(
-                                  tilePadding: EdgeInsets.zero,
-                                  title: const Text('Voir le résumé'),
-                                  shape: const Border(),
-                                  children: [
-                                    SelectableText(
-                                      texte,
-                                      key: const Key('texte_bilan'),
-                                      style: theme.textTheme.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ]
-                      .animate(interval: 60.ms)
-                      .fadeIn(duration: 350.ms)
-                      .slideY(begin: 0.05, curve: Curves.easeOutCubic),
-            ),
-          ),
-        ),
-      ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]
+              .animate(interval: 60.ms)
+              .fadeIn(duration: 350.ms)
+              .slideY(begin: 0.05, curve: Curves.easeOutCubic),
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:table_calendar/table_calendar.dart';
 import '../providers/habitudes_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/calendrier_service.dart';
+import '../services/recompenses_service.dart';
+import 'bilan_screen.dart';
 import '../widgets/vue_jour_habitudes.dart';
 
 /// Onglet Calendrier : le mois en un coup d'œil.
@@ -21,6 +23,9 @@ class CalendrierOngletScreen extends StatefulWidget {
 
 class _CalendrierOngletScreenState extends State<CalendrierOngletScreen> {
   DateTime _moisAffiche = DateTime.now();
+
+  /// Vue affichée : le mois (par défaut) ou la semaine.
+  bool _vueSemaine = false;
 
   /// Pages du calendrier (pour les flèches mois précédent / suivant).
   PageController? _pages;
@@ -65,83 +70,126 @@ class _CalendrierOngletScreenState extends State<CalendrierOngletScreen> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 700),
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 32),
+            child: Column(
               children: [
-                // En-tête du mois (dessiné par l'appli).
-                Row(
-                  children: [
-                    IconButton(
-                      key: const Key('mois_precedent'),
-                      tooltip: 'Mois précédent',
-                      icon: const Icon(Icons.chevron_left_rounded),
-                      onPressed: () => _changerMois(false),
-                    ),
-                    Expanded(
-                      child: Text(
-                        toBeginningOfSentenceCase(
-                          DateFormat('MMMM y', 'fr_FR').format(_moisAffiche),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<bool>(
+                      key: const Key('choix_vue'),
+                      segments: const [
+                        ButtonSegment(
+                          value: false,
+                          label: Text('Mois'),
+                          icon: Icon(Icons.calendar_view_month_rounded),
                         ),
-                        key: const Key('titre_mois'),
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                    ),
-                    IconButton(
-                      key: const Key('mois_suivant'),
-                      tooltip: 'Mois suivant',
-                      icon: const Icon(Icons.chevron_right_rounded),
-                      onPressed: _estMoisActuel ? null : () => _changerMois(true),
-                    ),
-                  ],
-                ),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
-                    child: TableCalendar<void>(
-                      locale: 'fr_FR',
-                      firstDay: DateTime(2020),
-                      lastDay: aujourdhui,
-                      focusedDay: _moisAffiche.isAfter(aujourdhui) ? aujourdhui : _moisAffiche,
-                      startingDayOfWeek: StartingDayOfWeek.monday,
-                      availableCalendarFormats: const {CalendarFormat.month: 'Mois'},
-                      rowHeight: 70,
-                      daysOfWeekHeight: 22,
-                      availableGestures: AvailableGestures.horizontalSwipe,
-                      // L'en-tête de table_calendar dépend de l'ancienne bibliothèque
-                      // Material : on le masque et on affiche le nôtre (ci-dessus).
-                      headerVisible: false,
-                      onCalendarCreated: (pages) => _pages = pages,
-                      daysOfWeekStyle: DaysOfWeekStyle(
-                        dowTextFormatter: (date, _) => 'LMMJVSD'[date.weekday - 1],
-                        weekdayStyle: theme.textTheme.labelMedium!.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                        ButtonSegment(
+                          value: true,
+                          label: Text('Semaine'),
+                          icon: Icon(Icons.bar_chart_rounded),
                         ),
-                        weekendStyle: theme.textTheme.labelMedium!.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      onPageChanged: (mois) => setState(() => _moisAffiche = mois),
-                      // Toutes les cases sont dessinées par l'appli (thème rose).
-                      calendarBuilders: CalendarBuilders<void>(
-                        defaultBuilder: (context, jour, _) => caseJour(jour),
-                        todayBuilder: (context, jour, _) => caseJour(jour, estAujourdhui: true),
-                        disabledBuilder: (context, jour, _) =>
-                            // Jours du mois suivant : rien (comme les autres jours hors du mois).
-                            jour.month == _moisAffiche.month
-                            ? caseJour(jour, futur: true)
-                            : const SizedBox.shrink(),
-                        outsideBuilder: (context, jour, _) => const SizedBox.shrink(),
-                      ),
+                      ],
+                      selected: {_vueSemaine},
+                      showSelectedIcon: false,
+                      onSelectionChanged: (choix) => setState(() => _vueSemaine = choix.first),
                     ),
                   ),
                 ),
-                const _Legende(),
+                Expanded(
+                  child: _vueSemaine
+                      // Semaine en cours : graphique, constats, idées et partage.
+                      ? VueSemaine(
+                          key: const Key('vue_semaine'),
+                          lundiInitial: RecompensesService.debutSemaine(DateTime.now()),
+                        )
+                      : _vueMois(context, theme, aujourdhui, caseJour),
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _vueMois(
+    BuildContext context,
+    ThemeData theme,
+    DateTime aujourdhui,
+    Widget Function(DateTime, {bool estAujourdhui, bool futur}) caseJour,
+  ) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 32),
+      children: [
+        // En-tête du mois (dessiné par l'appli).
+        Row(
+          children: [
+            IconButton(
+              key: const Key('mois_precedent'),
+              tooltip: 'Mois précédent',
+              icon: const Icon(Icons.chevron_left_rounded),
+              onPressed: () => _changerMois(false),
+            ),
+            Expanded(
+              child: Text(
+                toBeginningOfSentenceCase(DateFormat('MMMM y', 'fr_FR').format(_moisAffiche)),
+                key: const Key('titre_mois'),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ),
+            IconButton(
+              key: const Key('mois_suivant'),
+              tooltip: 'Mois suivant',
+              icon: const Icon(Icons.chevron_right_rounded),
+              onPressed: _estMoisActuel ? null : () => _changerMois(true),
+            ),
+          ],
+        ),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+            child: TableCalendar<void>(
+              locale: 'fr_FR',
+              firstDay: DateTime(2020),
+              lastDay: aujourdhui,
+              focusedDay: _moisAffiche.isAfter(aujourdhui) ? aujourdhui : _moisAffiche,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              availableCalendarFormats: const {CalendarFormat.month: 'Mois'},
+              rowHeight: 70,
+              daysOfWeekHeight: 22,
+              availableGestures: AvailableGestures.horizontalSwipe,
+              // L'en-tête de table_calendar dépend de l'ancienne bibliothèque
+              // Material : on le masque et on affiche le nôtre (ci-dessus).
+              headerVisible: false,
+              onCalendarCreated: (pages) => _pages = pages,
+              daysOfWeekStyle: DaysOfWeekStyle(
+                dowTextFormatter: (date, _) => 'LMMJVSD'[date.weekday - 1],
+                weekdayStyle: theme.textTheme.labelMedium!.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                weekendStyle: theme.textTheme.labelMedium!.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              onPageChanged: (mois) => setState(() => _moisAffiche = mois),
+              // Toutes les cases sont dessinées par l'appli (thème rose).
+              calendarBuilders: CalendarBuilders<void>(
+                defaultBuilder: (context, jour, _) => caseJour(jour),
+                todayBuilder: (context, jour, _) => caseJour(jour, estAujourdhui: true),
+                disabledBuilder: (context, jour, _) =>
+                    // Jours du mois suivant : rien (comme les autres jours hors du mois).
+                    jour.month == _moisAffiche.month
+                    ? caseJour(jour, futur: true)
+                    : const SizedBox.shrink(),
+                outsideBuilder: (context, jour, _) => const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+        const _Legende(),
+      ],
     );
   }
 }
