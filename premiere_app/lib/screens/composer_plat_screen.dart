@@ -15,11 +15,25 @@ import '../widgets/dialogue_nombre.dart';
 /// Sans [idRepas] : un nouveau repas est noté à [date].
 /// Avec [idRepas] : la composition de ce repas est modifiée.
 class ComposerPlatScreen extends StatefulWidget {
-  const ComposerPlatScreen({super.key, required this.date, this.moment, this.idRepas});
+  const ComposerPlatScreen({
+    super.key,
+    required this.date,
+    this.moment,
+    this.idRepas,
+    this.nomInitial,
+    this.emojiInitial,
+    this.ingredientsDuPlat = const [],
+  });
 
   final DateTime date;
   final Repas? moment;
   final String? idRepas;
+
+  /// Plat choisi dans la bibliothèque, le plan ou « Mes plats » : son nom
+  /// et ses ingrédients principaux (pour proposer les ingrédients habituels).
+  final String? nomInitial;
+  final String? emojiInitial;
+  final List<String> ingredientsDuPlat;
 
   @override
   State<ComposerPlatScreen> createState() => _ComposerPlatScreenState();
@@ -30,9 +44,14 @@ class _ComposerPlatScreenState extends State<ComposerPlatScreen> {
   final _nom = TextEditingController();
   late Repas _moment = widget.moment ?? AssietteService.repasSelonHeure(DateTime.now());
 
+  /// Ingrédients habituels du plat, proposés en une touche (sans poids).
+  List<Ingredient> _suggestions = const [];
+
   @override
   void initState() {
     super.initState();
+    _nom.text = widget.nomInitial ?? '';
+    var nomPlat = widget.nomInitial ?? '';
     // Modification d'un repas existant : on repart de sa composition.
     final id = widget.idRepas;
     if (id != null) {
@@ -40,9 +59,13 @@ class _ComposerPlatScreenState extends State<ComposerPlatScreen> {
       if (repas != null) {
         _composition.addAll(repas.composition);
         _nom.text = repas.nomPlat ?? '';
+        nomPlat = repas.nomPlat ?? '';
         _moment = repas.repas;
       }
     }
+    _suggestions = nomPlat.isEmpty
+        ? const []
+        : IngredientsService.suggestionsPour(nomPlat, widget.ingredientsDuPlat);
   }
 
   @override
@@ -71,16 +94,23 @@ class _ComposerPlatScreenState extends State<ComposerPlatScreen> {
       builder: (_) => const _ChoixIngredient(),
     );
     if (ingredient == null || !mounted) return;
-    final grammes = await _demanderGrammes(ingredient, ingredient.portionGrammes);
+    await _ajouter(ingredient);
+  }
+
+  /// Ajoute un ingrédient après avoir demandé son poids.
+  Future<void> _ajouter(Ingredient ingredient) async {
+    final grammes = await _demanderGrammes(ingredient, null);
     if (grammes == null || grammes == 0) return;
     setState(() => _composition.add(Composant(idIngredient: ingredient.id, grammes: grammes)));
   }
 
-  Future<int?> _demanderGrammes(Ingredient i, int initial) => demanderNombre(
+  Future<int?> _demanderGrammes(Ingredient i, int? initial) => demanderNombre(
     context,
     titre: '${i.emoji} ${i.nom}',
     initial: initial,
-    aide: '${i.kcal100g} kcal pour 100 g. Combien de grammes ?',
+    aide:
+        '${i.kcal100g} kcal pour 100 g. Combien de grammes ? '
+        '(une portion habituelle fait environ ${i.portionGrammes} g)',
     unite: 'g',
     maximum: 3000,
   );
@@ -108,7 +138,7 @@ class _ComposerPlatScreenState extends State<ComposerPlatScreen> {
         repas: _moment,
         portions: IngredientsService.portions(_composition),
         nomPlat: nom,
-        emojiPlat: '⚖️',
+        emojiPlat: widget.emojiInitial ?? '⚖️',
         kcalManuel: IngredientsService.kcal(_composition),
         composition: List.of(_composition),
       );
@@ -170,6 +200,29 @@ class _ComposerPlatScreenState extends State<ComposerPlatScreen> {
                         : IngredientsService.nomPropose(_composition),
                   ),
                 ),
+                // ----- Ingrédients habituels du plat -----
+                if (_suggestions.any((i) => !_composition.any((c) => c.idIngredient == i.id))) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Ingrédients habituels de ce plat : touche pour ajouter, puis indique les grammes',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final i in _suggestions)
+                        if (!_composition.any((c) => c.idIngredient == i.id))
+                          ActionChip(
+                            key: Key('suggestion_${i.id}'),
+                            avatar: Text(i.emoji),
+                            label: Text(i.nom.split(' (').first),
+                            onPressed: () => _ajouter(i),
+                          ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 16),
 
                 // ----- Total -----

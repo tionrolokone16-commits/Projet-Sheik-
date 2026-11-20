@@ -34,9 +34,13 @@ void main() {
     ecranIpad(tester);
     final stockage = await preparerStockage(avecProfil: true);
     final n = DateTime.now();
-    await HabitudesProvider(
-      stockage,
-    ).ajouterRepas(date: n, repas: Repas.dejeuner, portions: Portions.equilibre, nomPlat: 'Garba');
+    await HabitudesProvider(stockage).ajouterRepas(
+      date: n,
+      repas: Repas.dejeuner,
+      portions: Portions.equilibre,
+      nomPlat: 'Garba',
+      kcalManuel: 750,
+    );
     await PoidsProvider(stockage).ajouter(DateTime(n.year, n.month, n.day - 1), 78);
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();

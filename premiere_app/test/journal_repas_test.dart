@@ -9,6 +9,7 @@ import 'package:premiere_app/providers/habitudes_provider.dart';
 import 'package:premiere_app/providers/plan_provider.dart';
 import 'package:premiere_app/screens/accueil_screen.dart';
 import 'package:premiere_app/screens/ajouter_repas_screen.dart';
+import 'package:premiere_app/screens/composer_plat_screen.dart';
 import 'package:premiere_app/services/plats_service.dart';
 
 import 'outils.dart';
@@ -108,45 +109,41 @@ void main() {
   HabitudesProvider habitudes(WidgetTester tester) =>
       Provider.of<HabitudesProvider>(tester.element(find.byType(Scaffold).first), listen: false);
 
-  testWidgets('2 touches : le bouton, puis le plat — détails facultatifs', (tester) async {
+  testWidgets('choisir un plat ouvre sa composition : ingrédients habituels et grammes', (
+    tester,
+  ) async {
     ecranIpad(tester);
     await ouvrir(tester);
 
     await tester.tap(find.byKey(const Key('plat_ci_garba')));
     await tester.pumpAndSettle();
-    // Le repas est déjà noté, le panneau des détails est proposé.
-    expect(find.text('✓ 🥘 Garba, c\'est noté !'), findsOneWidget);
+    expect(find.byType(ComposerPlatScreen), findsOneWidget);
+    // Les ingrédients habituels du garba sont proposés, sans poids tout fait.
+    expect(find.byKey(const Key('suggestion_attieke')), findsOneWidget);
+    expect(find.byKey(const Key('suggestion_thon')), findsOneWidget);
+    expect(find.text('≈ 0 kcal'), findsOneWidget);
+
+    await composerEtNoter(tester, {'attieke': '250', 'thon': '100'});
+    expect(find.byType(AjouterRepasScreen), findsNothing);
     final repas = habitudes(tester).repasPhotos.single;
     expect(repas.nomPlat, 'Garba');
-
-    // Un détail facultatif : le plaisir.
-    final regal = find.text('🤩'); // niveau 5 du plaisir : « Un régal »
-    await tester.ensureVisible(regal);
-    await tester.pumpAndSettle();
-    await tester.tap(regal);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('bouton_terminer_repas')));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(AjouterRepasScreen), findsNothing);
-    final apres = habitudes(tester).repasPhotos.single;
-    expect(apres.ressentis[RessentiRepas.plaisir], 5);
+    expect(habitudes(tester).kcalRepas(repas), 400 + 200);
     // Le repas est aussi coché dans les habitudes du jour.
-    expect(habitudes(tester).jour(DateTime.now()).repas, contains(apres.repas));
+    expect(habitudes(tester).jour(DateTime.now()).repas, contains(repas.repas));
   });
 
-  testWidgets('« Selon mon plan » : le repas prévu en une touche', (tester) async {
+  testWidgets('« Selon mon plan » : le repas prévu, puis ses grammes', (tester) async {
     ecranIpad(tester);
     await ouvrir(tester, avecPlan: true);
     await tester.tap(find.byKey(const Key('plan_midi')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('bouton_terminer_repas')));
-    await tester.pumpAndSettle();
+    await composerEtNoter(tester, {'riz': '200', 'legumes_sauce': '150'});
 
     final repas = habitudes(tester).repasPhotos.single;
     expect(repas.nomPlat, 'Riz + sauce aubergine + poisson');
     expect(repas.repas, Repas.dejeuner);
     expect(repas.portions.legumes, greaterThan(0));
+    expect(habitudes(tester).kcalRepas(repas), 260 + 45);
   });
 
   testWidgets('ajouter mon plat, puis le noter', (tester) async {
@@ -163,6 +160,7 @@ void main() {
     expect(perso.nom, 'Sauce djoumgblé');
     await tester.tap(find.byKey(Key('plat_${perso.id}')));
     await tester.pumpAndSettle();
+    await composerEtNoter(tester, {'huile': '10'});
     expect(habitudes(tester).repasPhotos.single.nomPlat, 'Sauce djoumgblé');
   });
 
@@ -175,14 +173,10 @@ void main() {
     expect(find.byKey(const Key('plat_ci_garba')), findsNothing);
   });
 
-  testWidgets('chaque plat affiche ses calories estimées', (tester) async {
+  testWidgets('aucune calorie toute faite sur les plats', (tester) async {
     ecranIpad(tester);
     await ouvrir(tester);
-    final garba = find.byKey(const Key('plat_ci_garba'));
-    expect(
-      find.descendant(of: garba, matching: find.textContaining('≈\u00a0750\u00a0kcal')),
-      findsOneWidget,
-    );
+    expect(find.textContaining('kcal'), findsNothing);
     await tester.pump(const Duration(seconds: 2)); // fin des animations
   });
 }

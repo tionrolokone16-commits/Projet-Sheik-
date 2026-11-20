@@ -136,6 +136,16 @@ class TableauCalories extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
+            if (habitudes.repasACompleter(maintenant).isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '⚖️ ${habitudes.repasACompleter(maintenant).length} repas sans ingrédients : '
+                  'touche l\'anneau puis le repas pour indiquer les grammes.',
+                  key: const Key('tableau_a_completer'),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,

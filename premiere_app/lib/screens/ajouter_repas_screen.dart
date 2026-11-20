@@ -3,12 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../models/jour_habitudes.dart';
 import '../models/plat.dart';
-import '../models/recette.dart';
 import '../models/repas_photo.dart';
 import '../providers/habitudes_provider.dart';
 import '../providers/plan_provider.dart';
 import '../services/assiette_service.dart';
-import '../services/calories_service.dart';
 import '../services/plats_service.dart';
 import '../widgets/panneau_ressenti_repas.dart';
 import 'composer_plat_screen.dart';
@@ -17,7 +15,7 @@ import 'repas_photo_screen.dart';
 /// Noter un repas en 2 touches : on ouvre cet écran, on touche un plat.
 /// Le repas est enregistré tout de suite ; les détails sont facultatifs.
 ///
-/// Chaque plat affiche ses calories estimées (≈), sans jamais de remarque sur ce qui a été mangé.
+/// Choisir un plat ouvre sa composition : les calories viennent des ingrédients et des grammes.
 class AjouterRepasScreen extends StatefulWidget {
   const AjouterRepasScreen({super.key, required this.date, this.moment});
 
@@ -52,30 +50,35 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
     return DateTime(widget.date.year, widget.date.month, widget.date.day, heure);
   }
 
+  /// Choisir un plat ouvre « Composer mon plat » : les calories viennent
+  /// uniquement des ingrédients et des grammes indiqués.
   Future<void> _noter({
     required String nom,
     required String emoji,
-    required Portions portions,
+    List<String> ingredients = const [],
     Repas? moment,
   }) async {
-    final habitudes = context.read<HabitudesProvider>();
-    final m = moment ?? _moment;
-    final repas = await habitudes.ajouterRepas(
-      date: _horodatage(m),
-      repas: m,
-      portions: portions,
-      nomPlat: nom,
-      emojiPlat: emoji,
+    final note = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ComposerPlatScreen(
+          date: widget.date,
+          moment: moment ?? _moment,
+          nomInitial: nom,
+          emojiInitial: emoji,
+          ingredientsDuPlat: ingredients,
+        ),
+      ),
     );
-    if (!mounted) return;
-    // Détails facultatifs, puis retour à l'écran précédent.
-    await afficherPanneauRessentiRepas(context, repas.id, vientDEtreNote: true);
-    if (mounted) Navigator.of(context).pop();
+    if (note == true && mounted) Navigator.of(context).pop();
   }
 
   /// Ajout en une touche (favori, « comme hier ») : on note, on revient,
   /// et les détails restent possibles depuis le petit message.
   Future<void> _noterRapide(RepasPhoto modele) async {
+    // Sans ingrédients, on passe par la composition (pas de calories toutes faites).
+    if (modele.composition.isEmpty && modele.kcalManuel == null) {
+      return _noter(nom: modele.titre, emoji: modele.emojiPlat ?? '🍽️');
+    }
     final habitudes = context.read<HabitudesProvider>();
     final messager = ScaffoldMessenger.of(context);
     final navigateur = Navigator.of(context);
@@ -231,35 +234,20 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
                       cle: const Key('plan_petit_dej'),
                       moment: 'Petit-déjeuner',
                       texte: petitDej,
-                      onTap: () => _noter(
-                        nom: petitDej,
-                        emoji: '📋',
-                        portions: PlatsService.estimerPortions(petitDej),
-                        moment: Repas.petitDejeuner,
-                      ),
+                      onTap: () => _noter(nom: petitDej, emoji: '📋', moment: Repas.petitDejeuner),
                     ),
                   if (menu != null) ...[
                     _TuilePlan(
                       cle: const Key('plan_midi'),
                       moment: 'Midi',
                       texte: menu.midi,
-                      onTap: () => _noter(
-                        nom: menu.midi,
-                        emoji: '📋',
-                        portions: PlatsService.estimerPortions(menu.midi),
-                        moment: Repas.dejeuner,
-                      ),
+                      onTap: () => _noter(nom: menu.midi, emoji: '📋', moment: Repas.dejeuner),
                     ),
                     _TuilePlan(
                       cle: const Key('plan_soir'),
                       moment: 'Soir',
                       texte: menu.soir,
-                      onTap: () => _noter(
-                        nom: menu.soir,
-                        emoji: '📋',
-                        portions: PlatsService.estimerPortions(menu.soir),
-                        moment: Repas.diner,
-                      ),
+                      onTap: () => _noter(nom: menu.soir, emoji: '📋', moment: Repas.diner),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -358,7 +346,8 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
                       for (final p in plats)
                         _TuilePlat(
                           plat: p,
-                          onTap: () => _noter(nom: p.nom, emoji: p.emoji, portions: p.portions),
+                          onTap: () =>
+                              _noter(nom: p.nom, emoji: p.emoji, ingredients: p.ingredients),
                           onLongPress: p.pays == PaysPlat.mesPlats
                               ? () => _supprimerPlatPerso(p)
                               : null,
@@ -450,14 +439,7 @@ class _TuilePlat extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
-              // Drapeau et calories estimées d'une portion moyenne.
-              Text(
-                '${plat.pays.drapeau} ${CaloriesService.formater(CaloriesService.kcalPlat(plat))}',
-                maxLines: 1,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
+              Text(plat.pays.drapeau, style: const TextStyle(fontSize: 12)),
             ],
           ),
         ),

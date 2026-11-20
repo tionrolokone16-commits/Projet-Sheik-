@@ -118,7 +118,7 @@ class _Panneau extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // ----- Calories (estimées, modifiables) -----
+            // ----- Calories : d'après les ingrédients, ou saisies à la main -----
             Text('Calories', style: theme.textTheme.titleSmall),
             Row(
               children: [
@@ -127,14 +127,20 @@ class _Panneau extends StatelessWidget {
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: CaloriesService.formater(habitudes.kcalRepas(repas)),
+                          text: habitudes.kcalRepas(repas) == null
+                              ? 'À compléter'
+                              : CaloriesService.formater(habitudes.kcalRepas(repas)!),
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         TextSpan(
-                          text: repas.kcalManuel == null ? '  estimation' : '  saisi à la main',
+                          text: habitudes.kcalRepas(repas) == null
+                              ? '  ajoute les ingrédients et leurs grammes'
+                              : repas.composition.isNotEmpty
+                              ? '  d\'après les ingrédients'
+                              : '  saisi à la main',
                           style: theme.textTheme.bodySmall,
                         ),
                       ],
@@ -142,11 +148,6 @@ class _Panneau extends StatelessWidget {
                     key: const Key('kcal_repas'),
                   ),
                 ),
-                if (repas.kcalManuel != null)
-                  TextButton(
-                    onPressed: () => habitudes.definirKcalRepas(idRepas, null),
-                    child: const Text('Estimer'),
-                  ),
                 TextButton(
                   key: const Key('corriger_kcal'),
                   onPressed: () async {
@@ -154,13 +155,13 @@ class _Panneau extends StatelessWidget {
                       context,
                       titre: 'Calories de ce repas',
                       initial: habitudes.kcalRepas(repas),
-                      aide: 'Si tu connais la valeur (étiquette, appli…), tu peux la corriger.',
+                      aide: 'Si tu connais le total (étiquette d\'un produit…), tu peux le saisir.',
                       unite: 'kcal',
                       maximum: 5000,
                     );
                     if (kcal != null) await habitudes.definirKcalRepas(idRepas, kcal);
                   },
-                  child: const Text('Corriger'),
+                  child: const Text('Saisir le total'),
                 ),
               ],
             ),

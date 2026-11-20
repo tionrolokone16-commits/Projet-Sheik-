@@ -60,7 +60,11 @@ class CarteRecommandations extends StatelessWidget {
       activitesDuJour: habitudes.activitesDu(date),
       objectifVerres: objectifVerres,
       consomme: habitudes.kcalConsommees(date),
-      objectifKcal: objectifActuel(context)?.kcalParJour,
+      // Tant que des repas n'ont pas leurs ingrédients, le total serait faux :
+      // pas de conseil sur les calories.
+      objectifKcal: habitudes.repasACompleter(date).isEmpty
+          ? objectifActuel(context)?.kcalParJour
+          : null,
     );
     return Card(
       key: const Key('carte_recommandations'),

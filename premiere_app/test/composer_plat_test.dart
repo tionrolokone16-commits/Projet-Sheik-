@@ -75,7 +75,7 @@ void main() {
       portions: Portions.equilibre,
       nomPlat: 'Garba',
     );
-    expect(h.kcalRepas(garba), 750); // estimation du catalogue
+    expect(h.kcalRepas(garba), isNull); // aucune calorie toute faite
     await h.modifierComposition(garba.id, const [
       Composant(idIngredient: 'attieke', grammes: 250),
       Composant(idIngredient: 'thon', grammes: 100),

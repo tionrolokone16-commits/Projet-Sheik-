@@ -36,7 +36,7 @@ void main() {
       avecProfil: true,
       reglages: const Reglages(theme: ThemeChoisi.clair, rappelsRepas: false, bilanSoir: false),
     );
-    final r = await HabitudesProvider(stockage).ajouterRepas(
+    await HabitudesProvider(stockage).ajouterRepas(
       date: DateTime.now(),
       repas: Repas.dejeuner,
       portions: Portions.equilibre,
@@ -62,7 +62,12 @@ void main() {
         .state<NavigatorState>(find.byType(Navigator).first)
         .push(
           MaterialPageRoute(
-            builder: (_) => ComposerPlatScreen(date: DateTime.now(), idRepas: r.id),
+            builder: (_) => ComposerPlatScreen(
+              date: DateTime.now(),
+              nomInitial: 'Garba',
+              emojiInitial: '🥘',
+              ingredientsDuPlat: const ['attiéké', 'thon'],
+            ),
           ),
         );
     await tester.pumpAndSettle();

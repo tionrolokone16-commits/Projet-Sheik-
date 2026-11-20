@@ -115,165 +115,160 @@ class VueJourHabitudes extends StatelessWidget {
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-      children:
-          [
-                _CarteResume(tenues: tenues, aujourdhui: _estAujourdhui),
-                if (depense != null)
-                  _CarteEnergie(
-                    depense: depense,
-                    consomme: habitudes.kcalConsommees(date),
-                    objectif: objectifActuel(context)?.kcalParJour,
-                    aujourdhui: _estAujourdhui,
-                  ),
-                // Conseils du jour, une fois la journée complète.
-                CarteRecommandations(date: date),
-                _CarteEau(
-                  verres: jour.verres,
-                  objectif: objectifVerres,
-                  aujourdhui: _estAujourdhui,
-                  onAjouter: () => habitudes.ajouterVerre(date),
-                  onRetirer: () => habitudes.retirerVerre(date),
+      children: [
+        _CarteResume(tenues: tenues, aujourdhui: _estAujourdhui),
+        if (depense != null)
+          _CarteEnergie(
+            depense: depense,
+            consomme: habitudes.kcalConsommees(date),
+            objectif: objectifActuel(context)?.kcalParJour,
+            aujourdhui: _estAujourdhui,
+          ),
+        // Conseils du jour, une fois la journée complète.
+        CarteRecommandations(date: date),
+        _CarteEau(
+          verres: jour.verres,
+          objectif: objectifVerres,
+          aujourdhui: _estAujourdhui,
+          onAjouter: () => habitudes.ajouterVerre(date),
+          onRetirer: () => habitudes.retirerVerre(date),
+        ),
+        _Carte(
+          emoji: '💭',
+          titre: 'Comment te sens-tu ?',
+          enfant: Column(
+            children: [
+              for (final r in Ressenti.values) ...[
+                SelecteurRessenti(
+                  ressenti: r,
+                  valeur: jour.ressentis[r],
+                  onChoisir: (v) => habitudes.definirRessenti(date, r, v),
                 ),
-                _Carte(
-                  emoji: '💭',
-                  titre: 'Comment te sens-tu ?',
-                  enfant: Column(
-                    children: [
-                      for (final r in Ressenti.values) ...[
-                        SelecteurRessenti(
-                          ressenti: r,
-                          valeur: jour.ressentis[r],
-                          onChoisir: (v) => habitudes.definirRessenti(date, r, v),
-                        ),
-                        const SizedBox(height: 14),
-                      ],
-                      // La digestion est notée à part : elle ne change pas l'humeur.
-                      SelecteurRessenti(
-                        key: const Key('selecteur_digestion'),
-                        ressenti: Digestion.digestion,
-                        valeur: jour.digestion,
-                        onChoisir: (v) => habitudes.definirDigestion(date, v),
-                      ),
-                    ],
+                const SizedBox(height: 14),
+              ],
+              // La digestion est notée à part : elle ne change pas l'humeur.
+              SelecteurRessenti(
+                key: const Key('selecteur_digestion'),
+                ressenti: Digestion.digestion,
+                valeur: jour.digestion,
+                onChoisir: (v) => habitudes.definirDigestion(date, v),
+              ),
+            ],
+          ),
+        ),
+        // Suivi de cycle : seulement s'il est activé dans les réglages.
+        if (reglages.suiviCycle)
+          _Carte(
+            emoji: '🩸',
+            titre: 'Mon cycle',
+            enfant: FilterChip(
+              key: const Key('puce_regles'),
+              label: const Text('Jour de règles'),
+              selected: jour.regles,
+              onSelected: (_) => habitudes.basculerRegles(date),
+            ),
+          ),
+        _CarteSommeil(
+          heures: jour.sommeilHeures,
+          kcalNuit: depense == null || jour.sommeilHeures == null ? null : depense.sommeil,
+          onChanger: (h) => habitudes.definirSommeil(date, h),
+        ),
+        _Carte(
+          emoji: '🍽️',
+          titre: 'Mes repas',
+          enfant: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final r in Repas.values)
+                    FilterChip(
+                      avatar: Text(r.emoji),
+                      label: Text(r.libelle),
+                      selected: jour.repas.contains(r),
+                      showCheckmark: false,
+                      onSelected: (_) => habitudes.basculerRepas(date, r),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Prendre des repas réguliers aide ton corps à trouver son équilibre.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              // Repas notés avec leur assiette ce jour-là.
+              for (final r in habitudes.repasPhotosDu(date))
+                _LigneRepasPhoto(
+                  repas: r,
+                  kcal: habitudes.kcalRepas(r),
+                  onSupprimer: () => habitudes.supprimerRepasPhoto(r.id),
+                ),
+              if (habitudes.repasPhotosDu(date).isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    '🔥 ${CaloriesService.formater(habitudes.kcalConsommees(date))} '
+                    '${_estAujourdhui ? 'aujourd\'hui' : 'ce jour-là'}'
+                    '${habitudes.repasACompleter(date).isEmpty ? '' : ' · ${habitudes.repasACompleter(date).length} repas à compléter (touche-les)'}',
+                    key: const Key('total_kcal_jour'),
+                    style: Theme.of(context).textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-                // Suivi de cycle : seulement s'il est activé dans les réglages.
-                if (reglages.suiviCycle)
-                  _Carte(
-                    emoji: '🩸',
-                    titre: 'Mon cycle',
-                    enfant: FilterChip(
-                      key: const Key('puce_regles'),
-                      label: const Text('Jour de règles'),
-                      selected: jour.regles,
-                      onSelected: (_) => habitudes.basculerRegles(date),
+              if (!_estAujourdhui) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Un repas oublié ? Tu peux encore le noter ici, '
+                  'il rejoindra ce jour-là 💗',
+                  key: const Key('aide_repas_oublie'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                key: const Key('bouton_noter_repas'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => AjouterRepasScreen(
+                      date: date,
+                      // Pour un jour passé : le premier repas pas encore noté.
+                      moment: _estAujourdhui ? null : _premierRepasManquant(jour),
                     ),
                   ),
-                _CarteSommeil(
-                  heures: jour.sommeilHeures,
-                  kcalNuit: depense == null || jour.sommeilHeures == null ? null : depense.sommeil,
-                  onChanger: (h) => habitudes.definirSommeil(date, h),
                 ),
-                _Carte(
-                  emoji: '🍽️',
-                  titre: 'Mes repas',
-                  enfant: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (final r in Repas.values)
-                            FilterChip(
-                              avatar: Text(r.emoji),
-                              label: Text(r.libelle),
-                              selected: jour.repas.contains(r),
-                              showCheckmark: false,
-                              onSelected: (_) => habitudes.basculerRepas(date, r),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Prendre des repas réguliers aide ton corps à trouver son équilibre.',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      // Repas notés avec leur assiette ce jour-là.
-                      for (final r in habitudes.repasPhotosDu(date))
-                        _LigneRepasPhoto(
-                          repas: r,
-                          kcal: habitudes.kcalRepas(r),
-                          onSupprimer: () => habitudes.supprimerRepasPhoto(r.id),
-                        ),
-                      if (habitudes.repasPhotosDu(date).isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            '🔥 ${CaloriesService.formater(habitudes.kcalConsommees(date))} '
-                            '${_estAujourdhui ? 'aujourd\'hui' : 'ce jour-là'} (estimation)',
-                            key: const Key('total_kcal_jour'),
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                      if (!_estAujourdhui) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'Un repas oublié ? Tu peux encore le noter ici, '
-                          'il rejoindra ce jour-là 💗',
-                          key: const Key('aide_repas_oublie'),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        key: const Key('bouton_noter_repas'),
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => AjouterRepasScreen(
-                              date: date,
-                              // Pour un jour passé : le premier repas pas encore noté.
-                              moment: _estAujourdhui ? null : _premierRepasManquant(jour),
-                            ),
-                          ),
-                        ),
-                        icon: const Icon(Icons.restaurant_rounded),
-                        label: const Text('Noter un repas'),
-                      ),
-                    ],
-                  ),
-                ),
-                _CartePas(
-                  pas: jour.pas,
-                  kcal: poids == null || jour.pas == null
-                      ? null
-                      : DepenseService.kcalPas(jour.pas!, poids),
-                  onChanger: (p) => habitudes.definirPas(date, p),
-                ),
-                _CarteActivite(
-                  activitesDuJour: activitesDuJour,
-                  kcalDe: poids == null
-                      ? null
-                      : (a) => DepenseService.kcalActivite(a.type, a.dureeMinutes, poids),
-                  seanceFaite: jour.seanceFaite,
-                  onBasculerSeance: () => habitudes.basculerSeanceFaite(date),
-                  derniere: habitudes.derniereActivite,
-                  onAjouter: () => _noterActivite(context),
-                  onSupprimer: (a) => _supprimerActivite(context, a),
-                  seancesVisibles: seancesVisibles,
-                ),
-                // Au-dessus de l'objectif calorique : de quoi retrouver l'équilibre.
-                if (_estAujourdhui) const CarteEquilibre(),
-                _CarteNote(
-                  key: ValueKey('note-${cleDuJour(date)}'),
-                  note: jour.note ?? '',
-                  onChanger: (texte) => habitudes.definirNote(date, texte),
-                ),
-              ]
-              .animate(interval: 60.ms)
-              .fadeIn(duration: 350.ms)
-              .slideY(begin: 0.06, curve: Curves.easeOutCubic),
+                icon: const Icon(Icons.restaurant_rounded),
+                label: const Text('Noter un repas'),
+              ),
+            ],
+          ),
+        ),
+        _CartePas(
+          pas: jour.pas,
+          kcal: poids == null || jour.pas == null ? null : DepenseService.kcalPas(jour.pas!, poids),
+          onChanger: (p) => habitudes.definirPas(date, p),
+        ),
+        _CarteActivite(
+          activitesDuJour: activitesDuJour,
+          kcalDe: poids == null
+              ? null
+              : (a) => DepenseService.kcalActivite(a.type, a.dureeMinutes, poids),
+          seanceFaite: jour.seanceFaite,
+          onBasculerSeance: () => habitudes.basculerSeanceFaite(date),
+          derniere: habitudes.derniereActivite,
+          onAjouter: () => _noterActivite(context),
+          onSupprimer: (a) => _supprimerActivite(context, a),
+          seancesVisibles: seancesVisibles,
+        ),
+        // Au-dessus de l'objectif calorique : de quoi retrouver l'équilibre.
+        if (_estAujourdhui) const CarteEquilibre(),
+        _CarteNote(
+          key: ValueKey('note-${cleDuJour(date)}'),
+          note: jour.note ?? '',
+          onChanger: (texte) => habitudes.definirNote(date, texte),
+        ),
+      ].animate(interval: 60.ms).fadeIn(duration: 350.ms).slideY(begin: 0.06, curve: Curves.easeOutCubic),
     );
   }
 }
@@ -977,7 +972,9 @@ class _LigneRepasPhoto extends StatelessWidget {
   const _LigneRepasPhoto({required this.repas, required this.kcal, required this.onSupprimer});
 
   final RepasPhoto repas;
-  final int kcal;
+
+  /// `null` : calories à compléter (ingrédients pas encore indiqués).
+  final int? kcal;
   final VoidCallback onSupprimer;
 
   @override
@@ -1008,7 +1005,7 @@ class _LigneRepasPhoto extends StatelessWidget {
         [
           '${repas.repas.emoji} ${repas.repas.libelle}',
           'Portion ${repas.taille.libelle.toLowerCase()}',
-          CaloriesService.formater(kcal),
+          kcal == null ? '🔥 kcal à compléter' : CaloriesService.formater(kcal!),
           // Ressentis notés, en emojis.
           for (final e in repas.ressentis.entries) e.key.emojis[e.value - 1],
         ].join(' · '),

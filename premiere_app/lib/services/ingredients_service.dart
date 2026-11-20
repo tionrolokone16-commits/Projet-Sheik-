@@ -138,6 +138,31 @@ class IngredientsService {
     return noms.isEmpty ? 'Mon plat' : noms.join(', ');
   }
 
+  /// Ingrédients habituels proposés pour un plat, d'après son nom et ses
+  /// ingrédients principaux (« attiéké poisson » → attiéké, poisson…), plus l'huile.
+  /// Aucun poids n'est proposé : c'est à l'utilisatrice de les indiquer.
+  static List<Ingredient> suggestionsPour(String nomPlat, [List<String> ingredients = const []]) {
+    final mots = {
+      for (final texte in [nomPlat, ...ingredients])
+        for (final mot in PlanService.normaliser(texte).split(RegExp(r'[^a-z]+')))
+          if (mot.length >= 3 && !_motsVides.contains(mot)) mot,
+    };
+    final trouves = <Ingredient>[];
+    for (final mot in mots) {
+      for (final i in catalogue) {
+        if (!trouves.contains(i) && PlanService.normaliser(i.nom).contains(mot)) {
+          trouves.add(i);
+          break;
+        }
+      }
+    }
+    final huile = parId('huile')!;
+    if (!trouves.contains(huile)) trouves.add(huile);
+    return trouves.take(8).toList();
+  }
+
+  static const _motsVides = {'sauce', 'avec', 'les', 'des', 'une', 'aux', 'light', 'soup'};
+
   /// Recherche sans accents ni majuscules (même règle que les plats).
   static List<Ingredient> chercher(String recherche) {
     final r = PlanService.normaliser(recherche.trim());

@@ -1,70 +1,50 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/main.dart';
+import 'package:premiere_app/models/ingredient.dart';
 import 'package:premiere_app/models/jour_habitudes.dart';
-import 'package:premiere_app/models/plat.dart';
 import 'package:premiere_app/models/recette.dart';
 import 'package:premiere_app/models/repas_photo.dart';
 import 'package:premiere_app/providers/habitudes_provider.dart';
 import 'package:premiere_app/services/calories_service.dart';
-import 'package:premiere_app/services/plats_service.dart';
 import 'package:premiere_app/widgets/panneau_ressenti_repas.dart';
 import 'package:provider/provider.dart';
 
 import 'outils.dart';
 
-/// Calories des repas : estimations par plat, taille de portion, correction à la main.
+/// Calories des repas : uniquement d'après les ingrédients et les grammes
+/// (ou un total saisi à la main). Aucune valeur toute faite par plat.
 void main() {
-  RepasPhoto repas({
-    String? nom,
-    Repas moment = Repas.dejeuner,
-    TaillePortion taille = TaillePortion.moyenne,
-    Portions portions = Portions.equilibre,
-    int? kcal,
-  }) => RepasPhoto(
+  RepasPhoto repas({String? nom, int? kcal, List<Composant> composition = const []}) => RepasPhoto(
     id: 'r',
     date: DateTime(2026, 11, 20, 13),
-    repas: moment,
-    portions: portions,
+    repas: Repas.dejeuner,
+    portions: Portions.equilibre,
     nomPlat: nom,
-    taille: taille,
     kcalManuel: kcal,
+    composition: composition,
   );
 
-  test('chaque plat du catalogue a une estimation réaliste', () {
-    for (final p in PlatsService.catalogue) {
-      expect(CaloriesService.kcalParPlat.containsKey(p.id), isTrue, reason: p.nom);
-      expect(CaloriesService.kcalPlat(p), inInclusiveRange(0, 1200), reason: p.nom);
-    }
+  test('un plat sans ingrédients : calories à compléter, jamais estimées', () {
+    expect(CaloriesService.kcalRepas(repas(nom: 'Garba')), isNull);
+    expect(CaloriesService.kcalRepas(repas()), isNull);
   });
 
-  test('le plat est retrouvé par son nom, et la taille de portion compte', () {
-    final plats = PlatsService.catalogue;
-    expect(CaloriesService.kcalRepas(repas(nom: 'Garba'), plats), 750);
-    expect(CaloriesService.kcalRepas(repas(nom: ' garba '), plats), 750);
-    expect(
-      CaloriesService.kcalRepas(repas(nom: 'Garba', taille: TaillePortion.petite), plats),
-      563,
+  test('les calories viennent des ingrédients et des grammes', () {
+    final r = repas(
+      nom: 'Garba',
+      composition: const [
+        Composant(idIngredient: 'attieke', grammes: 250),
+        Composant(idIngredient: 'thon', grammes: 100),
+      ],
     );
-    expect(
-      CaloriesService.kcalRepas(repas(nom: 'Garba', taille: TaillePortion.grande), plats),
-      975,
-    );
+    expect(CaloriesService.kcalRepas(r), 400 + 200);
   });
 
-  test('repas en photo ou du plan : estimation selon le moment et l\'assiette', () {
-    final plats = PlatsService.catalogue;
-    final petitDej = CaloriesService.kcalRepas(repas(moment: Repas.petitDejeuner), plats);
-    final dejeuner = CaloriesService.kcalRepas(repas(), plats);
-    expect(petitDej, lessThan(dejeuner));
-    final riche = CaloriesService.kcalRepas(repas(portions: Portions.normalisees(0, 1, 3)), plats);
-    expect(riche, greaterThan(dejeuner));
-  });
-
-  test('une valeur saisie à la main remplace l\'estimation et est enregistrée', () {
-    final r = repas(nom: 'Garba', kcal: 520);
-    expect(CaloriesService.kcalRepas(r, PlatsService.catalogue), 520);
-    expect(RepasPhoto.fromJson(r.toJson()).kcalManuel, 520);
+  test('un total saisi à la main est enregistré', () {
+    final r = repas(nom: 'Yaourt aux fruits', kcal: 180);
+    expect(CaloriesService.kcalRepas(r), 180);
+    expect(RepasPhoto.fromJson(r.toJson()).kcalManuel, 180);
     expect(RepasPhoto.fromJson(repas().toJson()).kcalManuel, isNull);
   });
 
@@ -73,23 +53,27 @@ void main() {
     expect(CaloriesService.formater(1850), '≈\u00a01\u00a0850\u00a0kcal');
   });
 
-  test('total du jour', () async {
+  test('total du jour : les repas à compléter ne comptent pas, et sont signalés', () async {
     final h = HabitudesProvider(await preparerStockage(avecProfil: true));
     final n = DateTime.now();
-    for (final nom in ['Garba', 'Un fruit']) {
-      await h.ajouterRepas(
-        date: n,
-        repas: Repas.dejeuner,
-        portions: Portions.equilibre,
-        nomPlat: nom,
-      );
-    }
-    expect(h.kcalConsommees(n), 830);
-    await h.definirKcalRepas(h.repasPhotosDu(n).first.id, 100);
-    expect(h.kcalConsommees(n), 100 + 750);
+    await h.ajouterRepas(
+      date: n,
+      repas: Repas.dejeuner,
+      portions: Portions.equilibre,
+      nomPlat: 'Garba',
+    );
+    await h.ajouterRepas(
+      date: n,
+      repas: Repas.diner,
+      portions: Portions.equilibre,
+      nomPlat: 'Riz',
+      composition: const [Composant(idIngredient: 'riz', grammes: 200)],
+    );
+    expect(h.kcalConsommees(n), 260);
+    expect(h.repasACompleter(n).single.nomPlat, 'Garba');
   });
 
-  testWidgets('corriger les calories d\'un repas', (tester) async {
+  testWidgets('repas sans ingrédients : « à compléter », puis saisir le total', (tester) async {
     ecranIpad(tester);
     final stockage = await preparerStockage(avecProfil: true);
     final note = await HabitudesProvider(stockage).ajouterRepas(
@@ -105,7 +89,8 @@ void main() {
     await tester.pumpAndSettle();
     String kcalPanneau() =>
         tester.widget<Text>(find.byKey(const Key('kcal_repas'))).textSpan!.toPlainText();
-    expect(kcalPanneau(), contains('≈\u00a0750\u00a0kcal'));
+    expect(kcalPanneau(), contains('À compléter'));
+    expect(find.byKey(const Key('detailler_grammes')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('corriger_kcal')));
     await tester.pumpAndSettle();

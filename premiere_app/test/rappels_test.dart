@@ -104,8 +104,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('plat_ci_attieke_poisson')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('bouton_terminer_repas')));
-    await tester.pumpAndSettle();
+    await composerEtNoter(tester, {'attieke': '250', 'poisson_braise': '150'});
     expect(find.byType(AccueilScreen), findsOneWidget);
     expect(find.byKey(const Key('rappel_repas')), findsNothing);
     await tester.pump(const Duration(seconds: 2)); // fin des animations

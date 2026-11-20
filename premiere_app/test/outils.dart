@@ -59,3 +59,23 @@ Future<void> defilerAccueilJusqua(WidgetTester tester, Finder cible) async {
   await tester.ensureVisible(cible);
   await tester.pumpAndSettle();
 }
+
+/// Dans « Composer mon plat » : ajoute des ingrédients proposés (identifiant →
+/// grammes), puis note le repas.
+Future<void> composerEtNoter(WidgetTester tester, Map<String, String> ingredients) async {
+  for (final MapEntry(key: id, value: grammes) in ingredients.entries) {
+    final puce = find.byKey(Key('suggestion_$id'));
+    await tester.ensureVisible(puce);
+    await tester.pumpAndSettle();
+    await tester.tap(puce);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('champ_nombre')), grammes);
+    await tester.tap(find.byKey(const Key('valider_nombre')));
+    await tester.pumpAndSettle();
+  }
+  final bouton = find.byKey(const Key('enregistrer_plat_compose'));
+  await tester.ensureVisible(bouton);
+  await tester.pumpAndSettle();
+  await tester.tap(bouton);
+  await tester.pumpAndSettle();
+}

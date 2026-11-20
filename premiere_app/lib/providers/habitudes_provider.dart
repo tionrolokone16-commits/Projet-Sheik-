@@ -183,11 +183,17 @@ class HabitudesProvider extends ChangeNotifier {
   // ------------------------------------------------------- Calories
 
   /// Calories estimées d'un repas (ou la valeur saisie à la main).
-  int kcalRepas(RepasPhoto r) =>
-      CaloriesService.kcalRepas(r, [..._platsPerso, ...PlatsService.catalogue]);
+  /// (`null` : calories à compléter, en détaillant les ingrédients.)
+  int? kcalRepas(RepasPhoto r) => CaloriesService.kcalRepas(r);
 
   /// Total des calories consommées un jour donné (repas notés).
-  int kcalConsommees(DateTime date) => repasPhotosDu(date).fold<int>(0, (s, r) => s + kcalRepas(r));
+  /// Les repas dont les calories restent à compléter ne comptent pas.
+  int kcalConsommees(DateTime date) =>
+      repasPhotosDu(date).fold<int>(0, (s, r) => s + (kcalRepas(r) ?? 0));
+
+  /// Repas du jour dont les calories restent à compléter (sans ingrédients).
+  List<RepasPhoto> repasACompleter(DateTime date) =>
+      repasPhotosDu(date).where((r) => kcalRepas(r) == null).toList();
 
   /// Corrige à la main les calories d'un repas (`null` : retour à l'estimation).
   Future<void> definirKcalRepas(String id, int? kcal) async {

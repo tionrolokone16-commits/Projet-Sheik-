@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/main.dart';
+import 'package:premiere_app/models/ingredient.dart';
 import 'package:premiere_app/models/jour_habitudes.dart';
 import 'package:premiere_app/models/plat.dart';
 import 'package:premiere_app/models/progres.dart';
@@ -104,6 +105,7 @@ void main() {
       repas: Repas.dejeuner,
       portions: Portions.equilibre,
       nomPlat: 'Garba',
+      composition: const [Composant(idIngredient: 'attieke', grammes: 250)],
       emojiPlat: '🐟',
     );
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
