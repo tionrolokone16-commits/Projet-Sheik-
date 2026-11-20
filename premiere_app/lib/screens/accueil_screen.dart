@@ -11,7 +11,6 @@ import '../providers/recompenses_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/bilan_service.dart';
 import '../services/bilan_soir_service.dart';
-import '../services/calories_service.dart';
 import '../services/encouragements_service.dart';
 import '../services/habitudes_service.dart';
 import '../services/messages_service.dart';
@@ -19,12 +18,11 @@ import '../services/plante_service.dart';
 import '../services/recompenses_service.dart';
 import '../widgets/avatar_profil.dart';
 import '../widgets/carte_rappel_repas.dart';
-import '../widgets/energie.dart';
+import '../widgets/tableau_calories.dart';
 import '../widgets/plante.dart';
 import 'ajouter_repas_screen.dart';
 import 'bilan_screen.dart';
 import 'bilan_soir_screen.dart';
-import 'calendrier_onglet_screen.dart';
 import 'chemin_screen.dart';
 import 'exercices_screen.dart';
 import 'mon_plan_screen.dart';
@@ -75,8 +73,6 @@ class AccueilScreen extends StatelessWidget {
     final ideesDuJour = [
       for (final nom in recompenses.ideesDuJour(maintenant)) ?IdeeDemain.depuisNom(nom),
     ];
-    final objectif = objectifActuel(context);
-    final consomme = habitudes.kcalConsommees(maintenant);
     final derniere = habitudes.derniereActivite;
     final badges = recompenses.progres.badges.length;
     final defis = recompenses.defisDeLaSemaine(maintenant).length;
@@ -193,52 +189,8 @@ class AccueilScreen extends StatelessWidget {
                         const SizedBox(height: 12),
 
                         // ----- 3. Aujourd'hui (seulement s'il y a lieu) -----
-                        // ----- Objectif calorique du jour -----
-                        if (objectif != null)
-                          Card(
-                            clipBehavior: Clip.antiAlias,
-                            child: InkWell(
-                              key: const Key('accueil_objectif_kcal'),
-                              onTap: () => _ouvrir(context, JourScreen(date: maintenant)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '🎯 Mon objectif du jour',
-                                      style: theme.textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '${CaloriesService.formater(consomme)} '
-                                      'sur ${CaloriesService.formater(objectif.kcalParJour)}',
-                                      key: const Key('accueil_kcal_consomme'),
-                                      style: theme.textTheme.titleLarge?.copyWith(
-                                        color: theme.colorScheme.primary,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: LinearProgressIndicator(
-                                        value: (consomme / objectif.kcalParJour).clamp(0.0, 1.0),
-                                        minHeight: 10,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      texteReste(consomme, objectif.kcalParJour),
-                                      style: theme.textTheme.bodyMedium,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                        // ----- Calories du jour (grand tableau de bord) -----
+                        const TableauCalories(),
                         const CarteRappelRepas(),
                         if (BilanSoirService.aAfficher(
                           maintenant: maintenant,
