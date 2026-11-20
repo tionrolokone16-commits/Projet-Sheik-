@@ -35,7 +35,7 @@ enum CategoriePlat {
       values.firstWhere((c) => c.name == nom, orElse: () => plat);
 }
 
-/// Taille de la portion, estimée à vue d'œil (pas de pesée, pas de calcul).
+/// Taille de la portion, estimée à vue d'œil (elle ajuste les calories estimées).
 enum TaillePortion {
   petite('Petite', '🤏'),
   moyenne('Moyenne', '🍽️'),

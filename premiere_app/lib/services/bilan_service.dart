@@ -313,6 +313,8 @@ class BilanService {
     required String prenom,
     required List<IdeeSemaine> ideesChoisies,
     List<Pesee> pesees = const [],
+    List<int?>? kcalParJour,
+    int? objectifKcal,
   }) {
     final jourMois = DateFormat('d MMMM', 'fr_FR');
     final b = StringBuffer()
@@ -335,6 +337,19 @@ class BilanService {
             '${bilan.habitudesParJour[i]}',
     ];
     b.writeln('- Habitudes prises en soin (sur 4) : ${parJour.join(' · ')}');
+    // Calories (estimations) : seulement les jours où des repas sont notés.
+    final kcalNotees = [...?kcalParJour?.nonNulls];
+    if (kcalNotees.isNotEmpty) {
+      final moyenne = (kcalNotees.reduce((a, b) => a + b) / kcalNotees.length).round();
+      b
+        ..writeln()
+        ..writeln('CALORIES (ESTIMATIONS)')
+        ..writeln(
+          '- Moyenne consommée : ≈ $moyenne kcal par jour '
+          '(sur ${kcalNotees.length} jour${kcalNotees.length > 1 ? 's' : ''} avec repas notés)',
+        );
+      if (objectifKcal != null) b.writeln('- Objectif de l\'appli : ≈ $objectifKcal kcal par jour');
+    }
     if (bilan.constats.isNotEmpty) {
       b
         ..writeln()

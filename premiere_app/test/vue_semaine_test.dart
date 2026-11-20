@@ -111,4 +111,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('titre_mois')), findsOneWidget);
   });
+
+  test('le résumé partagé contient les calories de la semaine (jours notés seulement)', () {
+    final bilan = calculer({'2026-11-16': const JourHabitudes(verres: 8)});
+    final texte = BilanService.texteAPartager(
+      bilan: bilan,
+      prenom: '',
+      ideesChoisies: const [],
+      kcalParJour: [1600, null, 1800, null, null, null, null],
+      objectifKcal: 1700,
+    );
+    expect(texte, contains('CALORIES (ESTIMATIONS)'));
+    expect(
+      texte,
+      contains('Moyenne consommée : ≈ 1700 kcal par jour (sur 2 jours avec repas notés)'),
+    );
+    expect(texte, contains('Objectif de l\'appli : ≈ 1700 kcal par jour'));
+    // Sans repas notés : pas de section calories.
+    expect(
+      BilanService.texteAPartager(bilan: bilan, prenom: '', ideesChoisies: const []),
+      isNot(contains('CALORIES')),
+    );
+  });
 }

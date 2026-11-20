@@ -16,7 +16,7 @@ import 'repas_photo_screen.dart';
 /// Noter un repas en 2 touches : on ouvre cet écran, on touche un plat.
 /// Le repas est enregistré tout de suite ; les détails sont facultatifs.
 ///
-/// Pas de calories, pas de total, pas de remarque sur ce qui a été mangé.
+/// Chaque plat affiche ses calories estimées (≈), sans jamais de remarque sur ce qui a été mangé.
 class AjouterRepasScreen extends StatefulWidget {
   const AjouterRepasScreen({super.key, required this.date, this.moment});
 

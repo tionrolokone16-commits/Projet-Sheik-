@@ -1,11 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/main.dart';
+import 'package:premiere_app/models/jour_habitudes.dart';
+import 'package:premiere_app/models/recette.dart';
 import 'package:premiere_app/models/reglages.dart';
+import 'package:premiere_app/providers/habitudes_provider.dart';
 import 'package:premiere_app/providers/poids_provider.dart';
 import 'package:premiere_app/screens/ajouter_repas_screen.dart';
 import 'package:premiere_app/screens/bilan_screen.dart';
+import 'package:premiere_app/screens/bilan_soir_screen.dart';
 import 'package:premiere_app/screens/calendrier_onglet_screen.dart';
+import 'package:premiere_app/screens/evolution_calories_screen.dart';
 import 'package:premiere_app/screens/exercices_screen.dart';
 import 'package:premiere_app/screens/chemin_screen.dart';
 import 'package:premiere_app/screens/mon_plan_screen.dart';
@@ -33,6 +38,15 @@ void main() {
   testWidgets('masquer le poids sur l\'accueil', (tester) async {
     final stockage = await preparerStockage(avecProfil: true);
     await PoidsProvider(stockage).ajouter(DateTime.now(), 78);
+    // Un repas copieux : la carte « Retrouver l'équilibre » s'affiche aussi.
+    final h = HabitudesProvider(stockage);
+    final copieux = await h.ajouterRepas(
+      date: DateTime.now(),
+      repas: Repas.dejeuner,
+      portions: Portions.equilibre,
+      nomPlat: 'Garba',
+    );
+    await h.definirKcalRepas(copieux.id, 2600);
     ecranIpad(tester);
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();
@@ -131,6 +145,9 @@ void main() {
       ('noter un repas', AjouterRepasScreen(date: DateTime.now())),
       ('bilan', const BilanScreen()),
       ('exercices', const ExercicesScreen()),
+      ('évolution des calories', const EvolutionCaloriesScreen()),
+      ('détail du jour', JourScreen(date: DateTime.now())),
+      ('bilan du soir', const BilanSoirScreen()),
     ]) {
       nav.push(MaterialPageRoute(builder: (_) => ecran));
       await tester.pumpAndSettle();

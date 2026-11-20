@@ -11,6 +11,7 @@ import '../providers/profil_provider.dart';
 import '../providers/recompenses_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/bilan_service.dart';
+import '../widgets/energie.dart';
 import '../widgets/graphique_semaine.dart';
 
 /// Écran « Mon bilan » (depuis l'accueil ou le profil).
@@ -92,6 +93,14 @@ class _VueSemaineState extends State<VueSemaine> {
       prenom: prenom,
       ideesChoisies: ideesChoisies,
       pesees: _inclurePesees ? pesees : const [],
+      kcalParJour: [
+        for (var i = 0; i < 7; i++)
+          () {
+            final d = DateTime(_lundi.year, _lundi.month, _lundi.day + i);
+            return habitudes.repasPhotosDu(d).isEmpty ? null : habitudes.kcalConsommees(d);
+          }(),
+      ],
+      objectifKcal: objectifActuel(context)?.kcalParJour,
     );
     final format = DateFormat('d MMMM', 'fr_FR');
 
