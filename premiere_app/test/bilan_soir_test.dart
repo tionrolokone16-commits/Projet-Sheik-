@@ -61,7 +61,7 @@ void main() {
         '8 verres d\'eau : objectif atteint ✨',
         '25 min de mouvement',
         'Ta séance est faite',
-        '4 200 pas',
+        '4\u00a0200 pas',
         'Tu t\'es écrit un petit mot',
       ]);
     });

@@ -69,8 +69,8 @@ void main() {
   });
 
   test('affichage', () {
-    expect(CaloriesService.formater(650), '≈ 650 kcal');
-    expect(CaloriesService.formater(1850), '≈ 1 850 kcal');
+    expect(CaloriesService.formater(650), '≈\u00a0650\u00a0kcal');
+    expect(CaloriesService.formater(1850), '≈\u00a01\u00a0850\u00a0kcal');
   });
 
   test('total du jour', () async {
@@ -103,14 +103,14 @@ void main() {
     final contexte = tester.element(find.byType(Scaffold).first);
     afficherPanneauRessentiRepas(contexte, note.id);
     await tester.pumpAndSettle();
-    expect(find.textContaining('≈ 750 kcal'), findsOneWidget);
+    expect(find.textContaining('≈\u00a0750\u00a0kcal'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('corriger_kcal')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('champ_nombre')), '600');
     await tester.tap(find.byKey(const Key('valider_nombre')));
     await tester.pumpAndSettle();
-    expect(find.textContaining('≈ 600 kcal'), findsOneWidget);
+    expect(find.textContaining('≈\u00a0600\u00a0kcal'), findsOneWidget);
     expect(find.textContaining('saisi à la main'), findsOneWidget);
     final h = Provider.of<HabitudesProvider>(contexte, listen: false);
     expect(h.repasParId(note.id)!.kcalManuel, 600);

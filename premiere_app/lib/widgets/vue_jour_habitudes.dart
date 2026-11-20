@@ -10,8 +10,11 @@ import 'package:provider/provider.dart';
 import '../models/activite.dart';
 import '../models/jour_habitudes.dart';
 import '../providers/habitudes_provider.dart';
+import '../providers/poids_provider.dart';
+import '../providers/profil_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/calories_service.dart';
+import '../services/depense_service.dart';
 import '../services/habitudes_service.dart';
 import '../services/stockage_service.dart';
 import '../models/repas_photo.dart';
@@ -90,11 +93,31 @@ class VueJourHabitudes extends StatelessWidget {
       objectifVerres: objectifVerres,
     );
 
+    // Calories dépensées : il faut le profil (taille, âge…) et un poids.
+    final profil = context.watch<ProfilProvider>().profil;
+    final poids = profil == null
+        ? null
+        : context.watch<PoidsProvider>().derniere?.poidsKg ?? profil.poidsDepartKg;
+    final depense = profil == null || poids == null
+        ? null
+        : DepenseService.calculer(
+            profil: profil,
+            poidsKg: poids,
+            jour: jour,
+            activitesDuJour: activitesDuJour,
+          );
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children:
           [
                 _CarteResume(tenues: tenues, aujourdhui: _estAujourdhui),
+                if (depense != null)
+                  _CarteEnergie(
+                    depense: depense,
+                    consomme: habitudes.kcalConsommees(date),
+                    aujourdhui: _estAujourdhui,
+                  ),
                 _CarteEau(
                   verres: jour.verres,
                   objectif: objectifVerres,
@@ -139,6 +162,7 @@ class VueJourHabitudes extends StatelessWidget {
                   ),
                 _CarteSommeil(
                   heures: jour.sommeilHeures,
+                  kcalNuit: depense == null || jour.sommeilHeures == null ? null : depense.sommeil,
                   onChanger: (h) => habitudes.definirSommeil(date, h),
                 ),
                 _Carte(
@@ -211,9 +235,18 @@ class VueJourHabitudes extends StatelessWidget {
                     ],
                   ),
                 ),
-                _CartePas(pas: jour.pas, onChanger: (p) => habitudes.definirPas(date, p)),
+                _CartePas(
+                  pas: jour.pas,
+                  kcal: poids == null || jour.pas == null
+                      ? null
+                      : DepenseService.kcalPas(jour.pas!, poids),
+                  onChanger: (p) => habitudes.definirPas(date, p),
+                ),
                 _CarteActivite(
                   activitesDuJour: activitesDuJour,
+                  kcalDe: poids == null
+                      ? null
+                      : (a) => DepenseService.kcalActivite(a.type, a.dureeMinutes, poids),
                   seanceFaite: jour.seanceFaite,
                   onBasculerSeance: () => habitudes.basculerSeanceFaite(date),
                   derniere: habitudes.derniereActivite,
@@ -378,6 +411,119 @@ class _PastilleHabitude extends StatelessWidget {
   }
 }
 
+/// Énergie de la journée : calories dépensées (détaillées) et consommées.
+class _CarteEnergie extends StatelessWidget {
+  const _CarteEnergie({required this.depense, required this.consomme, required this.aujourdhui});
+
+  final DepenseJour depense;
+  final int consomme;
+  final bool aujourdhui;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final couleurs = theme.colorScheme;
+    Widget ligne(String emoji, String libelle, int kcal, {Key? cle}) => Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          SizedBox(width: 28, child: Text(emoji, style: const TextStyle(fontSize: 18))),
+          Expanded(child: Text(libelle, style: theme.textTheme.bodyMedium)),
+          Text(
+            CaloriesService.formater(kcal),
+            key: cle,
+            style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+
+    return _Carte(
+      emoji: '🔥',
+      titre: 'Mon énergie ${aujourdhui ? 'du jour' : 'ce jour-là'}',
+      enfant: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _ChiffreEnergie(
+                  libelle: 'Dépensé',
+                  kcal: depense.total,
+                  cle: const Key('kcal_depense'),
+                  couleur: couleurs.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _ChiffreEnergie(
+                  libelle: 'Consommé',
+                  kcal: consomme,
+                  cle: const Key('kcal_consomme'),
+                  couleur: couleurs.onSurface,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ligne('😴', 'Ton corps au repos (24 h, nuit comprise)', depense.base),
+          ligne('🏠', 'Vie quotidienne', depense.quotidien),
+          ligne('🚶', 'Activités et séance', depense.activites, cle: const Key('kcal_activites')),
+          ligne('👣', 'Pas', depense.pas),
+          const SizedBox(height: 8),
+          Text(
+            'Estimations, à partir de ton profil et de ta dernière pesée.',
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChiffreEnergie extends StatelessWidget {
+  const _ChiffreEnergie({
+    required this.libelle,
+    required this.kcal,
+    required this.cle,
+    required this.couleur,
+  });
+
+  final String libelle;
+  final int kcal;
+  final Key cle;
+  final Color couleur;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(libelle, style: theme.textTheme.labelLarge),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              CaloriesService.formater(kcal),
+              key: cle,
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: couleur,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Carte de l'eau, avec la bouteille animée.
 class _CarteEau extends StatelessWidget {
   const _CarteEau({
@@ -449,7 +595,10 @@ class _CarteEau extends StatelessWidget {
 
 /// Carte du sommeil : un curseur de 0 à 12 heures.
 class _CarteSommeil extends StatefulWidget {
-  const _CarteSommeil({required this.heures, required this.onChanger});
+  const _CarteSommeil({required this.heures, required this.kcalNuit, required this.onChanger});
+
+  /// Calories utilisées pendant la nuit (`null` si inconnues).
+  final int? kcalNuit;
 
   final double? heures;
   final ValueChanged<double?> onChanger;
@@ -499,6 +648,15 @@ class _CarteSommeilState extends State<_CarteSommeil> {
             },
           ),
           Text(HabitudesService.messageSommeil(widget.heures), style: theme.textTheme.bodySmall),
+          if (widget.kcalNuit != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '🔥 Pendant ta nuit, ton corps a utilisé ${CaloriesService.formater(widget.kcalNuit!)}',
+                key: const Key('kcal_nuit'),
+                style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
         ],
       ),
     );
@@ -557,7 +715,10 @@ class _DialoguePasState extends State<_DialoguePas> {
 /// Carte des pas : le nombre est recopié depuis le téléphone
 /// (Safari ne peut pas lire le podomètre).
 class _CartePas extends StatelessWidget {
-  const _CartePas({required this.pas, required this.onChanger});
+  const _CartePas({required this.pas, required this.kcal, required this.onChanger});
+
+  /// Calories des pas (`null` si inconnues).
+  final int? kcal;
 
   final int? pas;
   final ValueChanged<int?> onChanger;
@@ -596,6 +757,12 @@ class _CartePas extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(HabitudesService.messagePas(pas), style: theme.textTheme.bodySmall),
+          if (kcal != null)
+            Text(
+              '🔥 ${CaloriesService.formater(kcal!)} dépensées en marchant',
+              key: const Key('kcal_pas'),
+              style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
+            ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             key: const Key('bouton_noter_pas'),
@@ -618,9 +785,13 @@ class _CarteActivite extends StatelessWidget {
     required this.derniere,
     required this.onAjouter,
     required this.onSupprimer,
+    this.kcalDe,
   });
 
   final List<Activite> activitesDuJour;
+
+  /// Calories d'une activité (`null` si le profil manque).
+  final int Function(Activite)? kcalDe;
   final bool seanceFaite;
   final VoidCallback onBasculerSeance;
   final Activite? derniere;
@@ -661,6 +832,7 @@ class _CarteActivite extends StatelessWidget {
                 subtitle: Text(
                   [
                     HabitudesService.formaterMinutes(a.dureeMinutes),
+                    if (kcalDe != null) CaloriesService.formater(kcalDe!(a)),
                     if (a.note != null) a.note!,
                   ].join(' · '),
                 ),

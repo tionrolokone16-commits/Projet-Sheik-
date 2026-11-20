@@ -150,6 +150,6 @@ class CaloriesService {
     for (var fin = texte.length; fin > 0; fin -= 3) {
       morceaux.insert(0, texte.substring(fin - 3 < 0 ? 0 : fin - 3, fin));
     }
-    return '≈ ${kcal < 0 ? '-' : ''}${morceaux.join(' ')} kcal';
+    return '≈\u00a0${kcal < 0 ? '-' : ''}${morceaux.join('\u00a0')}\u00a0kcal';
   }
 }
