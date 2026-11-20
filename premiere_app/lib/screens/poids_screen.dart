@@ -7,6 +7,7 @@ import '../models/pesee.dart';
 import '../providers/poids_provider.dart';
 import '../providers/profil_provider.dart';
 import '../services/messages_service.dart';
+import '../widgets/carte_pesees_semaine.dart';
 import '../widgets/dialogue_pesee.dart';
 import '../widgets/format.dart';
 import '../widgets/graphique_poids.dart';
@@ -148,6 +149,10 @@ class _PoidsScreenState extends State<PoidsScreen> {
                               ),
                             ),
                           ),
+                        const SizedBox(height: 12),
+
+                        // ----- Pesée hebdomadaire -----
+                        const CartePeseesSemaine(),
                         const SizedBox(height: 12),
 
                         // ----- Graphique -----

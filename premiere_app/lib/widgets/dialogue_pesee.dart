@@ -8,17 +8,24 @@ typedef SaisiePesee = ({DateTime date, double poidsKg});
 
 /// Ouvre une fenêtre pour saisir une pesée (date + poids).
 /// Renvoie `null` si l'utilisateur annule.
-Future<SaisiePesee?> afficherDialoguePesee(BuildContext context, {double? poidsPropose}) {
+Future<SaisiePesee?> afficherDialoguePesee(
+  BuildContext context, {
+  double? poidsPropose,
+  DateTime? dateProposee,
+}) {
   return showDialog<SaisiePesee>(
     context: context,
-    builder: (_) => _DialoguePesee(poidsPropose: poidsPropose),
+    builder: (_) => _DialoguePesee(poidsPropose: poidsPropose, dateProposee: dateProposee),
   );
 }
 
 class _DialoguePesee extends StatefulWidget {
-  const _DialoguePesee({this.poidsPropose});
+  const _DialoguePesee({this.poidsPropose, this.dateProposee});
 
   final double? poidsPropose;
+
+  /// Date proposée (pesée de la semaine), sinon aujourd'hui.
+  final DateTime? dateProposee;
 
   @override
   State<_DialoguePesee> createState() => _DialoguePeseeState();
@@ -29,7 +36,7 @@ class _DialoguePeseeState extends State<_DialoguePesee> {
   late final TextEditingController _poids = TextEditingController(
     text: widget.poidsPropose == null ? '' : formaterDecimal(widget.poidsPropose!),
   );
-  DateTime _date = DateTime.now();
+  late DateTime _date = widget.dateProposee ?? DateTime.now();
 
   @override
   void dispose() {

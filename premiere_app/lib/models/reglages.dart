@@ -24,6 +24,7 @@ class Reglages {
     this.suiviCycle = false,
     this.bilanSoir = true,
     this.heureBilanSoir = 21 * 60,
+    this.jourPesee = 1,
   });
 
   /// Si vrai, le poids n'apparaît pas sur l'écran d'accueil.
@@ -51,6 +52,9 @@ class Reglages {
   /// Heure du bilan du soir, en minutes depuis minuit (21 h = 1260).
   final int heureBilanSoir;
 
+  /// Jour de la pesée hebdomadaire (1 = lundi … 7 = dimanche).
+  final int jourPesee;
+
   Reglages copyWith({
     bool? masquerPoidsAccueil,
     int? objectifVerres,
@@ -62,6 +66,7 @@ class Reglages {
     bool? suiviCycle,
     bool? bilanSoir,
     int? heureBilanSoir,
+    int? jourPesee,
   }) => Reglages(
     masquerPoidsAccueil: masquerPoidsAccueil ?? this.masquerPoidsAccueil,
     objectifVerres: objectifVerres ?? this.objectifVerres,
@@ -73,6 +78,7 @@ class Reglages {
     suiviCycle: suiviCycle ?? this.suiviCycle,
     bilanSoir: bilanSoir ?? this.bilanSoir,
     heureBilanSoir: heureBilanSoir ?? this.heureBilanSoir,
+    jourPesee: jourPesee ?? this.jourPesee,
   );
 
   Map<String, dynamic> toJson() => {
@@ -86,6 +92,7 @@ class Reglages {
     'suiviCycle': suiviCycle,
     'bilanSoir': bilanSoir,
     'heureBilanSoir': heureBilanSoir,
+    'jourPesee': jourPesee,
   };
 
   factory Reglages.fromJson(Map<String, dynamic> json) => Reglages(
@@ -99,5 +106,6 @@ class Reglages {
     suiviCycle: json['suiviCycle'] as bool? ?? false,
     bilanSoir: json['bilanSoir'] as bool? ?? true,
     heureBilanSoir: (json['heureBilanSoir'] as num?)?.toInt() ?? 21 * 60,
+    jourPesee: ((json['jourPesee'] as num?)?.toInt() ?? 1).clamp(1, 7),
   );
 }

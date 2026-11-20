@@ -14,10 +14,12 @@ import '../services/bilan_soir_service.dart';
 import '../services/encouragements_service.dart';
 import '../services/habitudes_service.dart';
 import '../services/messages_service.dart';
+import '../services/pesee_hebdo_service.dart';
 import '../services/plante_service.dart';
 import '../services/recompenses_service.dart';
 import '../widgets/avatar_profil.dart';
 import '../widgets/carte_rappel_repas.dart';
+import '../widgets/dialogue_pesee.dart';
 import '../widgets/tableau_calories.dart';
 import '../widgets/plante.dart';
 import 'ajouter_repas_screen.dart';
@@ -191,6 +193,46 @@ class AccueilScreen extends StatelessWidget {
                         // ----- 3. Aujourd'hui (seulement s'il y a lieu) -----
                         // ----- Calories du jour (grand tableau de bord) -----
                         const TableauCalories(),
+                        // ----- Jour de pesée (sauf si le poids est masqué sur l'accueil) -----
+                        if (!reglages.masquerPoidsAccueil &&
+                            PeseeHebdoService.rappelAujourdhui(
+                              maintenant: maintenant,
+                              jourPesee: reglages.jourPesee,
+                              pesees: poids.pesees,
+                            ))
+                          Card(
+                            color: theme.colorScheme.tertiaryContainer,
+                            clipBehavior: Clip.antiAlias,
+                            child: ListTile(
+                              key: const Key('rappel_pesee'),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 8,
+                              ),
+                              leading: const Text('⚖️', style: TextStyle(fontSize: 28)),
+                              title: Text(
+                                'C\'est ton jour de pesée',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.colorScheme.onTertiaryContainer,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Une pesée par semaine suffit pour suivre ta tendance',
+                                style: TextStyle(color: theme.colorScheme.onTertiaryContainer),
+                              ),
+                              trailing: const Icon(Icons.add_rounded),
+                              onTap: () async {
+                                final saisie = await afficherDialoguePesee(
+                                  context,
+                                  poidsPropose: poids.derniere?.poidsKg ?? profil?.poidsDepartKg,
+                                );
+                                if (saisie != null) {
+                                  await poids.ajouter(saisie.date, saisie.poidsKg);
+                                }
+                              },
+                            ),
+                          ),
                         const CarteRappelRepas(),
                         if (BilanSoirService.aAfficher(
                           maintenant: maintenant,
