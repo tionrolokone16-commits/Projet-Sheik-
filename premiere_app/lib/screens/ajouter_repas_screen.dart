@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/jour_habitudes.dart';
 import '../models/plat.dart';
 import '../models/recette.dart';
+import '../models/repas_photo.dart';
 import '../providers/habitudes_provider.dart';
 import '../providers/plan_provider.dart';
 import '../services/assiette_service.dart';
@@ -70,6 +71,26 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
     if (mounted) Navigator.of(context).pop();
   }
 
+  /// Ajout en une touche (favori, « comme hier ») : on note, on revient,
+  /// et les détails restent possibles depuis le petit message.
+  Future<void> _noterRapide(RepasPhoto modele) async {
+    final habitudes = context.read<HabitudesProvider>();
+    final messager = ScaffoldMessenger.of(context);
+    final navigateur = Navigator.of(context);
+    final note = await habitudes.renoterRepas(modele, date: _horodatage(_moment), moment: _moment);
+    if (!mounted) return;
+    navigateur.pop();
+    messager.showSnackBar(
+      SnackBar(
+        content: Text('${note.emojiPlat ?? '🍽️'} ${note.titre} noté, merci 💗'),
+        action: SnackBarAction(
+          label: 'Détails',
+          onPressed: () => afficherPanneauRessentiRepas(navigateur.context, note.id),
+        ),
+      ),
+    );
+  }
+
   Future<void> _ajouterPlatPerso() async {
     final habitudes = context.read<HabitudesProvider>();
     final resultat = await showDialog<(String, String, CategoriePlat)>(
@@ -112,6 +133,8 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
     final plan = context.watch<PlanProvider>().plan;
     final menu = plan?.menuDu(widget.date);
     final petitDej = plan?.petitDejeuner?.groupes.expand((g) => g.elements).join(' · ');
+    final commeHier = habitudes.memeRepasVeille(widget.date, _moment);
+    final favoris = habitudes.platsFavoris(maintenant: widget.date);
 
     final tous = [...habitudes.platsPerso, ...PlatsService.catalogue];
     final plats = tous
@@ -152,6 +175,50 @@ class _AjouterRepasScreenState extends State<AjouterRepasScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+
+                // ----- En une touche : comme hier, puis les favoris -----
+                if (commeHier != null)
+                  Card(
+                    color: theme.colorScheme.primaryContainer,
+                    clipBehavior: Clip.antiAlias,
+                    child: ListTile(
+                      key: const Key('comme_hier'),
+                      leading: Text(
+                        commeHier.emojiPlat ?? '🔁',
+                        style: const TextStyle(fontSize: 28),
+                      ),
+                      title: Text(
+                        'Comme hier : ${commeHier.titre}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: Text(
+                        'Même ${_moment.libelle.toLowerCase()} qu\'hier, en une touche',
+                      ),
+                      trailing: const Icon(Icons.replay_rounded),
+                      onTap: () => _noterRapide(commeHier),
+                    ),
+                  ),
+                if (favoris.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text('⭐ Mes favoris', style: theme.textTheme.titleSmall),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final (i, f) in favoris.indexed)
+                        ActionChip(
+                          key: Key('favori_$i'),
+                          avatar: Text(f.emojiPlat ?? '🍽️'),
+                          label: Text(f.titre),
+                          onPressed: () => _noterRapide(f),
+                        ),
+                    ],
+                  ),
+                ],
+                if (commeHier != null || favoris.isNotEmpty) const SizedBox(height: 16),
 
                 // ----- Selon mon plan -----
                 if (menu != null || petitDej != null) ...[

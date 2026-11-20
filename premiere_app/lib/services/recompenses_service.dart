@@ -159,7 +159,16 @@ class RecompensesService {
     ),
     InfoBadge('premierePause', '🫁', 'Première pause', 'Terminer une minute de respiration'),
     InfoBadge('premiereSeance', '💃', 'Première séance', 'Terminer une séance guidée'),
+    InfoBadge(
+      'carnetRempli',
+      '🍽️',
+      'Carnet bien rempli',
+      'Noter tes repas 5 jours dans une même semaine',
+    ),
   ];
+
+  /// Nombre de jours avec des repas notés pour une « semaine bien remplie ».
+  static const joursRepasSemaineRemplie = 5;
 
   static InfoBadge badgePalier(int numero, {bool objectif = false}) => objectif
       ? const InfoBadge('objectif', '🎯', 'Objectif atteint', 'Atteindre ton objectif')
@@ -309,6 +318,31 @@ class RecompensesService {
             titre: 'Une semaine d\'habitudes tenues !',
             message: '7 jours à prendre soin de toi. Quelle belle régularité ✨',
             idBadge: 'semaineDouce',
+          ),
+        );
+      }
+    }
+
+    // ----- Semaine bien remplie : des repas notés 5 jours (pas forcément de suite) -----
+    // Les jours sans note ne retirent rien : seuls les jours notés comptent.
+    for (final lundi in [
+      lundiActuel,
+      DateTime(lundiActuel.year, lundiActuel.month, lundiActuel.day - 7),
+    ]) {
+      final joursNotes = List.generate(
+        7,
+        (i) => DateTime(lundi.year, lundi.month, lundi.day + i),
+      ).where((d) => journal[cleDuJour(d)]?.repas.isNotEmpty ?? false).length;
+      if (joursNotes >= joursRepasSemaineRemplie) {
+        resultat.add(
+          Evenement(
+            cle: 'repasSemaine:${cleDuJour(lundi)}',
+            emoji: '🍽️',
+            titre: 'Semaine bien remplie !',
+            message:
+                'Tes repas notés $joursNotes jours cette semaine. '
+                'Merci de prendre ce temps pour toi ✨',
+            idBadge: 'carnetRempli',
           ),
         );
       }

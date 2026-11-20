@@ -88,6 +88,51 @@ class HabitudesProvider extends ChangeNotifier {
     return nouveau;
   }
 
+  /// Plats notés le plus souvent ces 60 derniers jours (au moins 2 fois),
+  /// du plus fréquent au moins fréquent. Chaque plat est représenté par
+  /// sa note la plus récente.
+  List<RepasPhoto> platsFavoris({int nombre = 6, DateTime? maintenant}) {
+    final limite = (maintenant ?? DateTime.now()).subtract(const Duration(days: 60));
+    final compte = <String, int>{};
+    final modele = <String, RepasPhoto>{};
+    for (final r in _repasPhotos) {
+      if (r.nomPlat == null || r.date.isBefore(limite)) continue;
+      final cle = r.nomPlat!.trim().toLowerCase();
+      compte[cle] = (compte[cle] ?? 0) + 1;
+      modele.putIfAbsent(cle, () => r); // liste triée du plus récent au plus ancien
+    }
+    final cles = compte.keys.where((c) => compte[c]! >= 2).toList()
+      ..sort((a, b) {
+        final ecart = compte[b]!.compareTo(compte[a]!);
+        return ecart != 0 ? ecart : modele[b]!.date.compareTo(modele[a]!.date);
+      });
+    return [for (final c in cles.take(nombre)) modele[c]!];
+  }
+
+  /// Le même repas (petit-déjeuner, déjeuner…) noté la veille de [date], s'il existe.
+  RepasPhoto? memeRepasVeille(DateTime date, Repas moment) {
+    final veille = DateTime(date.year, date.month, date.day - 1);
+    for (final r in repasPhotosDu(veille)) {
+      if (r.repas == moment && r.nomPlat != null) return r;
+    }
+    return null;
+  }
+
+  /// Note à nouveau un plat déjà noté (favori, « comme hier »), sans la photo
+  /// ni les ressentis, qui appartiennent au repas d'origine.
+  Future<RepasPhoto> renoterRepas(
+    RepasPhoto modele, {
+    required DateTime date,
+    required Repas moment,
+  }) => ajouterRepas(
+    date: date,
+    repas: moment,
+    portions: modele.portions,
+    nomPlat: modele.nomPlat,
+    emojiPlat: modele.emojiPlat,
+    taille: modele.taille,
+  );
+
   /// Modifie un repas noté (moment, taille de portion, ressentis).
   Future<void> modifierRepas(
     String id, {
