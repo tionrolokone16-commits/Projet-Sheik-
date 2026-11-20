@@ -3,25 +3,29 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exercice.dart';
-import '../models/jour_habitudes.dart';
 import '../providers/habitudes_provider.dart';
-import '../providers/reglages_provider.dart';
+import '../services/calories_service.dart';
+import '../services/equilibre_service.dart';
 import '../services/exercices_service.dart';
-import '../services/journal_service.dart';
+import '../services/habitudes_service.dart';
+import '../widgets/energie.dart';
 import '../widgets/figure_exercice.dart';
-import '../widgets/selecteur_ressenti.dart';
 import 'seance_screen.dart';
 
-/// Bouger pour le plaisir : une séance proposée selon l'humeur du jour,
-/// des séances guidées et une bibliothèque d'exercices illustrés.
+/// Bouger : les séances guidées et les exercices n'apparaissent que lorsque
+/// les calories du jour dépassent l'objectif, avec ce qu'il faut brûler
+/// pour retrouver l'équilibre. Sans profil, tout reste affiché.
 class ExercicesScreen extends StatelessWidget {
   const ExercicesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final (:connu, :equilibre) = equilibreDu(context, DateTime.now());
+    final seancesVisibles = !connu || (equilibre != null && !equilibre.repos);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Bouger pour le plaisir')),
+      appBar: AppBar(title: const Text('Bouger')),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -30,45 +34,61 @@ class ExercicesScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
               children:
                   [
-                        Text(
-                          'À ton rythme, quand tu en as envie 💃🏾',
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                        const SizedBox(height: 12),
+                        // ----- Dans l'objectif : pas de séance à faire -----
+                        if (connu && equilibre == null)
+                          Card(
+                            key: const Key('carte_dans_objectif'),
+                            color: theme.colorScheme.primaryContainer,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Text(
+                                '🌸 Tu es dans ton objectif calorique aujourd\'hui, bravo ! '
+                                'Les séances apparaîtront ici si tu le dépasses.',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                            ),
+                          ),
 
-                        // ----- Pour toi aujourd'hui -----
-                        CartePropositionSeance(date: DateTime.now()),
-                        const SizedBox(height: 8),
-                        const _CartePlanning(),
-                        const SizedBox(height: 8),
+                        // ----- Au-dessus de l'objectif : retrouver l'équilibre -----
+                        if (equilibre != null) const CarteEquilibre(),
 
-                        // ----- Séances guidées -----
-                        Text(
-                          'Séances guidées',
-                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 6),
-                        for (final s in ExercicesService.seances)
-                          _CarteSeance(seance: s, cle: Key('seance_${s.id}')),
-                        const SizedBox(height: 16),
+                        if (seancesVisibles) ...[
+                          const SizedBox(height: 8),
+                          // ----- Séances guidées -----
+                          Text(
+                            'Séances guidées',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          for (final s in ExercicesService.seances)
+                            _CarteSeance(seance: s, cle: Key('seance_${s.id}')),
+                          const SizedBox(height: 16),
 
-                        // ----- Exercices -----
-                        Text(
-                          'Exercices',
-                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 6),
-                        GridView.extent(
-                          maxCrossAxisExtent: 200,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 8,
-                          crossAxisSpacing: 8,
-                          childAspectRatio: 0.82,
-                          children: [
-                            for (final e in ExercicesService.exercices) _CarteExercice(exercice: e),
-                          ],
-                        ),
+                          // ----- Exercices -----
+                          Text(
+                            'Exercices',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          GridView.extent(
+                            maxCrossAxisExtent: 200,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 0.82,
+                            children: [
+                              for (final e in ExercicesService.exercices)
+                                _CarteExercice(exercice: e),
+                            ],
+                          ),
+                        ],
                       ]
                       .animate(interval: 50.ms)
                       .fadeIn(duration: 300.ms)
@@ -81,164 +101,87 @@ class ExercicesScreen extends StatelessWidget {
   }
 }
 
-/// « Pour toi aujourd'hui » : une séance proposée selon le planning,
-/// l'énergie, le stress et l'humeur du jour. Jamais selon les repas.
-class CartePropositionSeance extends StatelessWidget {
-  const CartePropositionSeance({super.key, required this.date});
-
-  final DateTime date;
+/// « Retrouver l'équilibre » : affichée seulement au-dessus de l'objectif du jour.
+/// Chaque idée se note d'une touche une fois faite.
+class CarteEquilibre extends StatelessWidget {
+  const CarteEquilibre({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final couleur = theme.colorScheme.onPrimaryContainer;
-    final habitudes = context.watch<HabitudesProvider>();
-    final joursSeance = context.watch<ReglagesProvider>().reglages.joursSeance;
-    final jour = habitudes.jour(date);
-    final proposition = ExercicesService.proposerDuJour(
-      date: date,
-      joursSeance: joursSeance,
-      energie: jour.ressentis[Ressenti.energie],
-      stress: jour.ressentis[Ressenti.stress],
-      humeur: JournalService.humeur(jour),
-      dejaBouge: jour.seanceFaite || habitudes.activitesDu(date).isNotEmpty,
-    );
+    final couleurs = theme.colorScheme;
+    final (connu: _, :equilibre) = equilibreDu(context, DateTime.now());
+    if (equilibre == null) return const SizedBox.shrink();
+    final habitudes = context.read<HabitudesProvider>();
 
     return Card(
-      key: const Key('carte_proposition'),
-      color: theme.colorScheme.primaryContainer,
+      key: const Key('carte_equilibre'),
+      color: couleurs.primaryContainer,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Pour toi aujourd\'hui',
+              equilibre.repos ? '🌙 Place au repos' : '⚖️ Retrouver l\'équilibre',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: couleur,
+                color: couleurs.onPrimaryContainer,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              proposition.raison,
-              key: const Key('raison_proposition'),
-              style: TextStyle(color: couleur),
+              EquilibreService.message(equilibre),
+              key: const Key('message_equilibre'),
+              style: TextStyle(color: couleurs.onPrimaryContainer),
             ),
-            const SizedBox(height: 8),
-            if (proposition.seance case final seance?)
-              _CarteSeance(seance: seance, cle: const Key('seance_proposee'))
-            else
-              SelecteurRessenti(
-                ressenti: Ressenti.energie,
-                valeur: null,
-                onChoisir: (v) => habitudes.definirRessenti(date, Ressenti.energie, v),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Planning de la semaine : les jours où l'on aimerait faire sa séance.
-class _CartePlanning extends StatelessWidget {
-  const _CartePlanning();
-
-  static const _initiales = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  static const _noms = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final reglagesProvider = context.watch<ReglagesProvider>();
-    final reglages = reglagesProvider.reglages;
-    final jours = reglages.joursSeance;
-    return Card(
-      key: const Key('carte_planning'),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '📅 Mes jours de séance',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Choisis les jours qui te conviennent. Ce n\'est qu\'un repère : '
-              'tu restes libre de changer d\'avis.',
-              style: theme.textTheme.bodySmall,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (var j = 1; j <= 7; j++)
-                  Semantics(
-                    label: _noms[j - 1],
-                    selected: jours.contains(j),
-                    button: true,
-                    excludeSemantics: true,
-                    child: _PastilleJour(
-                      key: Key('jour_seance_$j'),
-                      lettre: _initiales[j - 1],
-                      choisi: jours.contains(j),
-                      onTap: () {
-                        final nouveaux = {...jours};
-                        if (!nouveaux.remove(j)) nouveaux.add(j);
-                        reglagesProvider.modifier(reglages.copyWith(joursSeance: nouveaux));
-                      },
+            for (final idee in equilibre.idees)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Row(
+                  children: [
+                    Text(idee.type.emoji, style: const TextStyle(fontSize: 26)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '${idee.type.libelle} '
+                        '${HabitudesService.formaterMinutes(idee.minutes)} · '
+                        '${CaloriesService.formater(idee.kcal)}',
+                        key: Key('idee_equilibre_${idee.type.name}'),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: couleurs.onPrimaryContainer,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              jours.isEmpty
-                  ? 'Aucun jour choisi : je te propose une séance selon ton énergie.'
-                  : '${jours.length} séance${jours.length > 1 ? 's' : ''} par semaine, '
-                        'à ton rythme 🌸',
-              key: const Key('resume_planning'),
-              style: theme.textTheme.bodySmall,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Une lettre du jour, à toucher pour l'ajouter au planning.
-class _PastilleJour extends StatelessWidget {
-  const _PastilleJour({super.key, required this.lettre, required this.choisi, required this.onTap});
-
-  final String lettre;
-  final bool choisi;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final couleurs = Theme.of(context).colorScheme;
-    return Material(
-      color: choisi ? couleurs.primary : couleurs.surfaceContainerHigh,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Center(
-            child: Text(
-              lettre,
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                color: choisi ? couleurs.onPrimary : couleurs.onSurface,
+                    TextButton(
+                      key: Key('fait_${idee.type.name}'),
+                      onPressed: () async {
+                        await habitudes.ajouterActivite(
+                          date: DateTime.now(),
+                          type: idee.type,
+                          dureeMinutes: idee.minutes,
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${idee.type.emoji} Bravo, c\'est noté !')),
+                        );
+                      },
+                      child: const Text('C\'est fait'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
+            if (equilibre.seance case final seance?) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Ou une séance guidée, selon ton énergie :',
+                style: TextStyle(color: couleurs.onPrimaryContainer),
+              ),
+              const SizedBox(height: 6),
+              _CarteSeance(seance: seance, cle: const Key('seance_proposee')),
+            ],
+          ],
         ),
       ),
     );

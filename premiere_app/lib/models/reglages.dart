@@ -22,7 +22,6 @@ class Reglages {
     this.heureDejeuner = 13 * 60,
     this.heureDiner = 20 * 60,
     this.suiviCycle = false,
-    this.joursSeance = const {},
     this.bilanSoir = true,
     this.heureBilanSoir = 21 * 60,
   });
@@ -46,10 +45,6 @@ class Reglages {
   /// Suivi de cycle (jours de règles) : facultatif, désactivé par défaut.
   final bool suiviCycle;
 
-  /// Jours de séance prévus dans la semaine (1 = lundi … 7 = dimanche).
-  /// Vide : pas de planning, la séance est proposée selon l'énergie seule.
-  final Set<int> joursSeance;
-
   /// Bilan du soir affiché sur l'accueil à partir de [heureBilanSoir].
   final bool bilanSoir;
 
@@ -65,7 +60,6 @@ class Reglages {
     int? heureDejeuner,
     int? heureDiner,
     bool? suiviCycle,
-    Set<int>? joursSeance,
     bool? bilanSoir,
     int? heureBilanSoir,
   }) => Reglages(
@@ -77,7 +71,6 @@ class Reglages {
     heureDejeuner: heureDejeuner ?? this.heureDejeuner,
     heureDiner: heureDiner ?? this.heureDiner,
     suiviCycle: suiviCycle ?? this.suiviCycle,
-    joursSeance: joursSeance ?? this.joursSeance,
     bilanSoir: bilanSoir ?? this.bilanSoir,
     heureBilanSoir: heureBilanSoir ?? this.heureBilanSoir,
   );
@@ -91,7 +84,6 @@ class Reglages {
     'heureDejeuner': heureDejeuner,
     'heureDiner': heureDiner,
     'suiviCycle': suiviCycle,
-    'joursSeance': [...joursSeance]..sort(),
     'bilanSoir': bilanSoir,
     'heureBilanSoir': heureBilanSoir,
   };
@@ -105,10 +97,6 @@ class Reglages {
     heureDejeuner: (json['heureDejeuner'] as num?)?.toInt() ?? 13 * 60,
     heureDiner: (json['heureDiner'] as num?)?.toInt() ?? 20 * 60,
     suiviCycle: json['suiviCycle'] as bool? ?? false,
-    joursSeance: {
-      for (final j in (json['joursSeance'] as List? ?? const []))
-        if (j is num && j >= 1 && j <= 7) j.toInt(),
-    },
     bilanSoir: json['bilanSoir'] as bool? ?? true,
     heureBilanSoir: (json['heureBilanSoir'] as num?)?.toInt() ?? 21 * 60,
   );

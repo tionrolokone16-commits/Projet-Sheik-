@@ -2,12 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/main.dart';
 import 'package:premiere_app/models/activite.dart';
+import 'package:premiere_app/models/jour_habitudes.dart';
+import 'package:premiere_app/models/recette.dart';
 import 'package:premiere_app/providers/habitudes_provider.dart';
 import 'package:premiere_app/providers/recompenses_provider.dart';
-import 'package:premiere_app/screens/accueil_screen.dart';
 import 'package:premiere_app/screens/exercices_screen.dart';
 import 'package:premiere_app/screens/seance_screen.dart';
 import 'package:premiere_app/services/exercices_service.dart';
+import 'package:premiere_app/services/stockage_service.dart';
 import 'package:provider/provider.dart';
 
 import 'outils.dart';
@@ -68,29 +70,55 @@ void main() {
     });
   });
 
-  testWidgets('écran : choisir son énergie fait apparaître une séance adaptée', (tester) async {
+  /// Note un repas très copieux aujourd'hui : l'objectif du jour est dépassé.
+  Future<StockageService> stockageAuDessus() async {
+    final stockage = await preparerStockage(avecProfil: true);
+    final h = HabitudesProvider(stockage);
+    final r = await h.ajouterRepas(
+      date: DateTime.now(),
+      repas: Repas.dejeuner,
+      portions: Portions.equilibre,
+      nomPlat: 'Garba',
+    );
+    await h.definirKcalRepas(r.id, 2000);
+    return stockage;
+  }
+
+  testWidgets('écran Bouger : séances seulement au-dessus de l\'objectif', (tester) async {
     ecranIpad(tester);
+    // Dans l'objectif : pas de séance, un message positif.
     await tester.pumpWidget(FormeDouceApp(stockage: await preparerStockage(avecProfil: true)));
     await tester.pumpAndSettle();
-    final carte = find.byKey(const Key('carte_exercices'));
-    await tester.scrollUntilVisible(
-      carte,
-      300,
-      scrollable: find
-          .descendant(of: find.byType(AccueilScreen), matching: find.byType(Scrollable))
-          .first,
-    );
-    await tester.ensureVisible(carte);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(MaterialPageRoute(builder: (_) => const ExercicesScreen()));
     await tester.pumpAndSettle();
-    await tester.tap(carte);
-    await tester.pumpAndSettle();
-    expect(find.byType(ExercicesScreen), findsOneWidget);
-    expect(find.byKey(const Key('seance_proposee')), findsNothing);
+    expect(find.byKey(const Key('carte_dans_objectif')), findsOneWidget);
+    expect(find.text('Séances guidées'), findsNothing);
+    expect(find.byKey(const Key('carte_equilibre')), findsNothing);
+  });
 
-    await tester.tap(find.text('🙂').first); // énergie 4 : « Bonne énergie »
+  testWidgets('au-dessus de l\'objectif : ce qu\'il faut brûler, et « C\'est fait »', (
+    tester,
+  ) async {
+    ecranIpad(tester);
+    await tester.pumpWidget(FormeDouceApp(stockage: await stockageAuDessus()));
     await tester.pumpAndSettle();
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(MaterialPageRoute(builder: (_) => const ExercicesScreen()));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('carte_equilibre')), findsOneWidget);
+    expect(find.textContaining('au-dessus de ton objectif'), findsOneWidget);
+    expect(find.byKey(const Key('idee_equilibre_marche')), findsOneWidget);
     expect(find.byKey(const Key('seance_proposee')), findsOneWidget);
-    expect(find.textContaining('un peu de renfo'), findsOneWidget);
+    expect(find.text('Séances guidées'), findsOneWidget);
+
+    final habitudes = Provider.of<HabitudesProvider>(
+      tester.element(find.byType(ExercicesScreen)),
+      listen: false,
+    );
+    await tester.tap(find.byKey(const Key('fait_marche')));
+    await tester.pumpAndSettle();
+    expect(habitudes.activitesDu(DateTime.now()).single.type, TypeActivite.marche);
   });
 
   /// Ouvre une séance d'essai (30 s de squat) dans l'application.
@@ -170,7 +198,7 @@ void main() {
 
   testWidgets('fiche d\'un exercice', (tester) async {
     ecranIpad(tester);
-    await tester.pumpWidget(FormeDouceApp(stockage: await preparerStockage(avecProfil: true)));
+    await tester.pumpWidget(FormeDouceApp(stockage: await stockageAuDessus()));
     await tester.pumpAndSettle();
     tester
         .state<NavigatorState>(find.byType(Navigator).first)

@@ -94,6 +94,10 @@ class VueJourHabitudes extends StatelessWidget {
       objectifVerres: objectifVerres,
     );
 
+    // Séances guidées : seulement au-dessus de l'objectif (ou sans profil).
+    final (:connu, :equilibre) = equilibreDu(context, DateTime.now());
+    final seancesVisibles = !connu || (equilibre != null && !equilibre.repos);
+
     // Calories dépensées : il faut le profil (taille, âge…) et un poids.
     final profil = context.watch<ProfilProvider>().profil;
     final poids = profil == null
@@ -254,9 +258,10 @@ class VueJourHabitudes extends StatelessWidget {
                   derniere: habitudes.derniereActivite,
                   onAjouter: () => _noterActivite(context),
                   onSupprimer: (a) => _supprimerActivite(context, a),
+                  seancesVisibles: seancesVisibles,
                 ),
-                // Séance du jour proposée (planning, énergie, humeur ; jamais les repas).
-                if (_estAujourdhui) CartePropositionSeance(date: date),
+                // Au-dessus de l'objectif calorique : de quoi retrouver l'équilibre.
+                if (_estAujourdhui) const CarteEquilibre(),
                 _CarteNote(
                   key: ValueKey('note-${cleDuJour(date)}'),
                   note: jour.note ?? '',
@@ -810,8 +815,12 @@ class _CarteActivite extends StatelessWidget {
     required this.derniere,
     required this.onAjouter,
     required this.onSupprimer,
+    required this.seancesVisibles,
     this.kcalDe,
   });
+
+  /// Les séances guidées ne sont proposées qu'au-dessus de l'objectif du jour.
+  final bool seancesVisibles;
 
   final List<Activite> activitesDuJour;
 
@@ -888,15 +897,17 @@ class _CarteActivite extends StatelessWidget {
             icon: const Icon(Icons.add_rounded),
             label: const Text('Noter une activité'),
           ),
-          const SizedBox(height: 8),
-          FilledButton.tonalIcon(
-            key: const Key('bouton_seances'),
-            onPressed: () =>
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => const ExercicesScreen())),
-            icon: const Icon(Icons.play_circle_rounded),
-            label: const Text('Séances guidées'),
-          ),
+          if (seancesVisibles) ...[
+            const SizedBox(height: 8),
+            FilledButton.tonalIcon(
+              key: const Key('bouton_seances'),
+              onPressed: () =>
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => const ExercicesScreen())),
+              icon: const Icon(Icons.play_circle_rounded),
+              label: const Text('Séances guidées'),
+            ),
+          ],
         ],
       ),
     );

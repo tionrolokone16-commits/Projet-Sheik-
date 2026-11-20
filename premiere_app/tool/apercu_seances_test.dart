@@ -1,4 +1,4 @@
-// Aperçu de l'écran « Bouger pour le plaisir » au format iPhone (outil de vérification visuelle).
+// Aperçu de l'écran « Bouger » au-dessus de l'objectif au format iPhone (outil de vérification visuelle).
 //
 // Lancement : flutter test tool/apercu_seances_test.dart
 // Produit build/apercu_seances.png. (Les emojis apparaissent en carrés.)
@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/main.dart';
 import 'package:premiere_app/models/jour_habitudes.dart';
+import 'package:premiere_app/models/recette.dart';
 import 'package:premiere_app/models/reglages.dart';
 import 'package:premiere_app/providers/habitudes_provider.dart';
 import 'package:premiere_app/screens/exercices_screen.dart';
@@ -32,14 +33,18 @@ void main() {
 
     final stockage = await preparerStockage(
       avecProfil: true,
-      reglages: Reglages(
-        theme: ThemeChoisi.clair,
-        rappelsRepas: false,
-        joursSeance: {1, 3, DateTime.now().weekday},
-      ),
+      reglages: Reglages(theme: ThemeChoisi.clair, rappelsRepas: false),
     );
     final h = HabitudesProvider(stockage);
     await h.definirRessenti(DateTime.now(), Ressenti.energie, 4);
+    // Un repas copieux : l'objectif du jour est dépassé d'environ 300 kcal.
+    final r = await h.ajouterRepas(
+      date: DateTime.now(),
+      repas: Repas.dejeuner,
+      portions: Portions.equilibre,
+      nomPlat: 'Garba',
+    );
+    await h.definirKcalRepas(r.id, 2050);
 
     final cle = GlobalKey();
     await tester.pumpWidget(
