@@ -5,7 +5,8 @@ import 'recette.dart';
 /// Un repas noté dans le journal des repas : un plat (de la bibliothèque,
 /// du plan ou personnel) et/ou une photo, avec des ressentis facultatifs.
 ///
-/// Aucune calorie, aucun total : seulement ce qui aide à se connaître.
+/// Les calories sont estimées (voir CaloriesService) et peuvent être
+/// corrigées à la main ([kcalManuel]).
 class RepasPhoto {
   const RepasPhoto({
     required this.id,
@@ -17,6 +18,7 @@ class RepasPhoto {
     this.emojiPlat,
     this.taille = TaillePortion.moyenne,
     this.ressentis = const {},
+    this.kcalManuel,
   });
 
   final String id;
@@ -40,6 +42,9 @@ class RepasPhoto {
   /// Faim avant, satiété après, plaisir : de 1 à 5, tous facultatifs.
   final Map<RessentiRepas, int> ressentis;
 
+  /// Calories saisies à la main (`null` : estimation automatique).
+  final int? kcalManuel;
+
   /// Nom à afficher dans le journal.
   String get titre => nomPlat ?? 'Repas en photo';
 
@@ -48,6 +53,8 @@ class RepasPhoto {
     TaillePortion? taille,
     Map<RessentiRepas, int>? ressentis,
     bool retirerPhoto = false,
+    int? kcalManuel,
+    bool effacerKcal = false,
   }) => RepasPhoto(
     id: id,
     date: date,
@@ -58,6 +65,7 @@ class RepasPhoto {
     emojiPlat: emojiPlat,
     taille: taille ?? this.taille,
     ressentis: ressentis ?? this.ressentis,
+    kcalManuel: effacerKcal ? null : (kcalManuel ?? this.kcalManuel),
   );
 
   RepasPhoto sansPhoto() => copyWith(retirerPhoto: true);
@@ -74,6 +82,7 @@ class RepasPhoto {
     if (emojiPlat != null) 'emoji': emojiPlat,
     'taille': taille.name,
     if (ressentis.isNotEmpty) 'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
+    if (kcalManuel != null) 'kcal': kcalManuel,
   };
 
   factory RepasPhoto.fromJson(Map<String, dynamic> json) {
@@ -97,6 +106,7 @@ class RepasPhoto {
       emojiPlat: json['emoji'] as String?,
       taille: TaillePortion.depuisNom(json['taille'] as String?),
       ressentis: ressentis,
+      kcalManuel: (json['kcal'] as num?)?.toInt(),
     );
   }
 }

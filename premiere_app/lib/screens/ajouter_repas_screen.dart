@@ -8,6 +8,7 @@ import '../models/repas_photo.dart';
 import '../providers/habitudes_provider.dart';
 import '../providers/plan_provider.dart';
 import '../services/assiette_service.dart';
+import '../services/calories_service.dart';
 import '../services/plats_service.dart';
 import '../widgets/panneau_ressenti_repas.dart';
 import 'repas_photo_screen.dart';
@@ -432,7 +433,14 @@ class _TuilePlat extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
-              Text(plat.pays.drapeau, style: const TextStyle(fontSize: 12)),
+              // Drapeau et calories estimées d'une portion moyenne.
+              Text(
+                '${plat.pays.drapeau} ${CaloriesService.formater(CaloriesService.kcalPlat(plat))}',
+                maxLines: 1,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
             ],
           ),
         ),

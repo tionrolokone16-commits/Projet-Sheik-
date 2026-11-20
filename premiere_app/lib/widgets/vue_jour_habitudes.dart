@@ -11,6 +11,7 @@ import '../models/activite.dart';
 import '../models/jour_habitudes.dart';
 import '../providers/habitudes_provider.dart';
 import '../providers/reglages_provider.dart';
+import '../services/calories_service.dart';
 import '../services/habitudes_service.dart';
 import '../services/stockage_service.dart';
 import '../models/repas_photo.dart';
@@ -169,7 +170,19 @@ class VueJourHabitudes extends StatelessWidget {
                       for (final r in habitudes.repasPhotosDu(date))
                         _LigneRepasPhoto(
                           repas: r,
+                          kcal: habitudes.kcalRepas(r),
                           onSupprimer: () => habitudes.supprimerRepasPhoto(r.id),
+                        ),
+                      if (habitudes.repasPhotosDu(date).isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            '🔥 ${CaloriesService.formater(habitudes.kcalConsommees(date))} '
+                            '${_estAujourdhui ? 'aujourd\'hui' : 'ce jour-là'} (estimation)',
+                            key: const Key('total_kcal_jour'),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
                         ),
                       if (!_estAujourdhui) ...[
                         const SizedBox(height: 8),
@@ -750,9 +763,10 @@ class _CarteNoteState extends State<_CarteNote> {
 
 /// Un repas noté : photo (ou mini-assiette), type de repas et heure.
 class _LigneRepasPhoto extends StatelessWidget {
-  const _LigneRepasPhoto({required this.repas, required this.onSupprimer});
+  const _LigneRepasPhoto({required this.repas, required this.kcal, required this.onSupprimer});
 
   final RepasPhoto repas;
+  final int kcal;
   final VoidCallback onSupprimer;
 
   @override
@@ -783,6 +797,7 @@ class _LigneRepasPhoto extends StatelessWidget {
         [
           '${repas.repas.emoji} ${repas.repas.libelle}',
           'Portion ${repas.taille.libelle.toLowerCase()}',
+          CaloriesService.formater(kcal),
           // Ressentis notés, en emojis.
           for (final e in repas.ressentis.entries) e.key.emojis[e.value - 1],
         ].join(' · '),

@@ -9,7 +9,7 @@ import 'plan_service.dart';
 /// d'Ivoire » (Étude régionale de Bouaké, 1962-1964) : féculents (igname,
 /// manioc, banane plantain, taro), céréales (riz, maïs, mil, fonio),
 /// légumineuses, légumes et feuilles, viandes, poissons.
-/// Aucune calorie n'est utilisée ni affichée.
+/// Les calories estimées de chaque plat sont dans CaloriesService.
 class PlatsService {
   PlatsService._();
 

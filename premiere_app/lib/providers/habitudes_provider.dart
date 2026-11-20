@@ -5,6 +5,7 @@ import '../models/jour_habitudes.dart';
 import '../models/plat.dart';
 import '../models/recette.dart';
 import '../models/repas_photo.dart';
+import '../services/calories_service.dart';
 import '../services/plats_service.dart';
 import '../services/stockage_service.dart';
 
@@ -147,6 +148,24 @@ class HabitudesProvider extends ChangeNotifier {
       taille: taille,
       ressentis: ressentis,
     );
+    notifyListeners();
+    _remplacerRepas(await _stockage.enregistrerRepasPhotos(_repasPhotos));
+  }
+
+  // ------------------------------------------------------- Calories
+
+  /// Calories estimées d'un repas (ou la valeur saisie à la main).
+  int kcalRepas(RepasPhoto r) =>
+      CaloriesService.kcalRepas(r, [..._platsPerso, ...PlatsService.catalogue]);
+
+  /// Total des calories consommées un jour donné (repas notés).
+  int kcalConsommees(DateTime date) => repasPhotosDu(date).fold<int>(0, (s, r) => s + kcalRepas(r));
+
+  /// Corrige à la main les calories d'un repas (`null` : retour à l'estimation).
+  Future<void> definirKcalRepas(String id, int? kcal) async {
+    final index = _repasPhotos.indexWhere((r) => r.id == id);
+    if (index < 0) return;
+    _repasPhotos[index] = _repasPhotos[index].copyWith(kcalManuel: kcal, effacerKcal: kcal == null);
     notifyListeners();
     _remplacerRepas(await _stockage.enregistrerRepasPhotos(_repasPhotos));
   }

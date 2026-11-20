@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../models/jour_habitudes.dart';
 import '../models/plat.dart';
 import '../providers/habitudes_provider.dart';
+import '../services/calories_service.dart';
+import 'dialogue_nombre.dart';
 import 'selecteur_ressenti.dart';
 
 /// Ouvre le panneau des détails d'un repas noté : moment, taille de la
@@ -84,6 +86,53 @@ class _Panneau extends StatelessWidget {
                 showSelectedIcon: false,
                 onSelectionChanged: (s) => habitudes.modifierRepas(idRepas, taille: s.first),
               ),
+            ),
+            const SizedBox(height: 16),
+            // ----- Calories (estimées, modifiables) -----
+            Text('Calories', style: theme.textTheme.titleSmall),
+            Row(
+              children: [
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: CaloriesService.formater(habitudes.kcalRepas(repas)),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        TextSpan(
+                          text: repas.kcalManuel == null ? '  estimation' : '  saisi à la main',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                    key: const Key('kcal_repas'),
+                  ),
+                ),
+                if (repas.kcalManuel != null)
+                  TextButton(
+                    onPressed: () => habitudes.definirKcalRepas(idRepas, null),
+                    child: const Text('Estimer'),
+                  ),
+                TextButton(
+                  key: const Key('corriger_kcal'),
+                  onPressed: () async {
+                    final kcal = await demanderNombre(
+                      context,
+                      titre: 'Calories de ce repas',
+                      initial: habitudes.kcalRepas(repas),
+                      aide: 'Si tu connais la valeur (étiquette, appli…), tu peux la corriger.',
+                      unite: 'kcal',
+                      maximum: 5000,
+                    );
+                    if (kcal != null) await habitudes.definirKcalRepas(idRepas, kcal);
+                  },
+                  child: const Text('Corriger'),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             for (final r in RessentiRepas.values) ...[

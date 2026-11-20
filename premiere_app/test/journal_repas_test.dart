@@ -175,11 +175,14 @@ void main() {
     expect(find.byKey(const Key('plat_ci_garba')), findsNothing);
   });
 
-  testWidgets('aucune calorie affichée dans le journal des repas', (tester) async {
+  testWidgets('chaque plat affiche ses calories estimées', (tester) async {
     ecranIpad(tester);
     await ouvrir(tester);
-    expect(find.textContaining('kcal'), findsNothing);
-    expect(find.textContaining('calorie'), findsNothing);
+    final garba = find.byKey(const Key('plat_ci_garba'));
+    expect(
+      find.descendant(of: garba, matching: find.textContaining('≈\u00a0750\u00a0kcal')),
+      findsOneWidget,
+    );
     await tester.pump(const Duration(seconds: 2)); // fin des animations
   });
 }
