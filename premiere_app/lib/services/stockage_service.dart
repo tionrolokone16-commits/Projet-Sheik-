@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/activite.dart';
@@ -45,7 +46,7 @@ class StockageService {
   }
 
   Future<void> enregistrerProfil(Profil profil) =>
-      _prefs.setString(_cleProfil, jsonEncode(profil.toJson()));
+      _ecrire(_cleProfil, jsonEncode(profil.toJson()));
 
   // ---------- Pesées ----------
 
@@ -56,7 +57,7 @@ class StockageService {
     return liste;
   }
 
-  Future<void> enregistrerPesees(List<Pesee> pesees) => _prefs.setString(
+  Future<void> enregistrerPesees(List<Pesee> pesees) => _ecrire(
       _clePesees, jsonEncode(pesees.map((p) => p.toJson()).toList()));
 
   // ---------- Activités ----------
@@ -69,7 +70,7 @@ class StockageService {
   }
 
   Future<void> enregistrerActivites(List<Activite> activites) =>
-      _prefs.setString(_cleActivites,
+      _ecrire(_cleActivites,
           jsonEncode(activites.map((a) => a.toJson()).toList()));
 
   // ---------- Journal des habitudes ----------
@@ -90,7 +91,7 @@ class StockageService {
   }
 
   Future<void> enregistrerJournal(Map<String, JourHabitudes> journal) =>
-      _prefs.setString(_cleJournal,
+      _ecrire(_cleJournal,
           jsonEncode(journal.map((cle, jour) => MapEntry(cle, jour.toJson()))));
 
   // ---------- Repas photographiés ----------
@@ -108,8 +109,53 @@ class StockageService {
     return liste..sort((a, b) => b.date.compareTo(a.date));
   }
 
-  Future<void> enregistrerRepasPhotos(List<RepasPhoto> repas) => _prefs.setString(
-      _cleRepasPhotos, jsonEncode([for (final r in repas) r.toJson()]));
+  /// Enregistre les repas notés et renvoie la liste réellement enregistrée.
+  ///
+  /// Si l'appareil manque de place, les photos des repas les plus anciens
+  /// sont retirées (les repas, eux, restent notés) jusqu'à ce que ça tienne.
+  Future<List<RepasPhoto>> enregistrerRepasPhotos(List<RepasPhoto> repas) async {
+    var liste = repas;
+    var photosRetirees = false;
+    while (true) {
+      try {
+        await _prefs.setString(
+            _cleRepasPhotos, jsonEncode([for (final r in liste) r.toJson()]));
+        break;
+      } catch (_) {
+        final allegee = _sansPhotosAnciennes(liste);
+        if (allegee == null) {
+          alerte.value = AlerteStockage(TypeAlerteStockage.echec);
+          return liste;
+        }
+        liste = allegee;
+        photosRetirees = true;
+      }
+    }
+    if (photosRetirees) alerte.value = AlerteStockage(TypeAlerteStockage.photosRetirees);
+    return liste;
+  }
+
+  /// Retire toutes les photos de repas (les repas restent notés).
+  /// Renvoie la liste enregistrée et le nombre de photos retirées.
+  Future<(List<RepasPhoto>, int)> retirerToutesLesPhotos() async {
+    final repas = chargerRepasPhotos();
+    final nombre = repas.where((r) => r.photoBase64 != null).length;
+    final sansPhotos = [for (final r in repas) r.photoBase64 == null ? r : r.sansPhoto()];
+    await _ecrire(_cleRepasPhotos, jsonEncode([for (final r in sansPhotos) r.toJson()]));
+    return (sansPhotos, nombre);
+  }
+
+  /// Même liste, sans les photos de la moitié la plus ancienne des repas
+  /// qui en ont une. `null` s'il n'y a plus aucune photo à retirer.
+  static List<RepasPhoto>? _sansPhotosAnciennes(List<RepasPhoto> repas) {
+    final avecPhoto = [
+      for (final r in repas)
+        if (r.photoBase64 != null) r,
+    ]..sort((a, b) => a.date.compareTo(b.date)); // les plus anciens d'abord
+    if (avecPhoto.isEmpty) return null;
+    final aRetirer = {for (final r in avecPhoto.take((avecPhoto.length + 1) ~/ 2)) r.id};
+    return [for (final r in repas) aRetirer.contains(r.id) ? r.sansPhoto() : r];
+  }
 
   // ---------- Plats personnels ----------
 
@@ -125,7 +171,7 @@ class StockageService {
     return liste;
   }
 
-  Future<void> enregistrerPlatsPerso(List<Plat> plats) => _prefs.setString(
+  Future<void> enregistrerPlatsPerso(List<Plat> plats) => _ecrire(
       _clePlatsPerso, jsonEncode([for (final p in plats) p.toJson()]));
 
   // ---------- Récompenses (badges, défis, victoires) ----------
@@ -141,7 +187,7 @@ class StockageService {
   }
 
   Future<void> enregistrerProgres(Progres progres) =>
-      _prefs.setString(_cleProgres, jsonEncode(progres.toJson()));
+      _ecrire(_cleProgres, jsonEncode(progres.toJson()));
 
   // ---------- Plan nutritionnel (texte importé) ----------
 
@@ -149,7 +195,7 @@ class StockageService {
   String? chargerPlanTexte() => _prefs.getString(_clePlan);
 
   Future<void> enregistrerPlanTexte(String? texte) =>
-      texte == null ? _prefs.remove(_clePlan) : _prefs.setString(_clePlan, texte);
+      texte == null ? _prefs.remove(_clePlan) : _ecrire(_clePlan, texte);
 
   // ---------- Rappels mis de côté (« Plus tard ») ----------
 
@@ -164,7 +210,7 @@ class StockageService {
   }
 
   Future<void> enregistrerRappelsMisDeCote(String jour, Set<String> repas) =>
-      _prefs.setString(_cleRappels, jsonEncode({'jour': jour, 'repas': repas.toList()}));
+      _ecrire(_cleRappels, jsonEncode({'jour': jour, 'repas': repas.toList()}));
 
   // ---------- Réglages ----------
 
@@ -174,27 +220,82 @@ class StockageService {
   }
 
   Future<void> enregistrerReglages(Reglages reglages) =>
-      _prefs.setString(_cleReglages, jsonEncode(reglages.toJson()));
+      _ecrire(_cleReglages, jsonEncode(reglages.toJson()));
+
+  /// Toutes les clés utilisées par l'application.
+  static const _toutesLesCles = [
+    _cleProfil,
+    _clePesees,
+    _cleActivites,
+    _cleJournal,
+    _cleReglages,
+    _cleProgres,
+    _cleRepasPhotos,
+    _clePlan,
+    _clePlatsPerso,
+    _cleRappels,
+  ];
 
   /// Efface toutes les données de l'application.
   Future<void> toutEffacer() async {
-    for (final cle in [
-      _cleProfil,
-      _clePesees,
-      _cleActivites,
-      _cleJournal,
-      _cleReglages,
-      _cleProgres,
-      _cleRepasPhotos,
-      _clePlan,
-      _clePlatsPerso,
-      _cleRappels,
-    ]) {
+    for (final cle in _toutesLesCles) {
       await _prefs.remove(cle);
     }
   }
 
+  // ---------- Place disponible ----------
+
+  /// Place approximative offerte par le navigateur (Safari : environ 5 Mo).
+  static const placeDisponibleOctets = 5 * 1024 * 1024;
+
+  /// Signale un souci d'enregistrement (à afficher à l'utilisatrice).
+  /// Une nouvelle alerte est un nouvel objet : chaque alerte est signalée.
+  final alerte = ValueNotifier<AlerteStockage?>(null);
+
+  /// Espace occupé par les données de l'application, en octets (estimation :
+  /// le navigateur compte 2 octets par caractère).
+  int espaceUtiliseOctets() {
+    var caracteres = 0;
+    for (final cle in _toutesLesCles) {
+      final valeur = _prefs.getString(cle);
+      if (valeur != null) caracteres += 'flutter.'.length + cle.length + valeur.length + 2;
+    }
+    return caracteres * 2;
+  }
+
   // ---------- Outils internes ----------
+
+  /// Écrit une valeur. Si l'appareil manque de place, on retire d'abord des
+  /// photos de repas anciennes puis on réessaie. Si rien n'y fait, une alerte
+  /// est émise au lieu de perdre la donnée en silence.
+  Future<bool> _ecrire(String cle, String valeur) async {
+    while (true) {
+      try {
+        await _prefs.setString(cle, valeur);
+        return true;
+      } catch (_) {
+        if (cle == _cleRepasPhotos || !await _alleger()) {
+          alerte.value = AlerteStockage(TypeAlerteStockage.echec);
+          return false;
+        }
+      }
+    }
+  }
+
+  /// Libère de la place en retirant les photos des repas les plus anciens.
+  /// Renvoie `false` s'il n'y avait plus aucune photo à retirer.
+  Future<bool> _alleger() async {
+    final allegee = _sansPhotosAnciennes(chargerRepasPhotos());
+    if (allegee == null) return false;
+    try {
+      await _prefs.setString(
+          _cleRepasPhotos, jsonEncode([for (final r in allegee) r.toJson()]));
+    } catch (_) {
+      return false;
+    }
+    alerte.value = AlerteStockage(TypeAlerteStockage.photosRetirees);
+    return true;
+  }
 
   /// Lit un objet JSON ; renvoie `null` s'il est absent ou illisible.
   Map<String, dynamic>? _lireObjet(String cle) {
@@ -224,3 +325,27 @@ String cleDuJour(DateTime date) =>
     '${date.year.toString().padLeft(4, '0')}-'
     '${date.month.toString().padLeft(2, '0')}-'
     '${date.day.toString().padLeft(2, '0')}';
+
+/// Type de souci d'enregistrement.
+enum TypeAlerteStockage {
+  /// Des photos de repas anciennes ont été retirées pour faire de la place.
+  photosRetirees,
+
+  /// Malgré tout, la dernière modification n'a pas pu être enregistrée.
+  echec,
+}
+
+/// Souci d'enregistrement à signaler, avec un message doux.
+class AlerteStockage {
+  AlerteStockage(this.type);
+  final TypeAlerteStockage type;
+
+  String get message => switch (type) {
+        TypeAlerteStockage.photosRetirees =>
+          '📸 Ton appareil manquait de place : les photos des repas les plus '
+              'anciens ont été retirées. Les repas, eux, restent notés.',
+        TypeAlerteStockage.echec =>
+          '⚠️ Ton appareil manque de place : la dernière modification n\'a pas pu '
+              'être enregistrée. Tu peux libérer de la place dans Réglages → Mes données.',
+      };
+}

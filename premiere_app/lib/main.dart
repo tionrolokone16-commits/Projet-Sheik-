@@ -49,6 +49,35 @@ class _FormeDouceAppState extends State<FormeDouceApp> {
 
   void _redemarrer() => setState(() => _cle = UniqueKey());
 
+  /// Pour afficher un message en bas de l'écran, quel que soit l'écran ouvert.
+  final _messager = GlobalKey<ScaffoldMessengerState>();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.stockage.alerte.addListener(_surAlerteStockage);
+  }
+
+  @override
+  void dispose() {
+    widget.stockage.alerte.removeListener(_surAlerteStockage);
+    super.dispose();
+  }
+
+  /// Un souci d'enregistrement (manque de place) : on le dit avec douceur,
+  /// plutôt que de perdre la donnée en silence.
+  void _surAlerteStockage() {
+    final alerte = widget.stockage.alerte.value;
+    if (alerte == null) return;
+    _messager.currentState
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        key: const Key('alerte_stockage'),
+        content: Text(alerte.message),
+        duration: const Duration(seconds: 8),
+      ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final stockage = widget.stockage;
@@ -67,6 +96,7 @@ class _FormeDouceAppState extends State<FormeDouceApp> {
       child: Consumer<ReglagesProvider>(
         builder: (context, reglages, _) => MaterialApp(
           title: 'Kira\'s FAT',
+          scaffoldMessengerKey: _messager,
           debugShowCheckedModeBanner: false,
           theme: ThemeFormeDouce.clair(),
           darkTheme: ThemeFormeDouce.sombre(),

@@ -15,7 +15,10 @@ class HabitudesProvider extends ChangeNotifier {
       : _journal = _stockage.chargerJournal(),
         _activites = _stockage.chargerActivites(),
         _repasPhotos = _stockage.chargerRepasPhotos(),
-        _platsPerso = _stockage.chargerPlatsPerso();
+        _platsPerso = _stockage.chargerPlatsPerso() {
+    // Si des photos ont été retirées pour faire de la place, on se resynchronise.
+    _stockage.alerte.addListener(_surAlerteStockage);
+  }
 
   final StockageService _stockage;
   final Map<String, JourHabitudes> _journal;
@@ -75,7 +78,7 @@ class HabitudesProvider extends ChangeNotifier {
       photos++;
       if (photos > photosConservees) _repasPhotos[i] = _repasPhotos[i].sansPhoto();
     }
-    await _stockage.enregistrerRepasPhotos(_repasPhotos);
+    _remplacerRepas(await _stockage.enregistrerRepasPhotos(_repasPhotos));
     // Coche le repas dans le journal (sans le décocher s'il l'est déjà).
     if (!jour(date).repas.contains(repas)) {
       await basculerRepas(date, repas);
@@ -97,7 +100,7 @@ class HabitudesProvider extends ChangeNotifier {
     _repasPhotos[index] =
         _repasPhotos[index].copyWith(repas: repas, taille: taille, ressentis: ressentis);
     notifyListeners();
-    await _stockage.enregistrerRepasPhotos(_repasPhotos);
+    _remplacerRepas(await _stockage.enregistrerRepasPhotos(_repasPhotos));
   }
 
   RepasPhoto? repasParId(String id) {
@@ -142,7 +145,7 @@ class HabitudesProvider extends ChangeNotifier {
     if (index < 0) return null;
     final supprime = _repasPhotos.removeAt(index);
     notifyListeners();
-    await _stockage.enregistrerRepasPhotos(_repasPhotos);
+    _remplacerRepas(await _stockage.enregistrerRepasPhotos(_repasPhotos));
     return supprime;
   }
 
@@ -248,5 +251,38 @@ class HabitudesProvider extends ChangeNotifier {
   Future<void> _sauverActivites() async {
     notifyListeners();
     await _stockage.enregistrerActivites(_activites);
+  }
+
+  // ------------------------------------------------- Place disponible
+
+  /// Remplace la liste des repas par celle réellement enregistrée
+  /// (des photos anciennes ont pu être retirées pour faire de la place).
+  void _remplacerRepas(List<RepasPhoto> enregistres) {
+    if (identical(enregistres, _repasPhotos)) return;
+    _repasPhotos
+      ..clear()
+      ..addAll(enregistres)
+      ..sort((a, b) => b.date.compareTo(a.date));
+    notifyListeners();
+  }
+
+  void _surAlerteStockage() {
+    if (_stockage.alerte.value?.type == TypeAlerteStockage.photosRetirees) {
+      _remplacerRepas(_stockage.chargerRepasPhotos());
+    }
+  }
+
+  /// Retire toutes les photos de repas (les repas restent notés).
+  /// Renvoie le nombre de photos retirées.
+  Future<int> retirerToutesLesPhotos() async {
+    final (repas, nombre) = await _stockage.retirerToutesLesPhotos();
+    _remplacerRepas(repas);
+    return nombre;
+  }
+
+  @override
+  void dispose() {
+    _stockage.alerte.removeListener(_surAlerteStockage);
+    super.dispose();
   }
 }

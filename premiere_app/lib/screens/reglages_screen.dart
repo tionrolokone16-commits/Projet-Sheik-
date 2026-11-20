@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../main.dart';
 import '../models/reglages.dart';
+import '../providers/habitudes_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/calculs_service.dart';
 import '../services/rappels_service.dart';
@@ -241,6 +242,9 @@ class ReglagesScreen extends StatelessWidget {
                           'du navigateur, elles disparaissent aussi.'),
                     ),
                     const Divider(height: 1),
+                    // Espace utilisé dans le navigateur (environ 5 Mo disponibles).
+                    const _EspaceUtilise(),
+                    const Divider(height: 1),
                     ListTile(
                       key: const Key('bouton_tout_effacer'),
                       leading: Icon(Icons.restart_alt_rounded, color: theme.colorScheme.primary),
@@ -308,6 +312,103 @@ class _Section extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Column(children: enfants),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Espace utilisé par l'application et bouton pour retirer les photos
+/// de repas (les repas, eux, restent notés).
+class _EspaceUtilise extends StatelessWidget {
+  const _EspaceUtilise();
+
+  Future<void> _retirerPhotos(BuildContext context) async {
+    final habitudes = context.read<HabitudesProvider>();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Text('📸', style: TextStyle(fontSize: 36)),
+        title: const Text('Retirer les photos de repas ?'),
+        content: const Text('Tes repas restent notés (plat, portion, ressentis) : '
+            'seules les photos sont retirées, pour libérer de la place.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Garder'),
+          ),
+          FilledButton(
+            key: const Key('confirmer_retrait_photos'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Retirer les photos'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final nombre = await habitudes.retirerToutesLesPhotos();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(nombre == 0
+          ? 'Il n\'y avait aucune photo à retirer.'
+          : '$nombre ${nombre > 1 ? 'photos retirées' : 'photo retirée'}. '
+              'Tes repas restent notés 🌸'),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // Se met à jour quand les repas (et leurs photos) changent.
+    final photos =
+        context.watch<HabitudesProvider>().repasPhotos.where((r) => r.photoBase64 != null).length;
+    final stockage = context.read<StockageService>();
+    final utilise = stockage.espaceUtiliseOctets();
+    final part = (utilise / StockageService.placeDisponibleOctets).clamp(0.0, 1.0);
+    String enMo(int octets) =>
+        (octets / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',');
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('💾', style: TextStyle(fontSize: 22)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Espace utilisé : ${enMo(utilise)} Mo sur environ '
+                  '${enMo(StockageService.placeDisponibleOctets)} Mo',
+                  key: const Key('espace_utilise'),
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(value: part, minHeight: 8),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Les photos de repas prennent le plus de place ($photos '
+            '${photos > 1 ? 'photos' : 'photo'}). S\'il en manque, les plus anciennes '
+            'sont retirées automatiquement : les repas, eux, restent notés.',
+            style: theme.textTheme.bodySmall,
+          ),
+          if (photos > 0)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const Key('bouton_retirer_photos'),
+                onPressed: () => _retirerPhotos(context),
+                icon: const Icon(Icons.hide_image_outlined),
+                label: const Text('Retirer les photos de repas'),
+              ),
+            ),
         ],
       ),
     );
