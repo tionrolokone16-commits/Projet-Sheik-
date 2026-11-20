@@ -14,15 +14,25 @@ import '../widgets/vue_jour_habitudes.dart';
 ///
 /// Chaque jour est coloré selon les habitudes prises en soin (rose pâle →
 /// rose vif) et porte de petites pastilles. Toucher un jour ouvre son détail.
+///
+/// En mode « choisir un jour » (depuis l'onglet Habitudes), toucher un jour
+/// referme le calendrier en renvoyant la date choisie.
 class CalendrierOngletScreen extends StatefulWidget {
-  const CalendrierOngletScreen({super.key});
+  const CalendrierOngletScreen({super.key}) : choixJour = false, jourInitial = null;
+
+  /// Calendrier pour choisir un jour : renvoie la date touchée.
+  const CalendrierOngletScreen.choisirJour({super.key, required DateTime this.jourInitial})
+    : choixJour = true;
+
+  final bool choixJour;
+  final DateTime? jourInitial;
 
   @override
   State<CalendrierOngletScreen> createState() => _CalendrierOngletScreenState();
 }
 
 class _CalendrierOngletScreenState extends State<CalendrierOngletScreen> {
-  DateTime _moisAffiche = DateTime.now();
+  late DateTime _moisAffiche = widget.jourInitial ?? DateTime.now();
 
   /// Vue affichée : le mois (par défaut) ou la semaine.
   bool _vueSemaine = false;
@@ -44,9 +54,10 @@ class _CalendrierOngletScreenState extends State<CalendrierOngletScreen> {
 
   static DateTime _sansHeure(DateTime d) => DateTime(d.year, d.month, d.day);
 
-  void _ouvrirJour(DateTime jour) =>
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => JourScreen(date: _sansHeure(jour))));
+  void _ouvrirJour(DateTime jour) => widget.choixJour
+      ? Navigator.of(context).pop(_sansHeure(jour))
+      : Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => JourScreen(date: _sansHeure(jour))));
 
   @override
   Widget build(BuildContext context) {
@@ -65,37 +76,38 @@ class _CalendrierOngletScreenState extends State<CalendrierOngletScreen> {
         );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Calendrier')),
+      appBar: AppBar(title: Text(widget.choixJour ? 'Choisir un jour' : 'Calendrier')),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 700),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: SegmentedButton<bool>(
-                      key: const Key('choix_vue'),
-                      segments: const [
-                        ButtonSegment(
-                          value: false,
-                          label: Text('Mois'),
-                          icon: Icon(Icons.calendar_view_month_rounded),
-                        ),
-                        ButtonSegment(
-                          value: true,
-                          label: Text('Semaine'),
-                          icon: Icon(Icons.bar_chart_rounded),
-                        ),
-                      ],
-                      selected: {_vueSemaine},
-                      showSelectedIcon: false,
-                      onSelectionChanged: (choix) => setState(() => _vueSemaine = choix.first),
+                if (!widget.choixJour)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<bool>(
+                        key: const Key('choix_vue'),
+                        segments: const [
+                          ButtonSegment(
+                            value: false,
+                            label: Text('Mois'),
+                            icon: Icon(Icons.calendar_view_month_rounded),
+                          ),
+                          ButtonSegment(
+                            value: true,
+                            label: Text('Semaine'),
+                            icon: Icon(Icons.bar_chart_rounded),
+                          ),
+                        ],
+                        selected: {_vueSemaine},
+                        showSelectedIcon: false,
+                        onSelectionChanged: (choix) => setState(() => _vueSemaine = choix.first),
+                      ),
                     ),
                   ),
-                ),
                 Expanded(
                   child: _vueSemaine
                       // Semaine en cours : graphique, constats, idées et partage.

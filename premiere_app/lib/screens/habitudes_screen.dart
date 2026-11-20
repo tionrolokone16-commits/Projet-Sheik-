@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../services/journal_service.dart';
 import '../widgets/vue_jour_habitudes.dart';
-import 'calendrier_screen.dart';
+import 'calendrier_onglet_screen.dart';
 
 /// Onglet Habitudes, sous forme de journal :
 /// on glisse d'un jour à l'autre (vers la droite = jours passés),
@@ -52,7 +52,9 @@ class _HabitudesScreenState extends State<HabitudesScreen> {
 
   Future<void> _ouvrirCalendrier() async {
     final choisie = await Navigator.of(context).push<DateTime>(
-      MaterialPageRoute(builder: (_) => CalendrierScreen(jourSelectionne: _dateDe(_index))),
+      MaterialPageRoute(
+        builder: (_) => CalendrierOngletScreen.choisirJour(jourInitial: _dateDe(_index)),
+      ),
     );
     if (choisie == null) return;
     final n = DateTime.now();
@@ -75,7 +77,7 @@ class _HabitudesScreenState extends State<HabitudesScreen> {
             key: const Key('bouton_calendrier'),
             tooltip: 'Calendrier',
             onPressed: _ouvrirCalendrier,
-            icon: const Hero(tag: 'calendrier', child: Icon(Icons.calendar_month_rounded)),
+            icon: const Icon(Icons.calendar_month_rounded),
           ),
           const SizedBox(width: 8),
         ],

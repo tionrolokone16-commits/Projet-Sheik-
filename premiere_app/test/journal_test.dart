@@ -3,30 +3,25 @@ import 'package:material_ui/material_ui.dart';
 import 'package:premiere_app/main.dart';
 import 'package:premiere_app/models/jour_habitudes.dart';
 import 'package:premiere_app/providers/habitudes_provider.dart';
-import 'package:premiere_app/screens/calendrier_screen.dart';
 import 'package:premiere_app/services/journal_service.dart';
 
 import 'outils.dart';
 
-/// Tests du journal : ton des journées, navigation entre jours, calendrier.
+/// Tests du journal : humeur, navigation entre jours, calendrier.
 void main() {
-  test('le ton vient uniquement des ressentis (stress inversé)', () {
-    expect(JournalService.ton(const JourHabitudes(verres: 8)), isNull);
+  test('l\'humeur vient uniquement des ressentis (stress inversé)', () {
+    expect(JournalService.humeur(const JourHabitudes(verres: 8)), isNull);
     expect(
-      JournalService.ton(
-        const JourHabitudes(
-          ressentis: {Ressenti.energie: 5, Ressenti.stress: 1, Ressenti.sommeil: 5},
-        ),
+      JournalService.humeur(
+        const JourHabitudes(ressentis: {Ressenti.energie: 5, Ressenti.stress: 1}),
       ),
-      TonJour.lumineuse,
+      5,
     );
     expect(
-      JournalService.ton(const JourHabitudes(ressentis: {Ressenti.energie: 1, Ressenti.stress: 5})),
-      TonJour.cocooning,
-    );
-    expect(
-      JournalService.ton(const JourHabitudes(ressentis: {Ressenti.energie: 3})),
-      TonJour.tranquille,
+      JournalService.humeur(
+        const JourHabitudes(ressentis: {Ressenti.energie: 1, Ressenti.stress: 5}),
+      ),
+      1,
     );
   });
 
@@ -89,15 +84,14 @@ void main() {
 
     await tester.tap(find.byKey(const Key('bouton_calendrier')));
     await tester.pumpAndSettle();
-    expect(find.byType(CalendrierScreen), findsOneWidget);
+    expect(find.text('Choisir un jour'), findsOneWidget);
     expect(find.text('Comment lire ton calendrier'), findsOneWidget);
 
     // On choisit le 1er du mois (aujourd'hui si on est le 1er).
-    await tester.tap(
-      find.descendant(of: find.byType(CalendrierScreen), matching: find.text('1')).first,
-    );
+    final n = DateTime.now();
+    await tester.tap(find.byKey(Key('jour_${n.year}_${n.month}_1')));
     await tester.pumpAndSettle();
-    expect(find.byType(CalendrierScreen), findsNothing);
+    expect(find.text('Choisir un jour'), findsNothing);
     final premier = DateTime.now().day == 1;
     expect(
       find.text(premier ? 'Aujourd\'hui' : 'Hier'),
