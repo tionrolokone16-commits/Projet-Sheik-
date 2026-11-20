@@ -19,6 +19,7 @@ import '../services/plante_service.dart';
 import '../services/recompenses_service.dart';
 import '../widgets/avatar_profil.dart';
 import '../widgets/carte_rappel_repas.dart';
+import '../widgets/carte_recommandations.dart';
 import '../widgets/dialogue_pesee.dart';
 import '../widgets/tableau_calories.dart';
 import '../widgets/plante.dart';
@@ -193,6 +194,7 @@ class AccueilScreen extends StatelessWidget {
                         // ----- 3. Aujourd'hui (seulement s'il y a lieu) -----
                         // ----- Calories du jour (grand tableau de bord) -----
                         const TableauCalories(),
+                        CarteRecommandations(date: maintenant, seulementSiComplete: true),
                         // ----- Jour de pesée (sauf si le poids est masqué sur l'accueil) -----
                         if (!reglages.masquerPoidsAccueil &&
                             PeseeHebdoService.rappelAujourdhui(

@@ -22,6 +22,7 @@ import '../screens/ajouter_repas_screen.dart';
 import '../screens/exercices_screen.dart';
 import 'assiette.dart';
 import 'bouteille_eau.dart';
+import 'carte_recommandations.dart';
 import 'panneau_ressenti_repas.dart';
 import 'dialogue_activite.dart';
 import 'energie.dart';
@@ -124,6 +125,8 @@ class VueJourHabitudes extends StatelessWidget {
                     objectif: objectifActuel(context)?.kcalParJour,
                     aujourdhui: _estAujourdhui,
                   ),
+                // Conseils du jour, une fois la journée complète.
+                CarteRecommandations(date: date),
                 _CarteEau(
                   verres: jour.verres,
                   objectif: objectifVerres,

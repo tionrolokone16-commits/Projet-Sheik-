@@ -7,6 +7,7 @@ import '../providers/profil_provider.dart';
 import '../providers/recompenses_provider.dart';
 import '../providers/reglages_provider.dart';
 import '../services/bilan_soir_service.dart';
+import '../widgets/carte_recommandations.dart';
 
 /// Bilan du soir : un bravo pour ce qui a été fait aujourd'hui.
 /// « Ma journée a été compliquée » : du réconfort, puis 1 ou 2 idées
@@ -106,6 +107,8 @@ class _BilanSoirScreenState extends State<BilanSoirScreen> {
                 ),
                 const SizedBox(height: 8),
 
+                CarteRecommandations(date: _aujourdhui, seulementSiComplete: true),
+                const SizedBox(height: 8),
                 // ----- Journée compliquée -----
                 if (!_compliquee)
                   OutlinedButton.icon(
