@@ -103,15 +103,17 @@ void main() {
     final contexte = tester.element(find.byType(Scaffold).first);
     afficherPanneauRessentiRepas(contexte, note.id);
     await tester.pumpAndSettle();
-    expect(find.textContaining('≈\u00a0750\u00a0kcal'), findsOneWidget);
+    String kcalPanneau() =>
+        tester.widget<Text>(find.byKey(const Key('kcal_repas'))).textSpan!.toPlainText();
+    expect(kcalPanneau(), contains('≈\u00a0750\u00a0kcal'));
 
     await tester.tap(find.byKey(const Key('corriger_kcal')));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('champ_nombre')), '600');
     await tester.tap(find.byKey(const Key('valider_nombre')));
     await tester.pumpAndSettle();
-    expect(find.textContaining('≈\u00a0600\u00a0kcal'), findsOneWidget);
-    expect(find.textContaining('saisi à la main'), findsOneWidget);
+    expect(kcalPanneau(), contains('≈\u00a0600\u00a0kcal'));
+    expect(kcalPanneau(), contains('saisi à la main'));
     final h = Provider.of<HabitudesProvider>(contexte, listen: false);
     expect(h.repasParId(note.id)!.kcalManuel, 600);
   });

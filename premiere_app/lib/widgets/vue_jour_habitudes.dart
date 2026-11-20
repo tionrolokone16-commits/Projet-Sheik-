@@ -24,6 +24,7 @@ import 'assiette.dart';
 import 'bouteille_eau.dart';
 import 'panneau_ressenti_repas.dart';
 import 'dialogue_activite.dart';
+import 'energie.dart';
 import 'selecteur_ressenti.dart';
 
 /// Toutes les habitudes d'une journée, sous forme de cartes :
@@ -116,6 +117,7 @@ class VueJourHabitudes extends StatelessWidget {
                   _CarteEnergie(
                     depense: depense,
                     consomme: habitudes.kcalConsommees(date),
+                    objectif: objectifActuel(context)?.kcalParJour,
                     aujourdhui: _estAujourdhui,
                   ),
                 _CarteEau(
@@ -413,10 +415,18 @@ class _PastilleHabitude extends StatelessWidget {
 
 /// Énergie de la journée : calories dépensées (détaillées) et consommées.
 class _CarteEnergie extends StatelessWidget {
-  const _CarteEnergie({required this.depense, required this.consomme, required this.aujourdhui});
+  const _CarteEnergie({
+    required this.depense,
+    required this.consomme,
+    required this.objectif,
+    required this.aujourdhui,
+  });
 
   final DepenseJour depense;
   final int consomme;
+
+  /// Objectif calorique du jour (`null` sans profil).
+  final int? objectif;
   final bool aujourdhui;
 
   @override
@@ -470,6 +480,21 @@ class _CarteEnergie extends StatelessWidget {
           ligne('🏠', 'Vie quotidienne', depense.quotidien),
           ligne('🚶', 'Activités et séance', depense.activites, cle: const Key('kcal_activites')),
           ligne('👣', 'Pas', depense.pas),
+          if (objectif != null) ...[
+            const Divider(height: 20),
+            ligne('🎯', 'Mon objectif du jour', objectif!, cle: const Key('kcal_objectif_jour')),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                texteReste(consomme, objectif!),
+                key: const Key('kcal_reste'),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: couleurs.primary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 8),
           Text(
             'Estimations, à partir de ton profil et de ta dernière pesée.',

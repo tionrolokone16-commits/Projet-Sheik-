@@ -371,19 +371,19 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                     .push(MaterialPageRoute(builder: (_) => const MonPlanScreen())),
                               ),
                             ),
-                            // Avec un plan professionnel, c'est lui le repère : pas de calcul.
+                            // Avec un plan professionnel, il reste la référence ; l'objectif
+                            // calorique est affiché à côté, comme une estimation.
                             if (aUnPlan)
                               const CarteDouce(
                                 icone: Icons.verified_outlined,
                                 titre: 'Ton repère : ton plan',
                                 message:
-                                    'Tu es accompagnée par une diététicienne : son plan passe '
-                                    'avant tout calcul. Les repères caloriques de l\'appli sont '
-                                    'donc masqués.',
-                              )
-                            else
-                              // Repère calorique basé sur la dernière pesée, si elle existe.
-                              CarteObjectifCalorique(profil: profil, poidsActuelKg: dernierPoids),
+                                    'Le plan de ta diététicienne reste ta référence. L\'objectif '
+                                    'calorique ci-dessous est une estimation de l\'appli : '
+                                    'parles-en avec elle si tu as un doute.',
+                              ),
+                            // Objectif calorique selon le poids visé, recalculé à chaque pesée.
+                            CarteObjectifCalorique(profil: profil, poidsActuelKg: dernierPoids),
                           ],
                         ]
                         .animate(interval: 60.ms)

@@ -115,11 +115,12 @@ void main() {
     expect(find.byKey(const Key('plan_aujourdhui')), findsOneWidget);
     expect(stockage.chargerPlanTexte(), isNotNull);
 
-    // Retour au profil : le repère calorique laisse la place au plan.
+    // Retour au profil : le plan est la référence, l'objectif calorique reste visible.
     tester.state<NavigatorState>(find.byType(Navigator).first).pop();
     await tester.pumpAndSettle();
     expect(find.text('Ton repère : ton plan'), findsOneWidget);
-    expect(find.text('Indications générales, pas un avis médical.'), findsNothing);
+    // L'objectif calorique reste affiché, comme une estimation.
+    expect(find.text('Mon objectif calorique'), findsOneWidget);
 
     // Sur l'accueil : le plan du jour.
     await tester.tap(find.text('Accueil'));

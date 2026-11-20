@@ -47,16 +47,22 @@ class CarteObjectifCalorique extends StatelessWidget {
               children: [
                 Icon(Icons.restaurant_outlined, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
-                Text('Repère énergétique', style: theme.textTheme.titleMedium),
+                Text('Mon objectif calorique', style: theme.textTheme.titleMedium),
               ],
             ),
             const SizedBox(height: 12),
             Text(
               '${formaterEntier(r.kcalParJour)} kcal / jour',
+              key: const Key('objectif_kcal_profil'),
               style: theme.textTheme.headlineMedium?.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
+            ),
+            Text(
+              'De ${formaterDecimal(poidsActuelKg ?? profil.poidsDepartKg)} kg vers ton objectif '
+              'de ${formaterDecimal(profil.poidsObjectifKg)} kg. Recalculé à chaque pesée.',
+              style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
             Text(explication),
