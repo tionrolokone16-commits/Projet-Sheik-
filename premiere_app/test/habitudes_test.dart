@@ -71,7 +71,7 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();
-    for (final onglet in ['Poids', 'Habitudes', 'Profil', 'Accueil']) {
+    for (final onglet in ['Poids', 'Habitudes', 'Calendrier', 'Profil', 'Accueil']) {
       await tester.tap(find.text(onglet));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'onglet $onglet');

@@ -21,6 +21,7 @@ class Reglages {
     this.heurePetitDejeuner = 8 * 60,
     this.heureDejeuner = 13 * 60,
     this.heureDiner = 20 * 60,
+    this.suiviCycle = false,
   });
 
   /// Si vrai, le poids n'apparaît pas sur l'écran d'accueil.
@@ -39,6 +40,9 @@ class Reglages {
   final int heureDejeuner;
   final int heureDiner;
 
+  /// Suivi de cycle (jours de règles) : facultatif, désactivé par défaut.
+  final bool suiviCycle;
+
   Reglages copyWith({
     bool? masquerPoidsAccueil,
     int? objectifVerres,
@@ -47,6 +51,7 @@ class Reglages {
     int? heurePetitDejeuner,
     int? heureDejeuner,
     int? heureDiner,
+    bool? suiviCycle,
   }) => Reglages(
     masquerPoidsAccueil: masquerPoidsAccueil ?? this.masquerPoidsAccueil,
     objectifVerres: objectifVerres ?? this.objectifVerres,
@@ -55,6 +60,7 @@ class Reglages {
     heurePetitDejeuner: heurePetitDejeuner ?? this.heurePetitDejeuner,
     heureDejeuner: heureDejeuner ?? this.heureDejeuner,
     heureDiner: heureDiner ?? this.heureDiner,
+    suiviCycle: suiviCycle ?? this.suiviCycle,
   );
 
   Map<String, dynamic> toJson() => {
@@ -65,6 +71,7 @@ class Reglages {
     'heurePetitDejeuner': heurePetitDejeuner,
     'heureDejeuner': heureDejeuner,
     'heureDiner': heureDiner,
+    'suiviCycle': suiviCycle,
   };
 
   factory Reglages.fromJson(Map<String, dynamic> json) => Reglages(
@@ -75,5 +82,6 @@ class Reglages {
     heurePetitDejeuner: (json['heurePetitDejeuner'] as num?)?.toInt() ?? 8 * 60,
     heureDejeuner: (json['heureDejeuner'] as num?)?.toInt() ?? 13 * 60,
     heureDiner: (json['heureDiner'] as num?)?.toInt() ?? 20 * 60,
+    suiviCycle: json['suiviCycle'] as bool? ?? false,
   );
 }

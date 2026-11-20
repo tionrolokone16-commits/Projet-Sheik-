@@ -37,7 +37,7 @@ import 'respiration_screen.dart';
 class AccueilScreen extends StatelessWidget {
   const AccueilScreen({super.key, this.onAllerOnglet});
 
-  /// Pour ouvrir un autre onglet (1 = Poids, 2 = Habitudes, 3 = Profil).
+  /// Pour ouvrir un autre onglet (1 = Poids, 2 = Habitudes, 3 = Calendrier, 4 = Profil).
   final ValueChanged<int>? onAllerOnglet;
 
   void _ouvrir(BuildContext context, Widget ecran) =>
@@ -90,7 +90,7 @@ class AccueilScreen extends StatelessWidget {
                                 photoBase64: profil?.photoBase64,
                                 prenom: profil?.prenom ?? '',
                                 taille: 60,
-                                onTap: () => onAllerOnglet?.call(3),
+                                onTap: () => onAllerOnglet?.call(4),
                               ),
                               const SizedBox(width: 14),
                               Expanded(

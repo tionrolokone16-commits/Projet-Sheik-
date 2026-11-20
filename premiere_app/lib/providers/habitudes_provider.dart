@@ -191,6 +191,10 @@ class HabitudesProvider extends ChangeNotifier {
   Future<void> definirNote(DateTime date, String note) =>
       _modifier(date, (j) => j.copyWith(note: note));
 
+  /// Coche ou décoche un jour de règles (suivi de cycle).
+  Future<void> basculerRegles(DateTime date) =>
+      _modifier(date, (j) => j.copyWith(regles: !j.regles));
+
   Future<void> _modifier(DateTime date, JourHabitudes Function(JourHabitudes) changement) async {
     final cle = cleDuJour(date);
     final nouveau = changement(_journal[cle] ?? const JourHabitudes());

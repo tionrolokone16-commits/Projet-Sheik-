@@ -180,6 +180,24 @@ class ReglagesScreen extends StatelessWidget {
                           ],
                         ),
 
+                        // ----- Cycle (facultatif) -----
+                        _Section(
+                          titre: 'Mon cycle',
+                          enfants: [
+                            SwitchListTile(
+                              key: const Key('interrupteur_cycle'),
+                              secondary: const Text('🩸', style: TextStyle(fontSize: 24)),
+                              title: const Text('Suivi de cycle'),
+                              subtitle: const Text(
+                                'Noter tes jours de règles dans le journal et les voir dans le calendrier. '
+                                'Reste uniquement sur ton appareil.',
+                              ),
+                              value: r.suiviCycle,
+                              onChanged: (v) => provider.modifier(r.copyWith(suiviCycle: v)),
+                            ),
+                          ],
+                        ),
+
                         // ----- Rappels -----
                         _Section(
                           titre: 'Rappels',

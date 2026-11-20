@@ -74,7 +74,8 @@ class VueJourHabitudes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final habitudes = context.watch<HabitudesProvider>();
-    final objectifVerres = context.watch<ReglagesProvider>().reglages.objectifVerres;
+    final reglages = context.watch<ReglagesProvider>().reglages;
+    final objectifVerres = reglages.objectifVerres;
     final jour = habitudes.jour(date);
     final activitesDuJour = habitudes.activitesDu(date);
     final tenues = HabitudesService.tenues(
@@ -110,6 +111,18 @@ class VueJourHabitudes extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Suivi de cycle : seulement s'il est activé dans les réglages.
+                if (reglages.suiviCycle)
+                  _Carte(
+                    emoji: '🩸',
+                    titre: 'Mon cycle',
+                    enfant: FilterChip(
+                      key: const Key('puce_regles'),
+                      label: const Text('Jour de règles'),
+                      selected: jour.regles,
+                      onSelected: (_) => habitudes.basculerRegles(date),
+                    ),
+                  ),
                 _CarteSommeil(
                   heures: jour.sommeilHeures,
                   onChanger: (h) => habitudes.definirSommeil(date, h),

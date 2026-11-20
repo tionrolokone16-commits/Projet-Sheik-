@@ -83,6 +83,8 @@ void main() {
     await ouvrirReglages(tester);
 
     // Annuler : rien n'est effacé.
+    await tester.ensureVisible(find.byKey(const Key('bouton_tout_effacer')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('bouton_tout_effacer')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Garder mes données'));
@@ -90,6 +92,8 @@ void main() {
     expect(stockage.chargerProfil(), isNotNull);
 
     // Confirmer : retour au tout début.
+    await tester.ensureVisible(find.byKey(const Key('bouton_tout_effacer')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('bouton_tout_effacer')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('confirmer_effacement')));
@@ -110,7 +114,7 @@ void main() {
     await tester.pumpWidget(FormeDouceApp(stockage: stockage));
     await tester.pumpAndSettle();
 
-    for (final onglet in ['Poids', 'Habitudes', 'Profil', 'Accueil']) {
+    for (final onglet in ['Poids', 'Habitudes', 'Calendrier', 'Profil', 'Accueil']) {
       await tester.tap(find.text(onglet));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'onglet $onglet');

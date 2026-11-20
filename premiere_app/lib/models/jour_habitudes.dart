@@ -71,6 +71,7 @@ class JourHabitudes {
     this.repas = const {},
     this.ressentis = const {},
     this.note,
+    this.regles = false,
   });
 
   /// Nombre de verres d'eau bus.
@@ -88,13 +89,17 @@ class JourHabitudes {
   /// Petit mot libre du journal.
   final String? note;
 
+  /// Jour de règles (suivi de cycle, facultatif et désactivé par défaut).
+  final bool regles;
+
   /// Vrai si rien n'a encore été noté ce jour-là.
   bool get estVide =>
       verres == 0 &&
       sommeilHeures == null &&
       repas.isEmpty &&
       ressentis.isEmpty &&
-      (note == null || note!.isEmpty);
+      (note == null || note!.isEmpty) &&
+      !regles;
 
   JourHabitudes copyWith({
     int? verres,
@@ -103,6 +108,7 @@ class JourHabitudes {
     Set<Repas>? repas,
     Map<Ressenti, int>? ressentis,
     String? note,
+    bool? regles,
   }) {
     return JourHabitudes(
       verres: verres ?? this.verres,
@@ -110,6 +116,7 @@ class JourHabitudes {
       repas: repas ?? this.repas,
       ressentis: ressentis ?? this.ressentis,
       note: note ?? this.note,
+      regles: regles ?? this.regles,
     );
   }
 
@@ -119,6 +126,7 @@ class JourHabitudes {
     'repas': [for (final r in repas) r.name],
     'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
     if (note != null && note!.isNotEmpty) 'note': note,
+    if (regles) 'regles': true,
   };
 
   factory JourHabitudes.fromJson(Map<String, dynamic> json) {
@@ -140,6 +148,7 @@ class JourHabitudes {
       repas: repas,
       ressentis: ressentis,
       note: json['note'] as String?,
+      regles: json['regles'] as bool? ?? false,
     );
   }
 }
