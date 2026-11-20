@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Logo de l'application (« K. » blanc sur fond framboise), aux coins arrondis
+/// Logo de l'application (fleur blanche sur dégradé framboise), aux coins arrondis
 /// comme une icône d'iPhone. Image générée par tool/generer_icones_test.dart.
 class LogoKira extends StatelessWidget {
   const LogoKira({super.key, this.taille = 96});
