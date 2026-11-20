@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 import '../models/exercice.dart';
 import '../models/jour_habitudes.dart';
 import '../providers/habitudes_provider.dart';
+import '../providers/reglages_provider.dart';
 import '../services/exercices_service.dart';
+import '../services/journal_service.dart';
 import '../widgets/figure_exercice.dart';
 import '../widgets/selecteur_ressenti.dart';
 import 'seance_screen.dart';
@@ -18,15 +20,6 @@ class ExercicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final habitudes = context.watch<HabitudesProvider>();
-    final aujourdhui = DateTime.now();
-    final ressentis = habitudes.jour(aujourdhui).ressentis;
-    // Proposition selon l'énergie et le stress du jour, jamais selon les repas.
-    final proposition = ExercicesService.proposer(
-      energie: ressentis[Ressenti.energie],
-      stress: ressentis[Ressenti.stress],
-    );
-
     return Scaffold(
       appBar: AppBar(title: const Text('Bouger pour le plaisir')),
       body: SafeArea(
@@ -44,49 +37,9 @@ class ExercicesScreen extends StatelessWidget {
                         const SizedBox(height: 12),
 
                         // ----- Pour toi aujourd'hui -----
-                        Card(
-                          key: const Key('carte_proposition'),
-                          color: theme.colorScheme.primaryContainer,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Pour toi aujourd\'hui',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: theme.colorScheme.onPrimaryContainer,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                if (proposition == null) ...[
-                                  Text(
-                                    'Comment est ton énergie ? Je te propose une séance adaptée.',
-                                    style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  SelecteurRessenti(
-                                    ressenti: Ressenti.energie,
-                                    valeur: null,
-                                    onChoisir: (v) =>
-                                        habitudes.definirRessenti(aujourdhui, Ressenti.energie, v),
-                                  ),
-                                ] else ...[
-                                  Text(
-                                    proposition.raison,
-                                    style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  _CarteSeance(
-                                    seance: proposition.seance,
-                                    cle: const Key('seance_proposee'),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
+                        CartePropositionSeance(date: DateTime.now()),
+                        const SizedBox(height: 8),
+                        const _CartePlanning(),
                         const SizedBox(height: 8),
 
                         // ----- Séances guidées -----
@@ -120,6 +73,170 @@ class ExercicesScreen extends StatelessWidget {
                       .animate(interval: 50.ms)
                       .fadeIn(duration: 300.ms)
                       .slideY(begin: 0.05, curve: Curves.easeOutCubic),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// « Pour toi aujourd'hui » : une séance proposée selon le planning,
+/// l'énergie, le stress et l'humeur du jour. Jamais selon les repas.
+class CartePropositionSeance extends StatelessWidget {
+  const CartePropositionSeance({super.key, required this.date});
+
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final couleur = theme.colorScheme.onPrimaryContainer;
+    final habitudes = context.watch<HabitudesProvider>();
+    final joursSeance = context.watch<ReglagesProvider>().reglages.joursSeance;
+    final jour = habitudes.jour(date);
+    final proposition = ExercicesService.proposerDuJour(
+      date: date,
+      joursSeance: joursSeance,
+      energie: jour.ressentis[Ressenti.energie],
+      stress: jour.ressentis[Ressenti.stress],
+      humeur: JournalService.humeur(jour),
+      dejaBouge: jour.seanceFaite || habitudes.activitesDu(date).isNotEmpty,
+    );
+
+    return Card(
+      key: const Key('carte_proposition'),
+      color: theme.colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Pour toi aujourd\'hui',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: couleur,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              proposition.raison,
+              key: const Key('raison_proposition'),
+              style: TextStyle(color: couleur),
+            ),
+            const SizedBox(height: 8),
+            if (proposition.seance case final seance?)
+              _CarteSeance(seance: seance, cle: const Key('seance_proposee'))
+            else
+              SelecteurRessenti(
+                ressenti: Ressenti.energie,
+                valeur: null,
+                onChoisir: (v) => habitudes.definirRessenti(date, Ressenti.energie, v),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Planning de la semaine : les jours où l'on aimerait faire sa séance.
+class _CartePlanning extends StatelessWidget {
+  const _CartePlanning();
+
+  static const _initiales = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  static const _noms = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final reglagesProvider = context.watch<ReglagesProvider>();
+    final reglages = reglagesProvider.reglages;
+    final jours = reglages.joursSeance;
+    return Card(
+      key: const Key('carte_planning'),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '📅 Mes jours de séance',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Choisis les jours qui te conviennent. Ce n\'est qu\'un repère : '
+              'tu restes libre de changer d\'avis.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                for (var j = 1; j <= 7; j++)
+                  Semantics(
+                    label: _noms[j - 1],
+                    selected: jours.contains(j),
+                    button: true,
+                    excludeSemantics: true,
+                    child: _PastilleJour(
+                      key: Key('jour_seance_$j'),
+                      lettre: _initiales[j - 1],
+                      choisi: jours.contains(j),
+                      onTap: () {
+                        final nouveaux = {...jours};
+                        if (!nouveaux.remove(j)) nouveaux.add(j);
+                        reglagesProvider.modifier(reglages.copyWith(joursSeance: nouveaux));
+                      },
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              jours.isEmpty
+                  ? 'Aucun jour choisi : je te propose une séance selon ton énergie.'
+                  : '${jours.length} séance${jours.length > 1 ? 's' : ''} par semaine, '
+                        'à ton rythme 🌸',
+              key: const Key('resume_planning'),
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Une lettre du jour, à toucher pour l'ajouter au planning.
+class _PastilleJour extends StatelessWidget {
+  const _PastilleJour({super.key, required this.lettre, required this.choisi, required this.onTap});
+
+  final String lettre;
+  final bool choisi;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final couleurs = Theme.of(context).colorScheme;
+    return Material(
+      color: choisi ? couleurs.primary : couleurs.surfaceContainerHigh,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Center(
+            child: Text(
+              lettre,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: choisi ? couleurs.onPrimary : couleurs.onSurface,
+              ),
             ),
           ),
         ),

@@ -22,6 +22,7 @@ class Reglages {
     this.heureDejeuner = 13 * 60,
     this.heureDiner = 20 * 60,
     this.suiviCycle = false,
+    this.joursSeance = const {},
   });
 
   /// Si vrai, le poids n'apparaît pas sur l'écran d'accueil.
@@ -43,6 +44,10 @@ class Reglages {
   /// Suivi de cycle (jours de règles) : facultatif, désactivé par défaut.
   final bool suiviCycle;
 
+  /// Jours de séance prévus dans la semaine (1 = lundi … 7 = dimanche).
+  /// Vide : pas de planning, la séance est proposée selon l'énergie seule.
+  final Set<int> joursSeance;
+
   Reglages copyWith({
     bool? masquerPoidsAccueil,
     int? objectifVerres,
@@ -52,6 +57,7 @@ class Reglages {
     int? heureDejeuner,
     int? heureDiner,
     bool? suiviCycle,
+    Set<int>? joursSeance,
   }) => Reglages(
     masquerPoidsAccueil: masquerPoidsAccueil ?? this.masquerPoidsAccueil,
     objectifVerres: objectifVerres ?? this.objectifVerres,
@@ -61,6 +67,7 @@ class Reglages {
     heureDejeuner: heureDejeuner ?? this.heureDejeuner,
     heureDiner: heureDiner ?? this.heureDiner,
     suiviCycle: suiviCycle ?? this.suiviCycle,
+    joursSeance: joursSeance ?? this.joursSeance,
   );
 
   Map<String, dynamic> toJson() => {
@@ -72,6 +79,7 @@ class Reglages {
     'heureDejeuner': heureDejeuner,
     'heureDiner': heureDiner,
     'suiviCycle': suiviCycle,
+    'joursSeance': [...joursSeance]..sort(),
   };
 
   factory Reglages.fromJson(Map<String, dynamic> json) => Reglages(
@@ -83,5 +91,9 @@ class Reglages {
     heureDejeuner: (json['heureDejeuner'] as num?)?.toInt() ?? 13 * 60,
     heureDiner: (json['heureDiner'] as num?)?.toInt() ?? 20 * 60,
     suiviCycle: json['suiviCycle'] as bool? ?? false,
+    joursSeance: {
+      for (final j in (json['joursSeance'] as List? ?? const []))
+        if (j is num && j >= 1 && j <= 7) j.toInt(),
+    },
   );
 }

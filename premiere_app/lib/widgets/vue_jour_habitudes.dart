@@ -207,6 +207,8 @@ class VueJourHabitudes extends StatelessWidget {
                   onAjouter: () => _noterActivite(context),
                   onSupprimer: (a) => _supprimerActivite(context, a),
                 ),
+                // Séance du jour proposée (planning, énergie, humeur ; jamais les repas).
+                if (_estAujourdhui) CartePropositionSeance(date: date),
                 _CarteNote(
                   key: ValueKey('note-${cleDuJour(date)}'),
                   note: jour.note ?? '',

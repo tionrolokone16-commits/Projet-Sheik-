@@ -441,6 +441,50 @@ class ExercicesService {
     etapes: [EtapeSeance(e, 30)],
   );
 
+  /// Séance proposée pour une journée, selon le planning de la semaine,
+  /// l'énergie, le stress et l'humeur. Jamais selon les repas.
+  ///
+  /// `seance` est `null` quand il manque l'énergie du jour (on la demande).
+  /// Toujours une invitation, jamais une obligation.
+  static ({Seance? seance, String raison}) proposerDuJour({
+    required DateTime date,
+    required Set<int> joursSeance,
+    int? energie,
+    int? stress,
+    double? humeur,
+    bool dejaBouge = false,
+  }) {
+    if (dejaBouge) {
+      return (
+        seance: detente,
+        raison: 'Tu as déjà bougé aujourd\'hui, bravo 🌸 Si l\'envie est là, un moment de détente.',
+      );
+    }
+    final avecPlanning = joursSeance.isNotEmpty;
+    final prevu = joursSeance.contains(date.weekday);
+    if (avecPlanning && !prevu) {
+      return (
+        seance: detente,
+        raison: 'Pas de séance prévue aujourd\'hui : repos ou petite détente, comme tu le sens 🌿',
+      );
+    }
+    final entree = prevu ? 'C\'est un de tes jours de séance 📅 ' : '';
+    if (energie == null) {
+      return (
+        seance: null,
+        raison: '${entree}Comment est ton énergie ? Je te propose une séance adaptée.',
+      );
+    }
+    final base = proposer(energie: energie, stress: stress)!;
+    if (humeur != null && humeur < 2.5 && base.seance != detente) {
+      return (
+        seance: detente,
+        raison: '${entree}Le moral est un peu bas : un moment doux pour prendre soin de toi 🌿',
+      );
+    }
+    return (seance: base.seance, raison: '$entree${base.raison}');
+  }
+
   /// Séance proposée selon l'énergie et le stress du jour (de 1 à 5).
   /// Jamais selon les repas. Renvoie `null` si l'énergie n'est pas notée.
   static ({Seance seance, String raison})? proposer({int? energie, int? stress}) {
