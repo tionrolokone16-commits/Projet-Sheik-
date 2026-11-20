@@ -61,7 +61,8 @@ class _PlanteState extends State<Plante> with SingleTickerProviderStateMixin {
               // Oscillation amortie : forte au début, nulle à la fin.
               final angle = math.sin(t * math.pi * 5) * 0.09 * (1 - t);
               return CustomPaint(
-                size: const Size(220, 230),
+                // La zone grandit avec la plante : pas de grand vide au stade graine.
+                size: Size(220, 110 + 130 * (niveau / 4).clamp(0.0, 1.0)),
                 painter: _PeintrePlante(
                   niveau: niveau,
                   fleursBonus: widget.fleursBonus,
