@@ -63,6 +63,25 @@ enum Ressenti implements Echelle {
   bool get hautEstAgreable => this != stress;
 }
 
+/// Confort digestif, noté à part : il ne compte pas dans l'humeur du jour.
+enum Digestion implements Echelle {
+  digestion(
+    'Digestion',
+    ['😣', '😕', '😐', '🙂', '😌'],
+    ['Très inconfortable', 'Un peu inconfortable', 'Correcte', 'Bonne', 'Toute légère'],
+  );
+
+  const Digestion(this.libelle, this.emojis, this.descriptions);
+  @override
+  final String libelle;
+
+  @override
+  final List<String> emojis;
+
+  @override
+  final List<String> descriptions;
+}
+
 /// Tout ce qui est noté pour une journée : eau, sommeil, repas, ressentis.
 class JourHabitudes {
   const JourHabitudes({
@@ -72,6 +91,9 @@ class JourHabitudes {
     this.ressentis = const {},
     this.note,
     this.regles = false,
+    this.pas,
+    this.digestion,
+    this.seanceFaite = false,
   });
 
   /// Nombre de verres d'eau bus.
@@ -92,6 +114,15 @@ class JourHabitudes {
   /// Jour de règles (suivi de cycle, facultatif et désactivé par défaut).
   final bool regles;
 
+  /// Nombre de pas, recopié depuis le téléphone (`null` si non noté).
+  final int? pas;
+
+  /// Confort digestif de 1 à 5 (`null` si non noté).
+  final int? digestion;
+
+  /// Séance de sport faite ce jour-là (cochée en un geste).
+  final bool seanceFaite;
+
   /// Vrai si rien n'a encore été noté ce jour-là.
   bool get estVide =>
       verres == 0 &&
@@ -99,7 +130,10 @@ class JourHabitudes {
       repas.isEmpty &&
       ressentis.isEmpty &&
       (note == null || note!.isEmpty) &&
-      !regles;
+      !regles &&
+      pas == null &&
+      digestion == null &&
+      !seanceFaite;
 
   JourHabitudes copyWith({
     int? verres,
@@ -109,6 +143,11 @@ class JourHabitudes {
     Map<Ressenti, int>? ressentis,
     String? note,
     bool? regles,
+    int? pas,
+    bool effacerPas = false,
+    int? digestion,
+    bool effacerDigestion = false,
+    bool? seanceFaite,
   }) {
     return JourHabitudes(
       verres: verres ?? this.verres,
@@ -117,6 +156,9 @@ class JourHabitudes {
       ressentis: ressentis ?? this.ressentis,
       note: note ?? this.note,
       regles: regles ?? this.regles,
+      pas: effacerPas ? null : (pas ?? this.pas),
+      digestion: effacerDigestion ? null : (digestion ?? this.digestion),
+      seanceFaite: seanceFaite ?? this.seanceFaite,
     );
   }
 
@@ -127,6 +169,9 @@ class JourHabitudes {
     'ressentis': {for (final e in ressentis.entries) e.key.name: e.value},
     if (note != null && note!.isNotEmpty) 'note': note,
     if (regles) 'regles': true,
+    if (pas != null) 'pas': pas,
+    if (digestion != null) 'digestion': digestion,
+    if (seanceFaite) 'seanceFaite': true,
   };
 
   factory JourHabitudes.fromJson(Map<String, dynamic> json) {
@@ -149,6 +194,9 @@ class JourHabitudes {
       ressentis: ressentis,
       note: json['note'] as String?,
       regles: json['regles'] as bool? ?? false,
+      pas: (json['pas'] as num?)?.toInt(),
+      digestion: (json['digestion'] as num?)?.toInt(),
+      seanceFaite: json['seanceFaite'] as bool? ?? false,
     );
   }
 }

@@ -289,7 +289,7 @@ class _Legende extends StatelessWidget {
               children: [
                 const Text('🍽️ repas notés'),
                 const Text('💧 eau'),
-                const Text('🏃🏾‍♀️ activité'),
+                const Text('🏃🏾‍♀️ mouvement (activité, séance, 5 000 pas)'),
                 const Text('🙂 humeur'),
                 const Text('🌸 repas plaisir'),
                 if (suiviCycle) const Text('🩸 règles'),

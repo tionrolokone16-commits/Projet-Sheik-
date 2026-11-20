@@ -195,6 +195,21 @@ class HabitudesProvider extends ChangeNotifier {
   Future<void> basculerRegles(DateTime date) =>
       _modifier(date, (j) => j.copyWith(regles: !j.regles));
 
+  /// Note le nombre de pas (`null` l'efface).
+  Future<void> definirPas(DateTime date, int? pas) =>
+      _modifier(date, (j) => j.copyWith(pas: pas, effacerPas: pas == null));
+
+  /// Note le confort digestif de 1 à 5. Toucher à nouveau la même valeur l'efface.
+  Future<void> definirDigestion(DateTime date, int valeur) => _modifier(
+    date,
+    (j) =>
+        j.digestion == valeur ? j.copyWith(effacerDigestion: true) : j.copyWith(digestion: valeur),
+  );
+
+  /// Coche ou décoche « séance faite ».
+  Future<void> basculerSeanceFaite(DateTime date) =>
+      _modifier(date, (j) => j.copyWith(seanceFaite: !j.seanceFaite));
+
   Future<void> _modifier(DateTime date, JourHabitudes Function(JourHabitudes) changement) async {
     final cle = cleDuJour(date);
     final nouveau = changement(_journal[cle] ?? const JourHabitudes());

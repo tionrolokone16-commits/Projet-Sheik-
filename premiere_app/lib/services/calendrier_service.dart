@@ -72,7 +72,7 @@ class CalendrierService {
       ).length,
       repasNotes: repasDuJour.isNotEmpty || jour.repas.isNotEmpty,
       eau: jour.verres > 0,
-      activite: activitesDuJour.isNotEmpty,
+      activite: HabitudesService.enMouvement(jour, activitesDuJour),
       humeur: humeur == null ? null : emojisHumeur[(humeur.round() - 1).clamp(0, 4)],
       plaisir: repasDuJour.any((r) => (r.ressentis[RessentiRepas.plaisir] ?? 0) >= 4),
       regles: suiviCycle && jour.regles,

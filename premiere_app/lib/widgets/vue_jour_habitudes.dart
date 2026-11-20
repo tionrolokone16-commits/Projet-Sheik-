@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
@@ -39,6 +40,10 @@ class VueJourHabitudes extends StatelessWidget {
   /// sinon midi du jour affiché.
   DateTime get _dateActivite =>
       _estAujourdhui ? DateTime.now() : DateTime(date.year, date.month, date.day, 12);
+
+  /// Premier repas principal pas encore noté ce jour-là (le dîner sinon).
+  static Repas _premierRepasManquant(JourHabitudes jour) =>
+      Repas.principaux.firstWhere((r) => !jour.repas.contains(r), orElse: () => Repas.diner);
 
   Future<void> _noterActivite(BuildContext context) async {
     final habitudes = context.read<HabitudesProvider>();
@@ -88,10 +93,11 @@ class VueJourHabitudes extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children:
           [
-                _CarteResume(tenues: tenues),
+                _CarteResume(tenues: tenues, aujourdhui: _estAujourdhui),
                 _CarteEau(
                   verres: jour.verres,
                   objectif: objectifVerres,
+                  aujourdhui: _estAujourdhui,
                   onAjouter: () => habitudes.ajouterVerre(date),
                   onRetirer: () => habitudes.retirerVerre(date),
                 ),
@@ -106,8 +112,15 @@ class VueJourHabitudes extends StatelessWidget {
                           valeur: jour.ressentis[r],
                           onChoisir: (v) => habitudes.definirRessenti(date, r, v),
                         ),
-                        if (r != Ressenti.values.last) const SizedBox(height: 14),
+                        const SizedBox(height: 14),
                       ],
+                      // La digestion est notée à part : elle ne change pas l'humeur.
+                      SelecteurRessenti(
+                        key: const Key('selecteur_digestion'),
+                        ressenti: Digestion.digestion,
+                        valeur: jour.digestion,
+                        onChoisir: (v) => habitudes.definirDigestion(date, v),
+                      ),
                     ],
                   ),
                 ),
@@ -158,20 +171,38 @@ class VueJourHabitudes extends StatelessWidget {
                           repas: r,
                           onSupprimer: () => habitudes.supprimerRepasPhoto(r.id),
                         ),
+                      if (!_estAujourdhui) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Un repas oublié ? Tu peux encore le noter ici, '
+                          'il rejoindra ce jour-là 💗',
+                          key: const Key('aide_repas_oublie'),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
                       const SizedBox(height: 12),
                       OutlinedButton.icon(
                         key: const Key('bouton_noter_repas'),
-                        onPressed: () => Navigator.of(
-                          context,
-                        ).push(MaterialPageRoute(builder: (_) => AjouterRepasScreen(date: date))),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => AjouterRepasScreen(
+                              date: date,
+                              // Pour un jour passé : le premier repas pas encore noté.
+                              moment: _estAujourdhui ? null : _premierRepasManquant(jour),
+                            ),
+                          ),
+                        ),
                         icon: const Icon(Icons.restaurant_rounded),
                         label: const Text('Noter un repas'),
                       ),
                     ],
                   ),
                 ),
+                _CartePas(pas: jour.pas, onChanger: (p) => habitudes.definirPas(date, p)),
                 _CarteActivite(
                   activitesDuJour: activitesDuJour,
+                  seanceFaite: jour.seanceFaite,
+                  onBasculerSeance: () => habitudes.basculerSeanceFaite(date),
                   derniere: habitudes.derniereActivite,
                   onAjouter: () => _noterActivite(context),
                   onSupprimer: (a) => _supprimerActivite(context, a),
@@ -232,7 +263,9 @@ class _Carte extends StatelessWidget {
 /// Résumé : les 4 habitudes, allumées quand elles sont tenues.
 /// Une habitude non tenue reste simplement neutre (jamais rouge).
 class _CarteResume extends StatelessWidget {
-  const _CarteResume({required this.tenues});
+  const _CarteResume({required this.tenues, required this.aujourdhui});
+
+  final bool aujourdhui;
 
   final Set<Habitude> tenues;
 
@@ -248,7 +281,7 @@ class _CarteResume extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              HabitudesService.message(tenues.length),
+              HabitudesService.message(tenues.length, aujourdhui: aujourdhui),
               style: theme.textTheme.titleMedium?.copyWith(
                 color: couleurs.onPrimaryContainer,
                 fontWeight: FontWeight.w700,
@@ -335,12 +368,14 @@ class _CarteEau extends StatelessWidget {
   const _CarteEau({
     required this.verres,
     required this.objectif,
+    required this.aujourdhui,
     required this.onAjouter,
     required this.onRetirer,
   });
 
   final int verres;
   final int objectif;
+  final bool aujourdhui;
   final VoidCallback onAjouter;
   final VoidCallback onRetirer;
 
@@ -367,7 +402,10 @@ class _CarteEau extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                Text('verres aujourd\'hui', style: theme.textTheme.bodyMedium),
+                Text(
+                  aujourdhui ? 'verres aujourd\'hui' : 'verres ce jour-là',
+                  style: theme.textTheme.bodyMedium,
+                ),
                 const SizedBox(height: 12),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
@@ -452,16 +490,124 @@ class _CarteSommeilState extends State<_CarteSommeil> {
   }
 }
 
+/// Fenêtre de saisie du nombre de pas (elle gère elle-même son champ).
+class _DialoguePas extends StatefulWidget {
+  const _DialoguePas({required this.initial});
+
+  final int? initial;
+
+  @override
+  State<_DialoguePas> createState() => _DialoguePasState();
+}
+
+class _DialoguePasState extends State<_DialoguePas> {
+  late final _champ = TextEditingController(text: widget.initial?.toString() ?? '');
+
+  @override
+  void dispose() {
+    _champ.dispose();
+    super.dispose();
+  }
+
+  void _valider() {
+    final n = int.tryParse(_champ.text);
+    if (n != null) Navigator.of(context).pop(n.clamp(0, 100000));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('👣 Mes pas'),
+      content: TextField(
+        key: const Key('champ_pas'),
+        controller: _champ,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: const InputDecoration(hintText: 'Par exemple 6500'),
+        onSubmitted: (_) => _valider(),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Annuler')),
+        FilledButton(
+          key: const Key('valider_pas'),
+          onPressed: _valider,
+          child: const Text('Enregistrer'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Carte des pas : le nombre est recopié depuis le téléphone
+/// (Safari ne peut pas lire le podomètre).
+class _CartePas extends StatelessWidget {
+  const _CartePas({required this.pas, required this.onChanger});
+
+  final int? pas;
+  final ValueChanged<int?> onChanger;
+
+  Future<void> _saisir(BuildContext context) async {
+    final resultat = await showDialog<int>(
+      context: context,
+      builder: (_) => _DialoguePas(initial: pas),
+    );
+    if (resultat != null) onChanger(resultat);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return _Carte(
+      emoji: '👣',
+      titre: 'Mes pas',
+      enfant: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                pas == null ? 'Pas encore notés' : HabitudesService.formaterPas(pas!),
+                key: const Key('compteur_pas'),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const Spacer(),
+              if (pas != null)
+                TextButton(onPressed: () => onChanger(null), child: const Text('Effacer')),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(HabitudesService.messagePas(pas), style: theme.textTheme.bodySmall),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            key: const Key('bouton_noter_pas'),
+            onPressed: () => _saisir(context),
+            icon: const Icon(Icons.directions_walk_rounded),
+            label: Text(pas == null ? 'Noter mes pas' : 'Modifier'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Carte des activités du jour (ou rappel de la dernière activité).
 class _CarteActivite extends StatelessWidget {
   const _CarteActivite({
     required this.activitesDuJour,
+    required this.seanceFaite,
+    required this.onBasculerSeance,
     required this.derniere,
     required this.onAjouter,
     required this.onSupprimer,
   });
 
   final List<Activite> activitesDuJour;
+  final bool seanceFaite;
+  final VoidCallback onBasculerSeance;
   final Activite? derniere;
   final VoidCallback onAjouter;
   final ValueChanged<Activite> onSupprimer;
@@ -511,6 +657,19 @@ class _CarteActivite extends StatelessWidget {
               ),
           ],
           const SizedBox(height: 12),
+          // Un seul geste pour dire « c'est fait ».
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FilterChip(
+              key: const Key('puce_seance_faite'),
+              avatar: const Text('✅'),
+              label: Text(seanceFaite ? 'Séance faite, bravo !' : 'J\'ai fait ma séance'),
+              selected: seanceFaite,
+              showCheckmark: false,
+              onSelected: (_) => onBasculerSeance(),
+            ),
+          ),
+          const SizedBox(height: 8),
           OutlinedButton.icon(
             key: const Key('bouton_noter_activite'),
             onPressed: onAjouter,
